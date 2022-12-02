@@ -1,11 +1,9 @@
-import fs from  'fs';
+import fs from 'fs';
 
 // https://adventofcode.com/2022/day/1
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
-
-run(testInput);
 
 console.log('test OK: ', run(testInput) === 24000);
 console.log('answer: ', run(inputData));
