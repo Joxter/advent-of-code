@@ -1,30 +1,3 @@
-
-/*
-
-[H]                 [Z]         [J]
-[L]     [W] [B]     [G]         [R]
-[R]     [G] [S]     [J] [H]     [Q]
-[F]     [N] [T] [J] [P] [R]     [F]
-[B]     [C] [M] [R] [Q] [F] [G] [P]
-[C] [D] [F] [D] [D] [D] [T] [M] [G]
-[J] [C] [J] [J] [C] [L] [Z] [V] [B]
-[M] [Z] [H] [P] [N] [W] [P] [L] [C]
- 1   2   3   4   5   6   7   8   9
-*/
-let state = [
-  [],
-  // top ---------------- down
-  ['H', 'L', 'R', 'F', 'B', 'C', 'J', 'M'],
-  ['D', 'C', 'Z'],
-  ['W', 'G', 'N', 'C', 'F', 'J', 'H'],
-  ['B', 'S', 'T', 'M', 'D', 'J', 'P'],
-  ['J', 'R', 'D', 'C', 'N'],
-  ['Z', 'G', 'J', 'P', 'Q', 'D', 'L', 'W'],
-  ['H', 'R', 'F', 'T', 'Z', 'P'],
-  ['G', 'M', 'V', 'L'],
-  ['J', 'R', 'Q', 'F', 'P', 'G', 'B', 'C'],
-]
-
 let stepsStr = `move 3 from 2 to 1
 move 8 from 6 to 4
 move 4 from 8 to 2
@@ -527,22 +500,20 @@ move 10 from 4 to 3
 move 16 from 1 to 5
 move 5 from 1 to 2
 move 6 from 3 to 7
-move 5 from 4 to 8`
-
-// move 3 from 2 to 1
+move 5 from 4 to 8`;
 
 let steps = stepsStr
   .split('\n')
   .map(line => {
-    return line.split(/\D+/).filter(it => !!it).map((it) => +it)
-  })
+    return line.split(/\D+/).filter(it => !!it).map((it) => +it);
+  });
 
-part1();
+console.log(part1());
+console.log(part2());
 
 function part1() {
   let state = [
     [],
-    // top ---------------- down
     ['H', 'L', 'R', 'F', 'B', 'C', 'J', 'M'],
     ['D', 'C', 'Z'],
     ['W', 'G', 'N', 'C', 'F', 'J', 'H'],
@@ -552,15 +523,36 @@ function part1() {
     ['H', 'R', 'F', 'T', 'Z', 'P'],
     ['G', 'M', 'V', 'L'],
     ['J', 'R', 'Q', 'F', 'P', 'G', 'B', 'C'],
-  ]
+  ];
 
-  steps.forEach(([crates, from ,to])=> {
-    let taken = state[from].slice(0, crates)
-    state[from] = state[from].slice(crates)
-    state[to] = [ ...taken, ...state[to]]
-  })
+  steps.forEach(([crates, from, to]) => {
+    let taken = state[from].slice(0, crates).reverse();
+    state[from] = state[from].slice(crates);
+    state[to] = [...taken, ...state[to]];
+  });
 
-  console.log(state.map((row) => row[0] || '').join(''))
+  return state.map((row) => row[0]).join('');
+}
 
-  return ''
+function part2() {
+  let state = [
+    [],
+    ['H', 'L', 'R', 'F', 'B', 'C', 'J', 'M'],
+    ['D', 'C', 'Z'],
+    ['W', 'G', 'N', 'C', 'F', 'J', 'H'],
+    ['B', 'S', 'T', 'M', 'D', 'J', 'P'],
+    ['J', 'R', 'D', 'C', 'N'],
+    ['Z', 'G', 'J', 'P', 'Q', 'D', 'L', 'W'],
+    ['H', 'R', 'F', 'T', 'Z', 'P'],
+    ['G', 'M', 'V', 'L'],
+    ['J', 'R', 'Q', 'F', 'P', 'G', 'B', 'C'],
+  ];
+
+  steps.forEach(([crates, from, to]) => {
+    let taken = state[from].slice(0, crates);
+    state[from] = state[from].slice(crates);
+    state[to] = [...taken, ...state[to]];
+  });
+
+  return state.map((row) => row[0]).join('');
 }
