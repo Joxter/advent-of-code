@@ -1,5 +1,7 @@
 import fs from 'fs';
 
+// https://adventofcode.com/2022/day/7
+
 let input = fs.readFileSync('./input.txt').toString();
 
 let folders = {};
