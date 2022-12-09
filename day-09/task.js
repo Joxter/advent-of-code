@@ -8,11 +8,19 @@ let inputData = fs.readFileSync('./input.txt').toString();
 console.log('test OK: ', part1(testInput) === 13);
 console.log('answer: ', part1(inputData));
 
-console.log('test_actual OK: ', part1_correct_approach_actually(testInput, 1) === 13);
-console.log('answer_actual: ', part1_correct_approach_actually(inputData, 1));
+console.log('test_actual OK: ', part1_correct(testInput, 1) === 13);
+console.log('answer_actual: ', part1_correct(inputData, 1));
 
-// console.log('test2 OK: ', part2(testInput) === 8);
-// console.log('answer2: ', part2(inputData));
+let test2Input = `R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20`;
+console.log('test2 OK: ', part2(test2Input) === 36);
+console.log('answer2: ', part2(inputData)); // 491 is wrong????
 
 function part1(inp) {
   let head = [0, 0]; // x, y
@@ -46,7 +54,15 @@ function part1(inp) {
   return history.size;
 }
 
-function part1_correct_approach_actually(inp, ropeLen) {
+function part1_correct(inp) {
+  return correct_approach_actually(inp, 1);
+}
+
+function part2(inp) {
+  return correct_approach_actually(inp, 9);
+}
+
+function correct_approach_actually(inp, ropeLen) {
   let history = new Set();
   let rope = Array.from({length: ropeLen + 1}, () => {
     return [0, 0];
@@ -64,16 +80,11 @@ function part1_correct_approach_actually(inp, ropeLen) {
       for (let i = 1; i < rope.length; i++) {
         rope[i] = follow(rope[i], rope[i - 1]);
       }
-      // console.log(rope[ropeLen]);
       history.add(rope[ropeLen].join(','));
     }
   });
 
   return history.size;
-}
-
-function part2(inp) {
-  // WTF???
 }
 
 function lengthBetween(a, b) {
