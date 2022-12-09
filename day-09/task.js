@@ -20,7 +20,7 @@ D 10
 L 25
 U 20`;
 console.log('test2 OK: ', part2(test2Input) === 36);
-console.log('answer2: ', part2(inputData)); // 491 is wrong????
+console.log('answer2: ', part2(inputData), 2619); // 491 is wrong???? correct 2619 O_o
 
 function part1(inp) {
   let head = [0, 0]; // x, y
@@ -83,6 +83,7 @@ function correct_approach_actually(inp, ropeLen) {
       history.add(rope[ropeLen].join(','));
     }
   });
+  // renderHistory(13, 30, [5, 11], history)
 
   return history.size;
 }
@@ -117,4 +118,26 @@ function follow(a, b) {
   }
 
   return res;
+}
+
+function renderHistory(height, width, focus, history) {
+  let field = Array.from({length: height}, () => {
+    return Array.from({length: width}, () => {
+      return '.';
+    });
+  });
+
+  history.forEach((cell) => {
+    const [x, y] = cell.split(',').map(it => +it)
+
+    if (field[x + focus[0]] && field[x + focus[0]][y + focus[1]]) {
+      field[x + focus[0]][y + focus[1]] = '#'
+    }
+  })
+
+  field.reverse();
+
+  field.forEach((row) => {
+    console.log(row.join(''));
+  })
 }
