@@ -22,6 +22,9 @@ console.log('answer2:\n' + res);
 ###...##..#....#..#.#..#.#..#.#.....##..
 */
 
+console.log('clean part1 OK:', part1(inputData) === part1_clean(inputData));
+console.log('clean part2 OK:', part2(inputData) === part2_clean(inputData));
+
 function part1(inp) {
   let commands = [];
   let result = 0;
@@ -38,22 +41,22 @@ function part1(inp) {
   let i = 0;
 
   while (i < 19) xValue += commands[i++];
-  result += (20 * xValue);
+  result += 20 * xValue;
 
   while (i < 59) xValue += commands[i++];
-  result += (60 * xValue);
+  result += 60 * xValue;
 
   while (i < 99) xValue += commands[i++];
-  result += (100 * xValue);
+  result += 100 * xValue;
 
   while (i < 139) xValue += commands[i++];
-  result += (140 * xValue);
+  result += 140 * xValue;
 
   while (i < 179) xValue += commands[i++];
-  result += (180 * xValue);
+  result += 180 * xValue;
 
   while (i < 219) xValue += commands[i++];
-  result += (220 * xValue);
+  result += 220 * xValue;
 
   return result;
 }
@@ -118,4 +121,56 @@ function part2(inp) {
   }
 
   return result;
+}
+
+function part1_clean(inp) {
+  let commands = parseCommands(inp);
+  const signalStrength = [20, 60, 100, 140, 180, 220];
+
+  let xValue = 1;
+  let tick = 0;
+  let result = 0;
+
+  signalStrength.forEach((strength) => {
+    while (tick < (strength - 1)) xValue += commands[tick++];
+    result += strength * xValue;
+  });
+
+  return result;
+}
+
+function part2_clean(inp) {
+  let commands = parseCommands(inp);
+  const signalStrength = [40, 80, 120, 160, 200, 240];
+
+  let xValue = 1;
+  let tick = 0;
+  let resultLines = [];
+
+  signalStrength.forEach((strength) => {
+    let resLine = '';
+    for (let i = strength - 40; i < strength; i++) {
+      resLine += i - 1 <= xValue && i + 1 >= xValue ? '#' : '.';
+      xValue += commands[tick++];
+    }
+
+    xValue += 40;
+    resultLines.push(resLine);
+  });
+
+  return resultLines.join('\n');
+}
+
+function parseCommands(inp) {
+  let commands = [];
+  inp.split('\n').map((line) => {
+    let [command, value] = line.split(' ');
+    if (command === 'addx') {
+      commands.push(0, +value);
+    } else {
+      commands.push(0);
+    }
+  });
+
+  return commands;
 }
