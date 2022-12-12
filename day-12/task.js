@@ -6,13 +6,13 @@ let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
 console.log('test OK: ', part1(testInput) === 31);
-console.log('answer: ', part1(inputData));
+console.log('answer: ', part1(inputData), [497]);
 
 console.log('test2 OK:', part2(testInput) === 29);
-console.log('answer2:', part2(inputData));
+console.log('answer2:', part2(inputData), [492]);
 
 function part1(inp) {
-  let heightMap = Object.fromEntries('SabcdefghijklmnopqrstuvwxyzE'
+  let heightMap = Object.fromEntries('abcdefghijklmnopqrstuvwxyz'
     .split('')
     .map((char, i) => [char, i]));
   heightMap['S'] = heightMap['a'];
@@ -23,7 +23,7 @@ function part1(inp) {
 }
 
 function part2(inp) {
-  let heightMap = Object.fromEntries('Ezyxwvutsrqponmlkjihgfedcba'
+  let heightMap = Object.fromEntries('zyxwvutsrqponmlkjihgfedcba'
     .split('')
     .map((char, i) => [char, i]));
   heightMap['E'] = heightMap['z'];
