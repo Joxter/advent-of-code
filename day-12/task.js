@@ -5,45 +5,58 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-// console.log('test OK: ', part1(testInput, [0, 0]) === 31, [31]);
-console.log('answer: ', part1(inputData, [20, 0]), [497]);
+console.log('test OK: ', part1(testInput) === 31);
+console.log('answer: ', part1(inputData));
 
-// console.log('test2 OK:', part2(testInput, [4, 0]) === 29, [29]);
-console.log('answer2:', part2(inputData, [20, 0]), [492]);
+console.log('test2 OK:', part2(testInput) === 29);
+console.log('answer2:', part2(inputData));
 
-function part1(inp, startPosition) {
-  return findPath(inp, startPosition).length;
-}
-
-function part2(inp, startPosition) {
-  // console.log(findPath(inp, startPosition).replace('S', 'a').replace(/a+/, 'a'));
-  return findPath(inp, startPosition).replace(/a+/, 'a').length;
-}
-
-function findPath(inp, startPosition) {
-  let grid = inp.split('\n').map((line) => line.split(''));
-  let queue = [];
+function part1(inp) {
   let heightMap = Object.fromEntries('SabcdefghijklmnopqrstuvwxyzE'
     .split('')
     .map((char, i) => [char, i]));
   heightMap['S'] = heightMap['a'];
+  heightMap['E'] = heightMap['z'];
+
+  let path = findPath(inp, 'S', 'E', heightMap);
+  return path.length;
+}
+
+function part2(inp) {
+  let heightMap = Object.fromEntries('Ezyxwvutsrqponmlkjihgfedcba'
+    .split('')
+    .map((char, i) => [char, i]));
+  heightMap['E'] = heightMap['z'];
+
+  let path = findPath(inp, 'E', 'a', heightMap);
+  return path.length;
+}
+
+function findPath(inp, start, finish, heightMap) {
+  let grid = inp.split('\n').map((line) => line.split(''));
+  let queue = [];
+
+  let startPosition = [0, 0];
+  grid.forEach((row, startX) => {
+    row.forEach((char, startY) => {
+      if (char === start) {
+        startPosition = [startX, startY];
+      }
+    });
+  });
 
   let visited = new Set();
   queue.push([[...startPosition], [[...startPosition]]]);
   visited.add(startPosition.join(','));
 
-  let stop = 100_000;
-
-  while (queue.length > 0 && stop--) {
+  while (queue.length > 0) {
     let [position, path] = queue.shift();
     let currentChar = grid[position[0]][position[1]];
-    // console.log(currentChar, path.length);
 
-    if (currentChar === 'E') {
+    if (currentChar === finish) {
+      // renderPath(grid, path);
       path.pop();
-      // console.log(path.map(([x, y]) => grid[x][y]).join(''));
-      // console.log(path.map(([x, y]) => grid[x][y]).join(''), path.map(([x, y]) => grid[x][y]).join('').length);
-      return path.map(([x, y]) => grid[x][y]).join('');
+      return path;
     }
 
     let neibs = getNeibs(...position);
@@ -74,4 +87,14 @@ function findPath(inp, startPosition) {
 
     return res;
   }
+}
+
+function renderPath(grid, _path) {
+  let path = _path.map((position) => position.join(','));
+  let result = grid.map((row, x) => {
+    return row.map((char, y) => {
+      return path.includes(x + ',' + y) ? char : ' ';
+    }).join('');
+  }).join('\n');
+  // fs.writeFileSync('./path2.txt', result);
 }
