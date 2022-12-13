@@ -5,11 +5,11 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test OK: ', part1(testInput) === 13);
-console.log('answer: ', part1(inputData));
+// console.log('test OK: ', part1(testInput) === 13);
+// console.log('answer: ', part1(inputData));
 
-// console.log('test2 OK:', part2(testInput) === 140);
-// console.log('answer2:', part2(inputData));
+console.log('test2 OK:', part2(testInput) === 140);
+console.log('answer2:', part2(inputData));
 
 function part1(inp) {
   return inp.split('\n\n').map((blocks, i) => {
@@ -30,17 +30,25 @@ function part2(inp) {
     let right = JSON.parse(_right);
     return [left, right]
   }).flat()
-
-  arr.sort(compare)
+  arr.push([[2]], [[6]])
 
   console.log(arr);
 
-  return  2;
+  arr.sort(compare).reverse()
+
+  console.log(arr);
+
+  let indexOf2 = arr.findIndex((it) => it.length === 1 && it[0].length === 1 && it[0][0] === 2) + 1;
+  let indexOf6 = arr.findIndex((it) => it.length === 1 && it[0].length === 1 && it[0][0] === 6) + 1;
+
+  return indexOf2 * indexOf6;
 }
 
 function compare(left, right) {
-  // let inp = JSON.stringify({left, right})
+  left = JSON.parse(JSON.stringify(left))
+  right = JSON.parse(JSON.stringify(right))
   // console.log(inp);
+
   while (left.length > 0 && right.length > 0) {
     let l = left.shift();
     let r = right.shift();
@@ -51,7 +59,7 @@ function compare(left, right) {
         Array.isArray(r) ? r : [r]
       );
 
-      if (res !== null) {
+      if (res !== 0) {
         // console.log(inp, res);
         return res;
       }
@@ -59,22 +67,22 @@ function compare(left, right) {
 
     if (l > r) {
       // console.log(inp, false);
-      return false;
+      return -1;
     }
     if (l < r) {
       // console.log(inp, true);
-      return true;
+      return 1;
     }
   }
 
   if (left.length < right.length) {
     // console.log(inp, true);
-    return true;
+    return 2;
   }
   if (left.length > right.length) {
     // console.log(inp, false);
-    return false;
+    return -1;
   }
   // console.log(inp, null);
-  return null;
+  return 0;
 }
