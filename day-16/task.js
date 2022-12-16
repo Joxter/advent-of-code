@@ -5,25 +5,23 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test OK: ', part1(testInput) === 1651);
-console.log('answer: ', part1(inputData), [2250]);
+console.log('test OK: ', part1(testInput, 30) === 1651);
+console.log('answer: ', part1(inputData, 30), [2250]);
 
-// console.log("test2 OK:", part2(testInput) === 93);
-// console.log("answer2:", part2(inputData), [27551]);
+console.log('test2 OK:', part1(testInput, 26) === 1707);
 
-function part1(inp) {
+// console.log('answer2:', part1(inputData, 26));
+
+function part1(inp, maxMins) {
   let map = {};
   let maxValves = 1;
-  let maxMins = 30;
 
   inp.split('\n').forEach((line) => {
     let [_, name, rate, next] = /Valve\s(..).+rate=(\d+).+valve[s]? (.+)/.exec(line);
 
     if (+rate) maxValves++;
     map[name] = {
-      rate: +rate,
-      next: next.split(', '),
-      name
+      rate: +rate, next: next.split(', '), name
     };
   });
 
@@ -35,18 +33,16 @@ function part1(inp) {
 
   let results = 0;
 
-  // return 444;
+  if (maxMins === 26) {
+    return splitCases();
+  }
 
   // let fastestTestPath = ['AA', 'DD', 'BB', 'JJ', 'HH', 'EE', 'CC'];
   // console.log(testPath(fastestTestPath));
 
   let startTime = Date.now();
-  let ans = goNext(
-    newNewMap.AA,
-    {released: 0, opened: ['AA'], path: '', rawPath: ['AA']},
-    1
-  );
-  console.log({maxMins, results, time: (Date.now() - startTime) / 1000});
+  let ans = goNext(newNewMap.AA, {released: 0, opened: ['AA'], path: '', rawPath: ['AA']}, 1);
+  // console.log({maxMins, results, time: (Date.now() - startTime) / 1000});
   return ans;
 
   function goNext(node, {released, opened, path, rawPath}, minutes) {
@@ -78,9 +74,7 @@ function part1(inp) {
 
       let ifIGo = goNext(newNewMap[nodeName], {
         rawPath: [...rawPath, nodeName],
-        path: path
-          + `\n [${minutes}] go to: ${nodeName} (cost ${cost})`
-          + `\n [${minutes + 1}] open: ${nodeName} (${rate}*${minLeft})`,
+        path: path + `\n [${minutes}] go to: ${nodeName} (cost ${cost})` + `\n [${minutes + 1}] open: ${nodeName} (${rate}*${minLeft})`,
         released: released + (+rate * minLeft),
         opened: [...opened, nodeName],
       }, minutes + (+cost) + 1);
@@ -90,12 +84,44 @@ function part1(inp) {
     }));
   }
 
+  function splitCases() {
+    let heads = Object.keys(newNewMap).filter(it => it !== 'AA');
+    // console.log(heads);
+    let allCases = permutationIterator(heads);
+
+    let from = Math.floor(heads.length / 3);
+    let to = Math.floor(heads.length / 2);
+
+    let result = 0;
+
+    let [i, total] = [0, getFactor(heads.length)];
+    for (let currCase of allCases) {
+      if (i++ % 100_000 === 0) {
+        // 1_307_674_368_000 :(
+        // console.log(i, total, (i * 100 / total).toFixed(2));
+      }
+      for (let j = from; j <= to; j++) {
+        let myArr = ['AA', ...currCase.slice(0, j)];
+        let elArr = ['AA', ...currCase.slice(j)];
+        let myScore = testPath(myArr);
+        let elScore = testPath(elArr);
+        // console.log(currCase, currCase.slice(0, j), currCase.slice(j));
+        // console.log({myScore, elScore}, myArr, elArr );
+
+        result = Math.max(result, myScore + elScore);
+      }
+    }
+
+    return result;
+  }
+
   function testPath(path) {
     let released = 0;
     let [curPoint, ...tail] = path;
     let minutes = 1;
 
     tail.forEach((nodeName) => {
+      // console.log(minutes);
       let cost = +newNewMap[curPoint].next
         .filter((it) => {
           return it.startsWith(nodeName);
@@ -172,9 +198,7 @@ function getNewMap(map) {
       let pathes = goTillEnd(name, [name]);
 
       newMap[name] = {
-        name: name,
-        rate: rate,
-        next: pathes.map((path) => {
+        name: name, rate: rate, next: pathes.map((path) => {
           let end = path[path.length - 1];
           return [end, path.length - 1].join(',');
         }),
@@ -240,3 +264,45 @@ function render(map, lastLeftRock, lastRightRock, bottom) {
  [23] open: CC (2*7) 1846
 
 */
+
+function getFactor(n) {
+  let res = 1;
+
+  for (let i = 1; i <= n; i++) {
+    res *= i;
+  }
+
+  return res;
+}
+
+
+function* permutationIterator(object) {
+  if (object == null || object.length === 0) return;
+  const keys = Object.keys(object);
+  for (const indexes of permutate(keys)) {
+    yield indexes.map(i => object[i]);
+  }
+}
+
+// Heap's method, time complexity O(N)
+function* permutate(array) {
+  const {length} = array;
+  const c = new Array(length).fill(0);
+  let i = 1;
+
+  yield array.slice();
+  while (i < length) {
+    if (c[i] < i) {
+      const k = i % 2 && c[i];
+      const p = array[i];
+      array[i] = array[k];
+      array[k] = p;
+      ++c[i];
+      i = 1;
+      yield array.slice();
+    } else {
+      c[i] = 0;
+      ++i;
+    }
+  }
+}
