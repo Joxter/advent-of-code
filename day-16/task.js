@@ -5,7 +5,7 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test OK: ', part1(testInput));
+console.log('test OK: ', part1(testInput) === 1651);
 console.log('answer: ', part1(inputData), [2250]);
 
 // console.log("test2 OK:", part2(testInput) === 93);
@@ -36,6 +36,9 @@ function part1(inp) {
   let results = 0;
 
   // return 444;
+
+  // let fastestTestPath = ['AA', 'DD', 'BB', 'JJ', 'HH', 'EE', 'CC'];
+  // console.log(testPath(fastestTestPath));
 
   let startTime = Date.now();
   let ans = goNext(
@@ -77,8 +80,6 @@ function part1(inp) {
         rawPath: [...rawPath, nodeName],
         path: path
           + `\n [${minutes}] go to: ${nodeName} (cost ${cost})`
-
-
           + `\n [${minutes + 1}] open: ${nodeName} (${rate}*${minLeft})`,
         released: released + (+rate * minLeft),
         opened: [...opened, nodeName],
@@ -89,6 +90,28 @@ function part1(inp) {
     }));
   }
 
+  function testPath(path) {
+    let released = 0;
+    let [curPoint, ...tail] = path;
+    let minutes = 1;
+
+    tail.forEach((nodeName) => {
+      let cost = +newNewMap[curPoint].next
+        .filter((it) => {
+          return it.startsWith(nodeName);
+        }).map(it => {
+          return it.split(',')[1];
+        });
+
+      let rate = newNewMap[nodeName].rate;
+      let minLeft = maxMins - (minutes + +cost);
+      released += (+rate * minLeft);
+      minutes += (+cost) + 1;
+
+      curPoint = nodeName;
+    });
+    return released;
+  }
 }
 
 function addRoads(map) {
