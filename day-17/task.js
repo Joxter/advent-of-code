@@ -16,18 +16,18 @@ let rocks = [
 #`,
   `##
 ##`
-];
+]; // 5
 
-let testInput = fs.readFileSync('./testData.txt').toString();
-let inputData = fs.readFileSync('./input.txt').toString();
+let testInput = fs.readFileSync('./testData.txt').toString(); // 40
+let inputData = fs.readFileSync('./input.txt').toString(); // 10091 (prime)
 
-console.log('test OK: ', part1(testInput), [3068]);
-console.log('answer: ', part1(inputData));
+// console.log('test OK: ', part1(testInput), [3068]); // period is 53
+// console.log('answer: ', part1(inputData));
 
-// console.log('test2 OK:', part1(testInput) === 123);
+console.log('test2 OK:', part2test(testInput) === 1_514_285_714_288);
 // console.log('answer2:', part1(inputData));
 
-function part1(inp) {
+function part1(inp, rocklimit = 2022) {
   let result = 0;
   let jet = inp.trim().split(''); // "<" left, ">" right
 
@@ -44,9 +44,14 @@ function part1(inp) {
 
   let jetCnt = 0;
 
-  while (currentRockN < 2022) {
+  while (currentRockN < rocklimit) {
+    // if (currentRockN % 500 === 0) {
+    //   let progress = (currentRockN * 100 / rocklimit).toFixed(2);
+    //   console.log(`${progress}% ${currentRockN}/${rocklimit}`);
+    // }
     currentRockN++;
-    let currentRock = createRock(rocks[(currentRockN - 1) % rocks.length], 2, tower.length + 3);
+    let rockId = (currentRockN - 1) % rocks.length;
+    let currentRock = createRock(rocks[rockId], 2, tower.length + 3);
 
     while (true) {
       let jetAction = jet[jetCnt++ % jet.length] === '<' ? moveLeft : moveRight;
@@ -59,13 +64,14 @@ function part1(inp) {
       let movedDownRock = moveDown(jetMovedCurrentRock) || jetMovedCurrentRock;
 
       if (isOverlaps(tower, movedDownRock)) {
-        saveRock(tower, jetMovedCurrentRock)
+        saveRock(tower, jetMovedCurrentRock, rockId + 1)
         break;
       } else {
         currentRock = movedDownRock;
       }
     }
   }
+  // render(tower, null, [0, tower.length])
 
   return tower.length - 1;
 }
@@ -78,7 +84,6 @@ function isOverlaps(tower, rock) {
         return row === i && col === j;
       });
 
-      // console.log(towerChar && rockChar)
       if (towerChar && rockChar) {
         return true;
       }
@@ -88,12 +93,12 @@ function isOverlaps(tower, rock) {
   return false;
 }
 
-function saveRock(tower, rock) {
+function saveRock(tower, rock, rockId) {
   rock.forEach(([row, col]) =>{
     if (!tower[row]) {
       tower[row] = Array(7).fill(null);
     }
-    tower[row][col] = '#'
+    tower[row][col] = rockId
   })
 }
 
@@ -118,6 +123,7 @@ function render(tower, rock, [min, max] = [0, 5]) {
   }
 
   // console.clear();
+  // fs.writeFileSync('./tower.txt', result)
   console.log(result);
   // hardWait(300)
 }
@@ -176,9 +182,20 @@ function createRock(str, colOffset = 0, rowOffset = 0) {
   return rock;
 }
 
-function part2(inp) {
-  let result = 0;
-  inp.trim().split('\n').forEach((line) => {
-  });
-  return result;
+function part2test(inp) {
+  let rockLimit = 1_000_000_000_000;
+
+  // 1 - 25  no loop (15 rocks)
+  // 26 - 78 loop (35 rocks)
+  let noLoopRocks = 15
+  let noLoopHeight = 25
+  let loopRocks = 35
+  let loopHeight = 53
+
+  let amountOfLoops = Math.floor((rockLimit - noLoopRocks) / loopRocks)
+
+  let newLimit = rockLimit - amountOfLoops * loopRocks
+  let renderedHeit = part1(inp, newLimit)
+
+  return renderedHeit + (amountOfLoops) * loopHeight;
 }
