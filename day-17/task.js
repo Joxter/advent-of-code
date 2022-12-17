@@ -21,11 +21,11 @@ let rocks = [
 let testInput = fs.readFileSync('./testData.txt').toString(); // 40
 let inputData = fs.readFileSync('./input.txt').toString(); // 10091 (prime)
 
-// console.log('test OK: ', part1(testInput), [3068]); // period is 53
-// console.log('answer: ', part1(inputData));
+console.log('test OK: ', part1(testInput) === 3068);
+console.log('answer: ', part1(inputData), [3153]);
 
 console.log('test2 OK:', part2test(testInput) === 1_514_285_714_288);
-// console.log('answer2:', part1(inputData));
+console.log('answer2:', part2data(inputData), [1_553_665_689_155]);
 
 function part1(inp, rocklimit = 2022) {
   let result = 0;
@@ -36,11 +36,6 @@ function part1(inp, rocklimit = 2022) {
   let tower = [
     '#######'.split(''), // 0
   ];
-
-  // let rock1 = createRock(rocks[0], 2, tower.length + 3);
-  // render(tower, moveRight(rock1), [0, 8]);
-  // render(tower, moveRight(moveRight(rock1)), [0, 8]);
-  // render(tower, moveLeft(moveRight(moveRight(rock1))), [0, 8]);
 
   let jetCnt = 0;
 
@@ -58,13 +53,13 @@ function part1(inp, rocklimit = 2022) {
       let jetMovedCurrentRock = jetAction(currentRock) || currentRock;
 
       if (isOverlaps(tower, jetMovedCurrentRock)) {
-        jetMovedCurrentRock = currentRock
+        jetMovedCurrentRock = currentRock;
       }
 
       let movedDownRock = moveDown(jetMovedCurrentRock) || jetMovedCurrentRock;
 
       if (isOverlaps(tower, movedDownRock)) {
-        saveRock(tower, jetMovedCurrentRock, rockId + 1)
+        saveRock(tower, jetMovedCurrentRock, rockId + 1);
         break;
       } else {
         currentRock = movedDownRock;
@@ -77,8 +72,8 @@ function part1(inp, rocklimit = 2022) {
 }
 
 function isOverlaps(tower, rock) {
-  for (let i = tower.length - 1; i >= 0; i--) { // row
-    for (let j = 0; j < 7; j++) { // col
+  for (let i = tower.length - 1; i >= 0; i--) {
+    for (let j = 0; j < 7; j++) {
       let towerChar = tower[i][j];
       let rockChar = rock?.find(([row, col]) => {
         return row === i && col === j;
@@ -105,10 +100,10 @@ function saveRock(tower, rock, rockId) {
 function render(tower, rock, [min, max] = [0, 5]) {
   let result = '';
 
-  for (let i = min; i <= max; i++) {    // row
+  for (let i = min; i <= max; i++) {
 
     let line = '';
-    for (let j = 0; j < 7; j++) { // col
+    for (let j = 0; j < 7; j++) {
       let towerChar = tower[i]?.[j] ?? null;
       let rockChar = rock?.find(([row, col]) => {
         return row === i && col === j;
@@ -120,10 +115,11 @@ function render(tower, rock, [min, max] = [0, 5]) {
     }
 
     result = `${line} ${i}\n` + result;
+    // result = `${line}\n` + result;
   }
 
   // console.clear();
-  // fs.writeFileSync('./tower.txt', result)
+  // fs.writeFileSync('./tower.txt', result);
   console.log(result);
   // hardWait(300)
 }
@@ -185,12 +181,27 @@ function createRock(str, colOffset = 0, rowOffset = 0) {
 function part2test(inp) {
   let rockLimit = 1_000_000_000_000;
 
-  // 1 - 25  no loop (15 rocks)
-  // 26 - 78 loop (35 rocks)
   let noLoopRocks = 15;
   let noLoopHeight = 25;
   let loopRocks = 35;
   let loopHeight = 53;
+
+  let amountOfLoops = Math.floor((rockLimit - noLoopRocks) / loopRocks);
+
+  let newLimit = rockLimit - amountOfLoops * loopRocks;
+  let renderedHeit = part1(inp, newLimit);
+
+  return renderedHeit + (amountOfLoops) * loopHeight;
+}
+
+function part2data(inp) {
+  let rockLimit = 1_000_000_000_000;
+
+  let noLoopRocks = 632;
+  let noLoopHeight = 1006;
+
+  let loopRocks = 2337 - noLoopRocks;
+  let loopHeight = 3655 - noLoopHeight;
 
   let amountOfLoops = Math.floor((rockLimit - noLoopRocks) / loopRocks);
 
