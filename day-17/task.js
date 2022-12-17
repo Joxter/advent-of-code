@@ -94,12 +94,12 @@ function isOverlaps(tower, rock) {
 }
 
 function saveRock(tower, rock, rockId) {
-  rock.forEach(([row, col]) =>{
+  rock.forEach(([row, col]) => {
     if (!tower[row]) {
       tower[row] = Array(7).fill(null);
     }
-    tower[row][col] = rockId
-  })
+    tower[row][col] = rockId;
+  });
 }
 
 function render(tower, rock, [min, max] = [0, 5]) {
@@ -187,15 +187,15 @@ function part2test(inp) {
 
   // 1 - 25  no loop (15 rocks)
   // 26 - 78 loop (35 rocks)
-  let noLoopRocks = 15
-  let noLoopHeight = 25
-  let loopRocks = 35
-  let loopHeight = 53
+  let noLoopRocks = 15;
+  let noLoopHeight = 25;
+  let loopRocks = 35;
+  let loopHeight = 53;
 
-  let amountOfLoops = Math.floor((rockLimit - noLoopRocks) / loopRocks)
+  let amountOfLoops = Math.floor((rockLimit - noLoopRocks) / loopRocks);
 
-  let newLimit = rockLimit - amountOfLoops * loopRocks
-  let renderedHeit = part1(inp, newLimit)
+  let newLimit = rockLimit - amountOfLoops * loopRocks;
+  let renderedHeit = part1(inp, newLimit);
 
   return renderedHeit + (amountOfLoops) * loopHeight;
 }
