@@ -5,8 +5,10 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-// console.log('test OK: ', part1(testInput) === 64);
-// console.log('answer: ', part1(inputData), [4580]);
+// run `node --stack-size=16000 ./task.js`
+
+console.log('test OK: ', part1(testInput) === 64);
+console.log('answer: ', part1(inputData), [4580]);
 
 console.log('test2 OK:', part2(testInput), [58]);
 console.log('answer2:', part2(inputData));
@@ -36,14 +38,17 @@ function part2(inp) {
 
     if (x > max.x) max.x = x;
     if (y > max.y) max.y = y;
-    if (x > max.z) max.z = z;
+    if (z > max.z) max.z = z;
 
     cubes[line] = true;
   });
 
-  max.x++;
-  max.y++;
-  max.z++;
+  // console.log('cubes:', cubes);
+  // console.log('cubes:', Object.keys(cubes).length);
+
+  // max.x++;
+  // max.y++;
+  // max.z++;
   max.x++;
   max.y++;
   max.z++;
@@ -53,6 +58,18 @@ function part2(inp) {
   // fill in with lava
   let lava = fillInWithLava(max, cubes);
   // console.log(lava);
+
+  // renderYSlice(cubes, lava, max, -2)
+  // renderYSlice(cubes, lava, max, -1)
+
+  // renderYSlice(cubes, lava, max, -0)
+  // renderYSlice(cubes, lava, max, 1)
+  // renderYSlice(cubes, lava, max, 2)
+  // renderYSlice(cubes, lava, max, 3)
+  // renderYSlice(cubes, lava, max, 4)
+  // renderYSlice(cubes, lava, max, 5)
+  //
+  // renderYSlice(cubes, lava, max, 6)
 
   // count where lava touches bricks
 
@@ -75,7 +92,7 @@ function part2(inp) {
 function fillInWithLava(max, cubes) {
   let lava = {};
 
-  filIn(0,0,0);
+  filIn(0, 0, 0);
 
   return lava;
 
@@ -125,4 +142,22 @@ function getCubesAround(cubes, [x, y, z]) {
   }
 
   return cnt;
+}
+
+function renderYSlice(cubes, lava, max, y) {
+  let result = '';
+
+  console.log('Y: ' + y);
+
+  for (let x = -1; x <= max.x; x++) {
+    for (let z = -1; z <= max.z; z++) {
+      let isCube = !!cubes[[x, y, z].join(',')];
+      let isLava = !!lava[[x, y, z].join(',')];
+
+      result += isCube && isLava ? 'X' : isCube ? 'C' : isLava ? 'L' : '.';
+    }
+    result += ` ${x}\n`;
+  }
+
+  console.log(result);
 }
