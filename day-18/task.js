@@ -5,15 +5,11 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-// run `node --stack-size=16000 ./task.js`
-
 console.log('test OK: ', part1(testInput) === 64);
 console.log('answer: ', part1(inputData), [4580]);
 
 console.log('test2 OK:', part2(testInput) === 58);
 console.log('answer2:', part2(inputData), [2610]);
-
-//  Maximum call stack size exceeded
 
 function part1(inp) {
   let cubes = {};
@@ -66,25 +62,28 @@ function part2(inp) {
 function fillInWithLava(max, cubes) {
   let lava = {};
 
-  filIn(0, 0, 0);
+  let stack = [[0, 0, 0]];
 
-  return lava;
+  while (stack.length > 0) {
+    let [x, y, z] = stack.pop();
 
-  function filIn(x, y, z) {
-    if (x > max.x || y > max.y || z > max.z) return;
-    if (x < -1 || y < -1 || z < -1) return;
-    if (cubes[[x, y, z].join(',')]) return;
-    if (lava[[x, y, z].join(',')]) return;
+    if (x < -1 || y < -1 || z < -1) continue;
+    if (x > max.x || y > max.y || z > max.z) continue;
+    if (cubes[[x, y, z].join(',')]) continue;
+    if (lava[[x, y, z].join(',')]) continue;
 
     lava[[x, y, z].join(',')] = true;
 
-    filIn(x + 1, y, z);
-    filIn(x, y + 1, z);
-    filIn(x, y, z + 1);
-    filIn(x - 1, y, z);
-    filIn(x, y - 1, z);
-    filIn(x, y, z - 1);
+    stack.push([x + 1, y, z]);
+    stack.push([x + 1, y, z]);
+    stack.push([x, y + 1, z]);
+    stack.push([x, y, z + 1]);
+    stack.push([x - 1, y, z]);
+    stack.push([x, y - 1, z]);
+    stack.push([x, y, z - 1]);
   }
+
+  return lava;
 }
 
 function getCubesAround(cubes, [x, y, z]) {
