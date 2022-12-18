@@ -41,27 +41,26 @@ function part2(inp) {
   max.y++;
   max.z++;
 
-  let lava = fillInWithLava(max, cubes);
+  let water = fillInWithWater(max, cubes);
 
   let result = 0;
   Object.keys(cubes).forEach((position) => {
     let [x, y, z] = position.split(',').map(it => +it);
 
-    if (lava[[x + 1, y, z].join(',')]) result++;
-    if (lava[[x, y + 1, z].join(',')]) result++;
-    if (lava[[x, y, z + 1].join(',')]) result++;
+    if (water[[x + 1, y, z].join(',')]) result++;
+    if (water[[x, y + 1, z].join(',')]) result++;
+    if (water[[x, y, z + 1].join(',')]) result++;
 
-    if (lava[[x - 1, y, z].join(',')]) result++;
-    if (lava[[x, y - 1, z].join(',')]) result++;
-    if (lava[[x, y, z - 1].join(',')]) result++;
+    if (water[[x - 1, y, z].join(',')]) result++;
+    if (water[[x, y - 1, z].join(',')]) result++;
+    if (water[[x, y, z - 1].join(',')]) result++;
   });
 
   return result;
 }
 
-function fillInWithLava(max, cubes) {
-  let lava = {};
-
+function fillInWithWater(max, cubes) {
+  let water = {};
   let stack = [[0, 0, 0]];
 
   while (stack.length > 0) {
@@ -70,20 +69,22 @@ function fillInWithLava(max, cubes) {
     if (x < -1 || y < -1 || z < -1) continue;
     if (x > max.x || y > max.y || z > max.z) continue;
     if (cubes[[x, y, z].join(',')]) continue;
-    if (lava[[x, y, z].join(',')]) continue;
+    if (water[[x, y, z].join(',')]) continue;
 
-    lava[[x, y, z].join(',')] = true;
+    water[[x, y, z].join(',')] = true;
 
-    stack.push([x + 1, y, z]);
-    stack.push([x + 1, y, z]);
-    stack.push([x, y + 1, z]);
-    stack.push([x, y, z + 1]);
-    stack.push([x - 1, y, z]);
-    stack.push([x, y - 1, z]);
-    stack.push([x, y, z - 1]);
+    stack.push(
+      [x + 1, y, z],
+      [x + 1, y, z],
+      [x, y + 1, z],
+      [x, y, z + 1],
+      [x - 1, y, z],
+      [x, y - 1, z],
+      [x, y, z - 1]
+    );
   }
 
-  return lava;
+  return water;
 }
 
 function getCubesAround(cubes, [x, y, z]) {
@@ -100,15 +101,15 @@ function getCubesAround(cubes, [x, y, z]) {
   return cnt;
 }
 
-function renderYSlice(cubes, lava, max, y) {
+function renderYSlice(cubes, water, max, y) {
   let result = `Y: ${y}\n`;
 
   for (let x = -1; x <= max.x; x++) {
     for (let z = -1; z <= max.z; z++) {
       let isCube = !!cubes[[x, y, z].join(',')];
-      let isLava = !!lava[[x, y, z].join(',')];
+      let isWater = !!water[[x, y, z].join(',')];
 
-      result += isCube && isLava ? 'X' : isCube ? 'C' : isLava ? 'L' : '.';
+      result += isCube && isWater ? 'X' : isCube ? 'C' : isWater ? '~' : '.';
     }
     result += ` ${x}\n`;
   }
