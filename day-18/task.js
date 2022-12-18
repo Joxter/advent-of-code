@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-// https://adventofcode.com/2022/day/**********
+// https://adventofcode.com/2022/day/18
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
@@ -10,8 +10,10 @@ let inputData = fs.readFileSync('./input.txt').toString();
 console.log('test OK: ', part1(testInput) === 64);
 console.log('answer: ', part1(inputData), [4580]);
 
-console.log('test2 OK:', part2(testInput), [58]);
-console.log('answer2:', part2(inputData));
+console.log('test2 OK:', part2(testInput) === 58);
+console.log('answer2:', part2(inputData), [2610]);
+
+//  Maximum call stack size exceeded
 
 function part1(inp) {
   let cubes = {};
@@ -19,10 +21,6 @@ function part1(inp) {
     cubes[line] = true;
   });
 
-  return countSurface(cubes);
-}
-
-function countSurface(cubes) {
   return Object.keys(cubes).map((position) => {
     let [x, y, z] = position.split(',').map(it => +it);
     return 6 - getCubesAround(cubes, [x, y, z]);
@@ -43,35 +41,11 @@ function part2(inp) {
     cubes[line] = true;
   });
 
-  // console.log('cubes:', cubes);
-  // console.log('cubes:', Object.keys(cubes).length);
-
-  // max.x++;
-  // max.y++;
-  // max.z++;
   max.x++;
   max.y++;
   max.z++;
-  console.log(max);
-  // console.log(cubes);
 
-  // fill in with lava
   let lava = fillInWithLava(max, cubes);
-  // console.log(lava);
-
-  // renderYSlice(cubes, lava, max, -2)
-  // renderYSlice(cubes, lava, max, -1)
-
-  // renderYSlice(cubes, lava, max, -0)
-  // renderYSlice(cubes, lava, max, 1)
-  // renderYSlice(cubes, lava, max, 2)
-  // renderYSlice(cubes, lava, max, 3)
-  // renderYSlice(cubes, lava, max, 4)
-  // renderYSlice(cubes, lava, max, 5)
-  //
-  // renderYSlice(cubes, lava, max, 6)
-
-  // count where lava touches bricks
 
   let result = 0;
   Object.keys(cubes).forEach((position) => {
@@ -86,7 +60,7 @@ function part2(inp) {
     if (lava[[x, y, z - 1].join(',')]) result++;
   });
 
-  return result; // to low 2337
+  return result;
 }
 
 function fillInWithLava(max, cubes) {
@@ -111,43 +85,24 @@ function fillInWithLava(max, cubes) {
     filIn(x, y - 1, z);
     filIn(x, y, z - 1);
   }
-
 }
 
 function getCubesAround(cubes, [x, y, z]) {
   let cnt = 0;
-  if (cubes[[x + 1, y, z].join(',')]) {
-    cnt++;
-  }
-  if (cubes[[x, y + 1, z].join(',')]) {
-    // console.log('> 2');
-    cnt++;
-  }
-  if (cubes[[x, y, z + 1].join(',')]) {
-    // console.log('> 3');
-    cnt++;
-  }
 
-  if (cubes[[x - 1, y, z].join(',')]) {
-    // console.log('> 4');
-    cnt++;
-  }
-  if (cubes[[x, y - 1, z].join(',')]) {
-    // console.log('> 5');
-    cnt++;
-  }
-  if (cubes[[x, y, z - 1].join(',')]) {
-    // console.log('> 6');
-    cnt++;
-  }
+  if (cubes[[x + 1, y, z].join(',')]) cnt++;
+  if (cubes[[x, y + 1, z].join(',')]) cnt++;
+  if (cubes[[x, y, z + 1].join(',')]) cnt++;
+
+  if (cubes[[x - 1, y, z].join(',')]) cnt++;
+  if (cubes[[x, y - 1, z].join(',')]) cnt++;
+  if (cubes[[x, y, z - 1].join(',')]) cnt++;
 
   return cnt;
 }
 
 function renderYSlice(cubes, lava, max, y) {
-  let result = '';
-
-  console.log('Y: ' + y);
+  let result = `Y: ${y}\n`;
 
   for (let x = -1; x <= max.x; x++) {
     for (let z = -1; z <= max.z; z++) {
