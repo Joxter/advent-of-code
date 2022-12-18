@@ -72,8 +72,8 @@ function noSetSolution(len, line) {
     marker[charCode]++;
 
     let lastCarCode = line[i - len].charCodeAt(0);
-    if (marker[charCode] === 2) unique++;
-    if (marker[charCode] === 1) unique--;
+    if (marker[lastCarCode] === 2) unique++;
+    if (marker[lastCarCode] === 1) unique--;
     marker[lastCarCode]--;
 
     if (unique === len) return i + 1;
