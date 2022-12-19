@@ -26,56 +26,100 @@ function part1(inp) {
   });
 
   // ore, clay, obsidian, geode
-  simulateBlueprint(blueprints[0]);
 
-  return 3;
+  return blueprints
+    .map((blueprint, i) => {
+      console.log("blueprint", i + 1);
+      return (i + 1) * simulateBlueprint(blueprint);
+    })
+    .reduce((sum, it) => sum + it, 0);
 }
 
 function simulateBlueprint(blueprint) {
   let storage = [0, 0, 0, 0];
   let robots = [1, 0, 0, 0];
 
-  for (let minute = 1; minute <= 24; minute++) {
-    const isCanBuild = canBuild(storage, blueprint);
+  let maxGeo = 0;
 
-    let newRobots = [...robots];
-    if (isCanBuild.geodeRobot) {
-      newRobots[3]++;
-      buildRobot(storage, blueprint.geodeRobot);
-      //
-    } else if (isCanBuild.obsidianRobot) {
-      newRobots[2]++;
-      buildRobot(storage, blueprint.obsidianRobot);
-      //
-    } else if (isCanBuild.clayRobot) {
-      newRobots[1]++;
-      buildRobot(storage, blueprint.clayRobot);
-      //
-    } else if (isCanBuild.oreRobot) {
-      newRobots[0]++;
-      buildRobot(storage, blueprint.oreRobot);
-      //
+  goNext(storage, robots, 1);
+  console.log({ maxGeo });
+
+  return maxGeo;
+
+  // ore, clay, obsidian, geode
+  function goNext(storage, robots, minute) {
+    // console.log(minute);
+    if (minute > 24) {
+      maxGeo = Math.max(maxGeo, storage[3]);
+      // console.log({ maxGeo });
+      // render(storage, robots, minute);
+      // console.log(storage, { maxGeo });
+      return;
     }
 
-    // ore, clay, obsidian, geode
+    if (robots[2] === 0 && minute > 12) {
+      return;
+    }
+    // render(storage, robots, minute);
+    const isCanBuild = canBuild(storage, blueprint);
 
-    storage[0] += robots[0];
-    storage[1] += robots[1];
-    storage[2] += robots[2];
-    storage[3] += robots[3];
+    if (isCanBuild.geodeRobot) {
+      // console.log("build geodeRobot");
+      let newRobots = [...robots];
+      newRobots[3]++;
+      let storageAfterBuild = buildRobot(storage, blueprint.geodeRobot);
+      let storageAfterCollect = collectOres(storageAfterBuild, robots);
+      goNext(storageAfterCollect, newRobots, minute + 1);
+    }
 
-    robots = newRobots;
-    render(storage, robots, minute);
-    console.log();
+    if (isCanBuild.obsidianRobot) {
+      // console.log("build obsidianRobot");
+      let newRobots = [...robots];
+      newRobots[2]++;
+      let storageAfterBuild = buildRobot(storage, blueprint.obsidianRobot);
+      let storageAfterCollect = collectOres(storageAfterBuild, robots);
+      goNext(storageAfterCollect, newRobots, minute + 1);
+    }
+
+    if (isCanBuild.clayRobot) {
+      // console.log("build clayRobot");
+      let newRobots = [...robots];
+      newRobots[1]++;
+      let storageAfterBuild = buildRobot(storage, blueprint.clayRobot);
+      let storageAfterCollect = collectOres(storageAfterBuild, robots);
+      goNext(storageAfterCollect, newRobots, minute + 1);
+    }
+
+    if (isCanBuild.oreRobot) {
+      // console.log("build oreRobot");
+      let newRobots = [...robots];
+      newRobots[0]++;
+      let storageAfterBuild = buildRobot(storage, blueprint.oreRobot);
+      let storageAfterCollect = collectOres(storageAfterBuild, robots);
+      goNext(storageAfterCollect, newRobots, minute + 1);
+    }
+
+    let newRobots = [...robots];
+    let storageAfterCollect = collectOres(storage, robots);
+    goNext(storageAfterCollect, newRobots, minute + 1);
   }
+}
 
-  return storage[3];
+function collectOres(storage, robots) {
+  let newStorage = [...storage];
+  newStorage[0] += robots[0];
+  newStorage[1] += robots[1];
+  newStorage[2] += robots[2];
+  newStorage[3] += robots[3];
+  return newStorage;
 }
 
 function buildRobot(storage, robotRequirements) {
-  storage[0] -= robotRequirements[0];
-  storage[1] -= robotRequirements[1];
-  storage[2] -= robotRequirements[2];
+  let newStorage = [...storage];
+  newStorage[0] -= robotRequirements[0];
+  newStorage[1] -= robotRequirements[1];
+  newStorage[2] -= robotRequirements[2];
+  return newStorage;
 }
 
 function canBuild(storage, blueprint) {
@@ -96,9 +140,9 @@ function canBuild(storage, blueprint) {
   };
 }
 
-function render(storage, robots, min) {
+function render(storage, robots, minute) {
   // ore, clay, obsidian, geode
-  console.log(`Minute:${String(min).padStart(2, " ")}  ore  clay   obs   geo
+  console.log(`Minute:${String(minute).padStart(2, " ")}  ore  clay   obs   geo
 storage:  ${storage.map((it) => String(it).padStart(4, " ")).join("  ")}
 robots:   ${robots.map((it) => String(it).padStart(4, " ")).join("  ")}
 `);
