@@ -5,7 +5,7 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-// console.log('test OK: ', part1(testInput), [33]);
+console.log('test OK: ', part1(testInput), [33]);
 console.log('answer: ', part1(inputData));
 
 // console.log('test2 OK:', part1(testInput) === 123);
@@ -87,7 +87,7 @@ function simulateBlueprint(blueprint) {
 
   // ore, clay, obsidian, geode
   function goNext(storage, robots, minute) {
-    const isCanBuild = canBuild(storage, robots, blueprint);
+    const isCanBuild = canBuild(storage, robots, blueprint, MAX_MINUTES - minute);
 
     if (minute > MAX_MINUTES) {
       if (storage[3] > maxGeo) {
@@ -101,56 +101,51 @@ function simulateBlueprint(blueprint) {
       return;
     }
 
-    if (
-      isCanBuild.geodeRobot > 1
-      // || isCanBuild.obsidianRobot > 1
-      // || isCanBuild.clayRobot > 3
-      // || isCanBuild.oreRobot > 3
-    ) {
-      // return;
-    }
-
     let wasBuildSomething = false;
 
-    if (isCanBuild.geodeRobot === 1) {
+    if (isCanBuild.geodeRobot) {
       wasBuildSomething = true;
       let newRobots = [...robots];
       newRobots[3]++;
       let storageAfterBuild = buildRobot(storage, blueprint.geodeRobot);
       let storageAfterCollect = collectOres(storageAfterBuild, robots);
       goNext(storageAfterCollect, newRobots, minute + 1);
+    } else {
+
+      if (isCanBuild.obsidianRobot) {
+        wasBuildSomething = true;
+        let newRobots = [...robots];
+        newRobots[2]++;
+        let storageAfterBuild = buildRobot(storage, blueprint.obsidianRobot);
+        let storageAfterCollect = collectOres(storageAfterBuild, robots);
+        goNext(storageAfterCollect, newRobots, minute + 1);
+      }
+
+      if (isCanBuild.clayRobot) {
+        wasBuildSomething = true;
+        let newRobots = [...robots];
+        newRobots[1]++;
+        let storageAfterBuild = buildRobot(storage, blueprint.clayRobot);
+        let storageAfterCollect = collectOres(storageAfterBuild, robots);
+        goNext(storageAfterCollect, newRobots, minute + 1);
+      }
+
+      if (isCanBuild.oreRobot) {
+        wasBuildSomething = true;
+        let newRobots = [...robots];
+        newRobots[0]++;
+        let storageAfterBuild = buildRobot(storage, blueprint.oreRobot);
+        let storageAfterCollect = collectOres(storageAfterBuild, robots);
+        goNext(storageAfterCollect, newRobots, minute + 1);
+      }
+
+      if (!wasBuildSomething) {
+        let newRobots = [...robots];
+        let storageAfterCollect = collectOres(storage, robots);
+        goNext(storageAfterCollect, newRobots, minute + 1);
+      }
     }
 
-    if (isCanBuild.obsidianRobot && !wasBuildSomething) {
-      wasBuildSomething = true;
-      let newRobots = [...robots];
-      newRobots[2]++;
-      let storageAfterBuild = buildRobot(storage, blueprint.obsidianRobot);
-      let storageAfterCollect = collectOres(storageAfterBuild, robots);
-      goNext(storageAfterCollect, newRobots, minute + 1);
-    }
-
-    if (isCanBuild.clayRobot && !wasBuildSomething) {
-      let newRobots = [...robots];
-      newRobots[1]++;
-      let storageAfterBuild = buildRobot(storage, blueprint.clayRobot);
-      let storageAfterCollect = collectOres(storageAfterBuild, robots);
-      goNext(storageAfterCollect, newRobots, minute + 1);
-    }
-
-    if (isCanBuild.oreRobot && !wasBuildSomething) {
-      let newRobots = [...robots];
-      newRobots[0]++;
-      let storageAfterBuild = buildRobot(storage, blueprint.oreRobot);
-      let storageAfterCollect = collectOres(storageAfterBuild, robots);
-      goNext(storageAfterCollect, newRobots, minute + 1);
-    }
-
-    if (!wasBuildSomething) {
-      let newRobots = [...robots];
-      let storageAfterCollect = collectOres(storage, robots);
-      goNext(storageAfterCollect, newRobots, minute + 1);
-    }
   }
 }
 
@@ -171,7 +166,7 @@ function buildRobot(storage, robotRequirements) {
   return newStorage;
 }
 
-function canBuild(storage, robots, blueprint) {
+function canBuild(storage, robots, blueprint, timeLeft) {
   // ore, clay, obsidian, geode
   function howManyRobots(robotRequirements) {
     let st = [...storage];
@@ -193,11 +188,15 @@ function canBuild(storage, robots, blueprint) {
 
   return {
     oreRobot:
-      robots[0] < blueprint.max[0] ? howManyRobots(blueprint.oreRobot) : 0,
-    clayRobot:
-      robots[1] < blueprint.max[1] ? howManyRobots(blueprint.clayRobot) : 0,
-    obsidianRobot:
-      robots[2] < blueprint.max[2] ? howManyRobots(blueprint.obsidianRobot) : 0,
+      storage[0] > timeLeft * blueprint.max[0]
+        ? 0
+        : robots[0] < blueprint.max[0] ? howManyRobots(blueprint.oreRobot) : 0,
+    clayRobot: storage[1] > timeLeft * blueprint.max[1]
+      ? 0
+      : robots[1] < blueprint.max[1] ? howManyRobots(blueprint.clayRobot) : 0,
+    obsidianRobot: storage[1] > timeLeft * blueprint.max[2]
+      ? 0
+      : robots[2] < blueprint.max[2] ? howManyRobots(blueprint.obsidianRobot) : 0,
     geodeRobot: howManyRobots(blueprint.geodeRobot),
   };
 }
