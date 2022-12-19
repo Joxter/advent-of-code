@@ -26,17 +26,74 @@ function part1(inp) {
   });
 
   // ore, clay, obsidian, geode
+  simulateBlueprint(blueprints[0]);
 
+  return 3;
+}
+
+function simulateBlueprint(blueprint) {
   let storage = [0, 0, 0, 0];
   let robots = [1, 0, 0, 0];
 
-  console.log(blueprints);
-  render(storage, robots, 3);
+  for (let minute = 1; minute <= 24; minute++) {
+    const isCanBuild = canBuild(storage, blueprint);
 
-  storage = [0, 20, 0, 93];
-  robots = [51, 0, 30, 0];
-  render(storage, robots, 13);
-  return 3;
+    let newRobots = [...robots];
+    if (isCanBuild.geodeRobot) {
+      newRobots[3]++;
+      buildRobot(storage, blueprint.geodeRobot);
+      //
+    } else if (isCanBuild.obsidianRobot) {
+      newRobots[2]++;
+      buildRobot(storage, blueprint.obsidianRobot);
+      //
+    } else if (isCanBuild.clayRobot) {
+      newRobots[1]++;
+      buildRobot(storage, blueprint.clayRobot);
+      //
+    } else if (isCanBuild.oreRobot) {
+      newRobots[0]++;
+      buildRobot(storage, blueprint.oreRobot);
+      //
+    }
+
+    // ore, clay, obsidian, geode
+
+    storage[0] += robots[0];
+    storage[1] += robots[1];
+    storage[2] += robots[2];
+    storage[3] += robots[3];
+
+    robots = newRobots;
+    render(storage, robots, minute);
+    console.log();
+  }
+
+  return storage[3];
+}
+
+function buildRobot(storage, robotRequirements) {
+  storage[0] -= robotRequirements[0];
+  storage[1] -= robotRequirements[1];
+  storage[2] -= robotRequirements[2];
+}
+
+function canBuild(storage, blueprint) {
+  // ore, clay, obsidian, geode
+  function canBuildRobot(storage, robotRequirements) {
+    if (storage[0] < robotRequirements[0]) return false;
+    if (storage[1] < robotRequirements[1]) return false;
+    if (storage[2] < robotRequirements[2]) return false;
+
+    return true;
+  }
+
+  return {
+    oreRobot: canBuildRobot(storage, blueprint.oreRobot),
+    clayRobot: canBuildRobot(storage, blueprint.clayRobot),
+    obsidianRobot: canBuildRobot(storage, blueprint.obsidianRobot),
+    geodeRobot: canBuildRobot(storage, blueprint.geodeRobot),
+  };
 }
 
 function render(storage, robots, min) {
