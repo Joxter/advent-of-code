@@ -5,12 +5,12 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-test('1, 2, -3, 3, -2, 0, 4', 4); // todo put precess to part1
+// test('1, 2, -3, 3, -2, 0, 4', 3);
 
-// console.log('test OK: ', part1(testInput) === 3);
-// console.log('answer: ', part1(inputData));
+console.log('test OK: ', part1(testInput) === 3);
+console.log('answer: ', part1(inputData), [7278]);
 
-console.log('test2 OK:', part2(testInput) === 1623178306);
+// console.log('test2 OK:', part2(testInput) === 1623178306);
 // console.log('answer2:', part2(inputData));
 
 
@@ -21,32 +21,7 @@ function part1(inp) {
   });
 
   for (let i = 0; i < arr.length; i++) {
-    let targetIndex = arr.findIndex((it) => it.original === i);
-    let target = arr[targetIndex];
-
-    if (target.val === 0) {
-      // continue;
-    } else if (target.val > 0) {
-      let start = targetIndex;
-      for (let j = 0; j < target.val; j++) {
-        arr.splice(start, 1);
-        start++;
-        if (start === arr.length) start = 0;
-        arr.splice(start, 0, target);
-      }
-    } else {
-      let start = targetIndex;
-      for (let j = 0; j < -target.val; j++) {
-        arr.splice(start, 1);
-        start--;
-        if (start < 0) start = arr.length - 1;
-        arr.splice(start, 0, target);
-      }
-      if (start === 0) {
-        arr.shift();
-        arr.push(target);
-      }
-    }
+    precess(arr, i);
   }
 
   let zeroIndex = arr.findIndex((it) => it.val === 0);
@@ -151,51 +126,53 @@ function part2(inp) {
 
 function test(input, ind) {
   let arr = input.split(', ').map((val, i) => {
-    return { val: +val, original: i }
-  })
+    return {val: +val, original: i};
+  });
 
-  let expected = precess([...arr], ind).join(', ')
-  let actual = precess2([...arr], ind).join(', ')
+  let expected = precess([...arr], ind).map((it) => it.val).join(', ');
+  let actual = precess2([...arr], ind).map((it) => it.val).join(', ');
   if (expected === actual) {
-    console.log(`OK! ${actual}`)
+    console.log(`OK! ${actual}`);
   } else {
-    console.log('ERROR:')
-    console.log(expected)
-    console.log(actual)
+    console.log('ERROR:', arr[ind]);
+    console.log('input:   ', input);
+    console.log('expected:', expected);
+    console.log('actual:  ', actual);
+    console.log('');
   }
 }
 
 function precess2(arr, original) {
-  return arr
+  return arr;
 }
 
 function precess(arr, original) {
-  let targetIndex = arr.findIndex((it) => it.original === original)
-  let target = arr[targetIndex]
+  let targetIndex = arr.findIndex((it) => it.original === original);
+  let target = arr[targetIndex];
 
   if (target.val === 0) {
     // continue;
   } else if (target.val > 0) {
-    let start = targetIndex
+    let start = targetIndex;
     for (let j = 0; j < target.val; j++) {
-      arr.splice(start, 1)
-      start++
-      if (start === arr.length) start = 0
-      arr.splice(start, 0, target)
+      arr.splice(start, 1);
+      start++;
+      if (start === arr.length) start = 0;
+      arr.splice(start, 0, target);
     }
   } else {
-    let start = targetIndex
+    let start = targetIndex;
     for (let j = 0; j < -target.val; j++) {
-      arr.splice(start, 1)
-      start--
-      if (start < 0) start = arr.length - 1
-      arr.splice(start, 0, target)
+      arr.splice(start, 1);
+      start--;
+      if (start < 0) start = arr.length - 1;
+      arr.splice(start, 0, target);
     }
     if (start === 0) {
-      arr.shift()
-      arr.push(target)
+      arr.shift();
+      arr.push(target);
     }
   }
 
-  return arr
+  return arr;
 }
