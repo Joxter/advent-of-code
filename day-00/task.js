@@ -8,8 +8,8 @@ let inputData = fs.readFileSync('./input.txt').toString();
 console.log('test OK: ', part1(testInput) === 123);
 console.log('answer: ', part1(inputData));
 
-// console.log('test2 OK:', part1(testInput) === 123);
-// console.log('answer2:', part1(inputData));
+// console.log('test2 OK:', part2(testInput) === 123);
+// console.log('answer2:', part2(inputData));
 
 function part1(inp) {
   let result = 0;
