@@ -5,11 +5,14 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
+test('1, 2, -3, 3, -2, 0, 4', 4); // todo put precess to part1
+
 // console.log('test OK: ', part1(testInput) === 3);
 // console.log('answer: ', part1(inputData));
 
 console.log('test2 OK:', part2(testInput) === 1623178306);
 // console.log('answer2:', part2(inputData));
+
 
 function part1(inp) {
   let arr = [];
@@ -146,41 +149,53 @@ function part2(inp) {
   return result;
 }
 
-/*
-initial:
-1, 2, -3, 3, -2, 0, 4
-1, 2, -3, 3, -2, 0, 4 +++
+function test(input, ind) {
+  let arr = input.split(', ').map((val, i) => {
+    return { val: +val, original: i }
+  })
 
-{ i: 0 } 1 original 0
-2, 1, -3, 3, -2, 0, 4
-2, 1, -3, 3, -2, 0, 4 +++
+  let expected = precess([...arr], ind).join(', ')
+  let actual = precess2([...arr], ind).join(', ')
+  if (expected === actual) {
+    console.log(`OK! ${actual}`)
+  } else {
+    console.log('ERROR:')
+    console.log(expected)
+    console.log(actual)
+  }
+}
 
+function precess2(arr, original) {
+  return arr
+}
 
-{ i: 1 } 2 original 1
-1, -3, 2, 3, -2, 0, 4
-1, -3, 2, 3, -2, 0, 4 +++
+function precess(arr, original) {
+  let targetIndex = arr.findIndex((it) => it.original === original)
+  let target = arr[targetIndex]
 
-{ i: 2 } -3 original 2
-1, 2, 3, -2, -3, 0, 4
-1, 2, 3, -2, -3, 0, 4 +++
+  if (target.val === 0) {
+    // continue;
+  } else if (target.val > 0) {
+    let start = targetIndex
+    for (let j = 0; j < target.val; j++) {
+      arr.splice(start, 1)
+      start++
+      if (start === arr.length) start = 0
+      arr.splice(start, 0, target)
+    }
+  } else {
+    let start = targetIndex
+    for (let j = 0; j < -target.val; j++) {
+      arr.splice(start, 1)
+      start--
+      if (start < 0) start = arr.length - 1
+      arr.splice(start, 0, target)
+    }
+    if (start === 0) {
+      arr.shift()
+      arr.push(target)
+    }
+  }
 
-{ i: 3 } 3 original 3
-1, 2, -2, -3, 0, 3, 4
-1, 2, -2, -3, 0, 3, 4 +++
-
-{ i: 4 } -2 original 4
--2, 1, 2, -3, 0, 3, 4
-1, 2, -3, 0, 3, 4, -2 ---
-
-{ i: 5 } 0 original 5
--2, 1, 2, -3, 0, 3, 4
-
-{ i: 6 } 4 original 6
--2, 1, 2, -3, 0, 3, 4, 4, 4, 4
-
-
-
-last CORRECT  1, 2, -3, 4, 0, 3, -2
-last MY       1, 2, -3, 4, 0, 3, -2
-
-*/
+  return arr
+}
