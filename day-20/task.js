@@ -5,7 +5,17 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-// test('1, 2, -3, 3, -2, 0, 4', 3);
+// for (let i = 0; i < 100; i++) {
+//   test(`-1, -2, ${i}, -3, -4, -5, -6`, 2);
+// }
+
+// test('01, 2, -51, 3, 4, 5, 6', 2);
+// test('1, 2, -52, 3, 4, 5, 6', 2);
+// test('1, 2, -1, 3, 4, 5, 6', 2);
+
+// for (let i = 0; i < 100; i++) {
+//   test(`0, 1, 2, -${i}, 3, 4, 5, 6`, 3);
+// }
 
 console.log('test OK: ', part1(testInput) === 3);
 console.log('answer: ', part1(inputData), [7278]);
@@ -21,7 +31,7 @@ function part1(inp) {
   });
 
   for (let i = 0; i < arr.length; i++) {
-    precess(arr, i);
+    precess2(arr, i);
   }
 
   let zeroIndex = arr.findIndex((it) => it.val === 0);
@@ -143,6 +153,37 @@ function test(input, ind) {
 }
 
 function precess2(arr, original) {
+  let targetIndex = arr.findIndex((it) => it.original === original);
+  let target = arr[targetIndex];
+
+  if (target.val === 0) return arr;
+
+  if (target.val > 0) {
+    arr.splice(targetIndex, 1);
+    let offset1 = arr.length - targetIndex;
+    let newIndex = (target.val - offset1) % arr.length;
+    // console.log('offset: ', offset1);
+    // console.log('offset: ', (arr.length - targetIndex) % arr.length);
+    // console.log(arr.length - targetIndex);
+    // console.log({newIndex});
+    arr.splice(newIndex, 0, target);
+  } else {
+    arr.splice(targetIndex, 1);
+
+    let offset1 = targetIndex;
+    if (-target.val < offset1) {
+      arr.splice(offset1 - -target.val, 0, target);
+    } else {
+
+      let newIndex = Math.abs(-target.val - offset1) % arr.length;
+      // console.log('offset: ', offset1);
+      // console.log('offset: ', (arr.length - targetIndex) % arr.length);
+      // console.log(arr.length - targetIndex);
+      // console.log({newIndex});
+      arr.splice(arr.length - newIndex, 0, target);
+    }
+  }
+
   return arr;
 }
 
