@@ -6,10 +6,10 @@ let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
 console.log("test OK: ", part1(testInput) === 152);
-console.log("answer: ", part1(getRealData())), [10037517593724];
+console.log("answer: ", part1(getRealData()), [10037517593724]);
 
-// console.log('test2 OK:', part2(testInput) === 123);
-// console.log('answer2:', part2(inputData));
+console.log("test2 OK:", part2(testInput) === 301);
+console.log("answer2:", part2(getRealData()), [3272260914328]);
 
 function part1(inp) {
   let ops = new Map();
@@ -63,12 +63,8 @@ function part2(inp) {
     });
   let myName = "humn";
 
-  // let leftRoot = calc(ops.get("root").left);
   let rightRoot = calc(ops.get("root").right);
 
-  // answer2: 3886130271980.3667
-  // WTF ????
-  // 3886130271980 too high
   return calcHuman(ops.get("root").left, rightRoot);
 
   function calc(nodeName) {
@@ -107,7 +103,7 @@ function part2(inp) {
 
       if (Number.isNaN(rightVal)) {
         if (op === "+") return calcHuman(right, target - leftVal);
-        if (op === "-") return calcHuman(right, target + leftVal);
+        if (op === "-") return calcHuman(right, -target + leftVal); // LOOOOL
         if (op === "*") return calcHuman(right, target / leftVal);
         if (op === "/") return calcHuman(right, target * leftVal);
       }
