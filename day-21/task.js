@@ -103,9 +103,9 @@ function part2(inp) {
 
       if (Number.isNaN(rightVal)) {
         if (op === "+") return calcHuman(right, target - leftVal);
-        if (op === "-") return calcHuman(right, -target + leftVal); // LOOOOL
+        if (op === "-") return calcHuman(right, leftVal - target);
         if (op === "*") return calcHuman(right, target / leftVal);
-        if (op === "/") return calcHuman(right, target * leftVal);
+        if (op === "/") return calcHuman(right, leftVal / target);
       }
     }
   }
