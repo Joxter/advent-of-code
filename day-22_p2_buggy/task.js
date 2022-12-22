@@ -10,9 +10,9 @@ let inputTEST = fs.readFileSync('./inputTEST.txt').toString();
 // console.log('answer: ', part1(inputData));
 
 // console.log('test2 OK:', part2(testInput) === 123);
-console.log('answer2:', part2(inputData));
+// console.log('answer2:', part2(inputData));
 
-// console.log('answer2:', part2(inputTEST));
+console.log('answer2:', part2(inputTEST));
 
 function part1(inp) {
   let dirDelta = {
@@ -151,8 +151,6 @@ function part2(inp) {
     } else {
       currDirection--;
     }
-    // directionArrow = clockDir[currDirection % 4];
-    // console.log(directionArrow);
 
     for (let i = 0; i < steps; i++) {
       [curPos, currDirection] = getStepCoords(curPos, clockDir[currDirection % 4]);
@@ -172,6 +170,8 @@ function part2(inp) {
   // 113299 is low :(
   // after fixing a mistake in INPUT...
   // 11427 :/
+  // after fixing a BUG in code...
+  // 33375
 
   return 1000 * (curPos[0] + 1) + 4 * (curPos[1] + 1) + arrowPoint;
 
@@ -237,7 +237,7 @@ function part2(inp) {
     }
     // line2, right 4
     if (col === 100 && isLine3(row)) {
-      return [[0 + (149 - row), 149], left]; // OK
+      return [[0 + (150 - row), 149], left]; // OK
     }
 
     // line3, under 4
