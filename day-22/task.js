@@ -10,9 +10,9 @@ let inputTEST = fs.readFileSync('./inputTEST.txt').toString();
 // console.log('answer: ', part1(inputData));
 
 // console.log('test2 OK:', part2(testInput) === 123);
-// console.log('answer2:', part2(inputData));
+console.log('answer2:', part2(inputData));
 
-console.log('answer2:', part2(inputTEST));
+// console.log('answer2:', part2(inputTEST));
 
 function part1(inp) {
   let dirDelta = {
@@ -135,10 +135,14 @@ function part2(inp) {
 
   let directionArrow = clockDir[currDirection % 4];
 
-  route = [
-    'R51', 'R52', 'L3', 'L6', 'R47', 'L3', 'L6', 'R47', 'L3', 'L12', 'R102', 'R2', 'R12', 'L12', 'R4', 'R60',
-    'R10', 'L3', 'L7', 'R95', 'L3', 'L10'
-  ];
+  // route = [
+  //   'R51', 'R52', 'L3', 'L6', 'R47', 'L3', 'L6', 'R47', 'L3', 'L12', 'R102', 'R2', 'R12', 'L12', 'R4', 'R60',
+  //   'R10', 'L3', 'L7', 'R95', 'L3', 'L10'
+  // ];
+
+  // console.log(route.length);
+  // route = route.slice(0, 20);
+  // console.log(route);
   route.forEach((p, i) => {
     let direction = p.slice(0, 1);
     let steps = +p.slice(1);
@@ -155,10 +159,19 @@ function part2(inp) {
 
       path[curPos.join(',')] = clockDir[currDirection % 4];
     }
+    // console.log(p, i);
+    // render(map, path, curPos);
+
+    // hardWait(2000);
   });
   render(map, path, curPos);
 
+  // console.log(directionArrow);
   let arrowPoint = {'>': 0, 'v': 1, '<': 2, '^': 3}[directionArrow];
+
+  // 113299 is low :(
+  // after fixing a mistake in INPUT...
+  // 11427 :/
 
   return 1000 * (curPos[0] + 1) + 4 * (curPos[1] + 1) + arrowPoint;
 
@@ -201,16 +214,13 @@ function part2(inp) {
     let down = 100_001;
     let left = 100_002;
     let up = 100_003;
-
-    console.log({row, col});
+    // console.log({row, col});
 
     let isLine1 = (it) => it >= 0 && it <= 49;
     let isLine2 = (it) => it >= 50 && it <= 99;
     let isLine3 = (it) => it >= 100 && it <= 149;
     let isLine4 = (it) => it >= 150 && it <= 199;
     let isLine5 = (it) => it >= 200 && it <= 249;
-    // 0-49 | 50-99 | 100-149 | 150-199 | 20
-
 
     // line1, under 2
     if (arrow === 'v' && row === 50 && isLine3(col)) {
@@ -257,13 +267,13 @@ function part2(inp) {
       return [[150 - row, 50], right];// OK
     }
 
-    // // line6, over 1
+    // line6, over 1
     if (row === -1 && isLine2(col)) {
       return [[100 + col, 0], right]; // OK
     }
-    // // line6, left 6
+    // line6, left 6
     if (col === -1 && isLine4(row)) {
-      return [[0, row - 100], down];
+      return [[0, row - 100], down]; // OK
     }
 
     // line7, right 3
