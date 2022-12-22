@@ -5,18 +5,18 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-// console.log('test OK: ', part1(testInput), [6032]);
+console.log('test OK: ', part1(testInput), [6032]);
 console.log('answer: ', part1(inputData));
 
 // console.log('test2 OK:', part2(testInput) === 123);
 // console.log('answer2:', part2(inputData));
 
 function part1(inp) {
-  let dir = {
-    '>': [1, 0],
-    '<': [-1, 0],
-    '^': [0, 1],
-    'v': [0, -1],
+  let dirDelta = {
+    '>': [0, 1],
+    '<': [0, -1],
+    '^': [-1, 0],
+    'v': [1, 0],
   };
   let clockDir = ['>', 'v', '<', '^']; //.map(it => dir[it]);
 
@@ -26,25 +26,100 @@ function part1(inp) {
     return line.split('').map((char) => char === '_' ? ' ' : char);
   });
   // row, col
-  let startPos = [0, map[0].findIndex(it => it === '.')];
+  let curPos = [0, map[0].findIndex(it => it === '.')];
 
   // 10R5L5R10L4R5L5
-  let route = strRoute.split(/(?=[LR]\d+)/);
+  let [curSteps, ...route] = strRoute.split(/(?=[LR]\d+)/);
+  curSteps = +curSteps;
+  route.unshift('R' + curSteps);
 
-  let i = 100_000;
+  let currDirection = 100_000 - 1;
 
+  let path = {[curPos.join(',')]: '>'};
+
+  // console.log({currDirection: clockDir[currDirection % 4], curPos, curSteps});
   // console.log(startPos);
-  // console.log(route);
   // console.log(map);
 
-  let path = {[startPos.join(',')]: '>'};
+  // console.log(route);
+  let directionArrow = clockDir[currDirection % 4];
 
-  render(map, path)
+  route.forEach((p, i) => {
+    let direction = p.slice(0, 1);
+    let steps = +p.slice(1);
+    if (direction === 'R') {
+      currDirection++;
+    } else {
+      currDirection--;
+    }
+    directionArrow = clockDir[currDirection % 4];
 
-  // Facing is 0 for right (>), 1 for down (v), 2 for left (<), and 3 for up (^).
-  // The final password is the sum of 1000 times the row, 4 times the column, and the facing.
-  let result = 0;
-  return result;
+    // console.log();
+    // console.log([direction, steps], directionArrow);
+
+    // debugger
+
+
+    for (let i = 0; i < steps; i++) {
+      curPos = getStepCoords(curPos, directionArrow);
+
+      path[curPos.join(',')] = directionArrow;
+    }
+    // render(map, path, curPos);
+
+    // if (i > 1) throw new Error('end');
+
+  });
+  // render(map, path, curPos);
+
+  // console.log(curPos, directionArrow);
+  let arrowPoint = {'>': 0, 'v': 1, '<': 2, '^': 3}[directionArrow];
+
+  return 1000 * (curPos[0] + 1) + 4 * (curPos[1] + 1) + arrowPoint;
+
+  function getStepCoords([row, col], directionArrow) {
+    let delta = dirDelta[directionArrow];
+
+    if (map[row + delta[0]] && map[row + delta[0]][col + delta[1]]) {
+      let nextChar = map[row + delta[0]][col + delta[1]];
+
+      if (nextChar === '.') return [row + delta[0], col + delta[1]];
+      if (nextChar === '#') return [row, col];
+
+      let cur = [row, col];
+
+      while (
+        (map[cur[0] - delta[0]] && map[cur[0] - delta[0]][cur[1] - delta[1]] === '.')
+        ||
+        (map[cur[0] - delta[0]] && map[cur[0] - delta[0]][cur[1] - delta[1]] === '#')
+        ) {
+        cur = [cur[0] - delta[0], cur[1] - delta[1]];
+      }
+
+      if (map[cur[0]][cur[1]] === '#') {
+        return [row, col];
+      }
+
+      return cur;
+    } else {
+      let cur = [row, col];
+
+      while (
+        (map[cur[0] - delta[0]] && map[cur[0] - delta[0]][cur[1] - delta[1]] === '.')
+        ||
+        (map[cur[0] - delta[0]] && map[cur[0] - delta[0]][cur[1] - delta[1]] === '#')
+        ) {
+        cur = [cur[0] - delta[0], cur[1] - delta[1]];
+      }
+
+      if (map[cur[0]][cur[1]] === '#') {
+        return [row, col];
+      }
+      return cur;
+    }
+
+    return [row, col];
+  }
 }
 
 function part2(inp) {
@@ -54,10 +129,12 @@ function part2(inp) {
   return result;
 }
 
-function render(map, path) {
+function render(map, path, final) {
   // {[row,col]: '>'}
   let result = map.map((row, rowI) => {
     return row.map((char, colI) => {
+      if (final.join(',') === rowI + ',' + colI) return 'X';
+
       let pChar = path[rowI + ',' + colI];
 
       return pChar || char;
@@ -65,5 +142,5 @@ function render(map, path) {
     }).join('');
   }).join('\n');
   console.log(result);
-  // fs.writeFileSync('./path.txt', result);
+  fs.writeFileSync('./path.txt', result);
 }
