@@ -6,11 +6,11 @@ let testInput = `....#..
 ##.#.##
 .#..#..`;
 
-console.log("test OK: ", part1(testInput), [110]);
+console.log("test OK: ", part1(testInput) === 110);
 console.log("answer: ", part1(getRealData()));
 
-// console.log("test2 OK:", part2(testInput));
-// console.log("answer2:", part2(getRealData()));
+console.log("test2 OK:", part2(testInput) === 20);
+console.log("answer2:", part2(getRealData()), [933]);
 
 function part1(inp) {
   let elfes = {};
@@ -24,7 +24,6 @@ function part1(inp) {
   });
 
   function noElfes(...coords) {
-    // console.log(coords)
     return coords.every(([x, y]) => {
       return !elfes[[x, y].join(",")];
     });
@@ -46,8 +45,7 @@ function part1(inp) {
     return [xRange, yRange];
   }
 
-  render(elfes, ...getRect());
-  // console.log();
+  // render(elfes, ...getRect());
 
   let proposeN = ([x, y], proposals) => {
     if (noElfes([x - 1, y - 1], [x, y - 1], [x + 1, y - 1])) {
@@ -90,18 +88,10 @@ function part1(inp) {
     return false;
   };
   let propArray = [proposeN, proposeS, proposeW, proposeE];
-  // let propArray2 = [proposeS, proposeW, proposeE, proposeN];
 
   for (let round = 1; round <= 10; round++) {
     let proposals = {};
-    console.log({ round });
-    /*
-       [x, y - 1]
-           N
-[x - 1, y]  W*E  [x + 1, y]
-           S
-       [x, y + 1]
-*/
+    // console.log({ round });
 
     Object.keys(elfes).forEach((coords) => {
       let [x, y] = coords.split(",").map((it) => +it);
@@ -157,7 +147,116 @@ function part1(inp) {
   );
 }
 
-function part2(inp) {}
+function part2(inp) {
+  let elfes = {};
+
+  inp.split("\n").forEach((line, y) => {
+    line.split("").forEach((char, x) => {
+      if (char === "#") {
+        elfes[x + "," + y] = true;
+      }
+    });
+  });
+
+  function noElfes(...coords) {
+    return coords.every(([x, y]) => {
+      return !elfes[[x, y].join(",")];
+    });
+  }
+
+  // render(elfes, ...getRect());
+
+  let proposeN = ([x, y], proposals) => {
+    if (noElfes([x - 1, y - 1], [x, y - 1], [x + 1, y - 1])) {
+      if (!proposals[[x, y - 1].join(",")]) {
+        proposals[[x, y - 1].join(",")] = [];
+      }
+      proposals[[x, y - 1].join(",")].push([x, y].join(","));
+      return true;
+    }
+    return false;
+  };
+  let proposeS = ([x, y], proposals) => {
+    if (noElfes([x - 1, y + 1], [x, y + 1], [x + 1, y + 1])) {
+      if (!proposals[[x, y + 1].join(",")]) {
+        proposals[[x, y + 1].join(",")] = [];
+      }
+      proposals[[x, y + 1].join(",")].push([x, y].join(","));
+      return true;
+    }
+    return false;
+  };
+  let proposeW = ([x, y], proposals) => {
+    if (noElfes([x - 1, y - 1], [x - 1, y], [x - 1, y + 1])) {
+      if (!proposals[[x - 1, y].join(",")]) {
+        proposals[[x - 1, y].join(",")] = [];
+      }
+      proposals[[x - 1, y].join(",")].push([x, y].join(","));
+      return true;
+    }
+    return false;
+  };
+  let proposeE = ([x, y], proposals) => {
+    if (noElfes([x + 1, y - 1], [x + 1, y], [x + 1, y + 1])) {
+      if (!proposals[[x + 1, y].join(",")]) {
+        proposals[[x + 1, y].join(",")] = [];
+      }
+      proposals[[x + 1, y].join(",")].push([x, y].join(","));
+      return true;
+    }
+    return false;
+  };
+  let propArray = [proposeN, proposeS, proposeW, proposeE];
+  let round = 0;
+  while (true) {
+    round++;
+    let proposals = {};
+
+    let freeElf = 0;
+    Object.keys(elfes).forEach((coords) => {
+      let [x, y] = coords.split(",").map((it) => +it);
+
+      if (
+        noElfes(
+          [x - 1, y - 1],
+          [x, y - 1],
+          [x + 1, y - 1],
+          //
+          [x - 1, y],
+          [x + 1, y],
+          //
+          [x - 1, y + 1],
+          [x, y + 1],
+          [x + 1, y + 1]
+        )
+      ) {
+        freeElf++;
+        return;
+      }
+
+      propArray[0]([x, y], proposals) ||
+        propArray[1]([x, y], proposals) ||
+        propArray[2]([x, y], proposals) ||
+        propArray[3]([x, y], proposals);
+    });
+
+    if (Object.keys(elfes).length === freeElf) {
+      break;
+    }
+
+    let first = propArray.shift();
+    propArray.push(first);
+
+    Object.entries(proposals).forEach(([coords, els]) => {
+      if (els.length === 1) {
+        delete elfes[els[0]];
+        elfes[coords] = true;
+      }
+    });
+  }
+
+  return round;
+}
 
 function getRealData() {
   return `###.###..#.....#..#.##..##.#...###.#####..#.##.#####.###..######.#.#.#
@@ -245,116 +344,3 @@ function render(elfes, xRange, yRange) {
   }
   console.log(res);
 }
-/*
-......#.....
-..........#.
-.#.#..#.....
-.....#......
-..#.....#..#
-#......##...
-....##......
-.#........#.
-...#.#..#...
-............
-...#..#..#..
-
-*/
-/*== Initial State ==
-..............
-..............
-.......#......
-.....###.#....
-...#...#.#....
-....#...##....
-...#.###......
-...##.#.##....
-....#..#......
-..............
-..............
-..............
-
-== End of Round 1 ==
-..............
-.....#...
-...#...#.
-.#..#.#..
-.....#..#
-..#.#.##.
-#..#.#...
-#.#.#.##.
-.........
-..#..#...
-.........
-..............
-
-== End of Round 2 ==
-..............
-......#....
-...#.....#.
-..#..#.#...
-......#...#
-..#..#.#...
-#...#.#.#..
-...........
-.#.#.#.##..
-...#..#....
-...........
-..............
-
-== End of Round 3 ==
-..............
-......#....
-....#....#.
-.#..#...#..
-......#...#
-..#..#.#...
-#..#.....#.
-......##...
-.##.#....#.
-..#........
-......#....
-..............
-
-== End of Round 4 ==
-..............
-......#....
-.....#....#
-.#...##....
-..#.....#.#
-........#..
-#...###..#.
-.#......#..
-...##....#.
-...#.......
-......#....
-..............
-
-== End of Round 5 ==
-......#....
-...........
-.#..#.....#
-........#..
-.....##...#
-#.#.####...
-..........#
-...##..#...
-.#.........
-.........#.
-...#..#....
-..............
-
-After a few more rounds...
-
-== End of Round 10 ==
-......#.....
-..........#.
-.#.#..#.....
-.....#......
-..#.....#..#
-#......##...
-....##......
-.#........#.
-...#.#..#...
-............
-...#..#..#..
-*/
