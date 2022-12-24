@@ -6,7 +6,7 @@ let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
 console.log('test OK: ', part1(testInput), [18]);
-console.log('answer: ', part1(inputData)); // 233 < ans < 285
+console.log('answer: ', part1(inputData), [266]);
 
 // console.log('test2 OK:', part2(testInput) === 123);
 // console.log('answer2:', part2(inputData));
@@ -31,7 +31,7 @@ function part1(inp) {
   });
 
   let queue = [
-    [[...start], 1]
+    [[...start], 0, [[...start]]]
   ];
 
   let exit = 1_000_000_000;
@@ -42,70 +42,75 @@ function part1(inp) {
     '<': [0, -1],
     '>': [0, 1],
   };
-  let windsCash = {[0]: winds};
+  let windsCash = [winds];
+
+  for (let i = 1; i < 1000; i++) {
+    windsCash.push(getWinds(windsCash[i - 1]))
+  }
+  // for (let i = 0; i < 20; i++) {
+  //   console.log(i);
+  //   render(map, windsCash[i], []);
+  // }
+  // return
+
+
+  let finishVisited = false;
+  let snack = false;
+  let finishVisited2 = false;
 
   let iters = 0;
+  let qSet = new Set();
+  qSet.add(`${start[0]},${start[1]},${0}`);
   while (exit-- && queue.length > 0) {
     iters++;
-    let [position, minute] = queue.shift();
+    let [position, minute, path] = queue.shift();
+    qSet.delete(`${position[0]},${position[1]},${minute}`);
     // console.log({minute}, position);
 
     if (iters % 10_000 === 0) {
       console.log(`iters ${iters / 1000}k, ${minute}min, q:${Math.ceil(queue.length / 1000)}k`);
     }
 
-    let minWinds = getWinds(minute);
-    // render(map, minWinds, position);
-
-    let moved = 0;
+    let minWinds = windsCash[minute + 1];
 
     for (let k in mov) {
-      // if (k === '^') continue;
-      // if (k === '<') continue;
-
       let [deltaRow, deltaCol] = mov[k];
       let newRow = position[0] + deltaRow;
       let newCol = position[1] + deltaCol;
-      // console.log(map[newRow] && map[newRow][newCol]);
 
       if (map[newRow] && map[newRow][newCol] === '.') {
         if (!minWinds[`${newRow},${newCol}`]) {
-          moved++;
-          if (!queue.find(([p, m]) => p[0] === newRow && p[1] === newCol && m === (minute + 1))) {
-            queue.push([[newRow, newCol], minute + 1]);
+          if (!qSet.has(`${newRow},${newCol},${minute + 1}`)) {
+            queue.push([[newRow, newCol], minute + 1, [...path, [newRow, newCol]]]);
+            qSet.add(`${newRow},${newCol},${minute + 1}`)
           }
 
           if (newRow === map.length - 1) {
-            // Object.entries(windsCash).forEach(([m, w]) => {
-            //   console.log(m);
-            //   render(map, w, [0, 0]);
-            // });
             console.log('RESULT', minute + 1, iters);
+
             return minute + 1;
           }
-
         }
       }
     }
 
-    // if (moved < 2) {
-    // wait
-    queue.push([position, minute + 1]);
-    // }
+    if (!minWinds[`${position[0]},${position[1]}`]) {
+      queue.push([position, minute + 1, [...path, position]]);
+      qSet.add(`${position[0]},${position[1]},${minute + 1}`)
+    }
   }
 
-  function getWinds(min) {
-    if (windsCash[min]) return windsCash[min];
+  function getWinds(winds) {
+    // if (windsCash[min]) return windsCash[min];
 
     let newWinds = {};
-    Object.entries(windsCash[min - 1]).forEach(([coords, ws]) => {
+    Object.entries(winds).forEach(([coords, ws]) => {
       // ^), down (v), left (<), or right (>)
       let [row, col] = coords.split(',');
 
       ws.forEach((w) => {
         let newRow = +row + mov[w][0];
         let newCol = +col + mov[w][1];
-        // console.log(w, {newRow, newCol}, map[newRow][newCol]);
         if (map[newRow][newCol] === '#') {
           if (w === '^') newRow = map.length - 2;
           if (w === 'v') newRow = 1;
@@ -120,7 +125,7 @@ function part1(inp) {
         newWinds[key].push(w);
       });
     });
-    windsCash[min] = newWinds;
+    // windsCash[min] = newWinds;
 
     // console.log(min);
     // render(map, newWinds, [0,0])
@@ -135,12 +140,15 @@ function part1(inp) {
   // return minute;
 }
 
-function render(map, winds, pos) {
+function render(map, winds, pos = [0,0]) {
   let res = map.map((row, rowI) => {
     return row.map((char, colI) => {
 
       if (pos[0] === rowI && pos[1] === colI) {
-        return 'E';
+        if (winds[`${rowI},${colI}`]) {
+          return '█';
+        }
+        return '▒';
       }
 
       if (winds[`${rowI},${colI}`]) {
@@ -163,3 +171,126 @@ function part2(inp) {
   });
   return result;
 }
+
+/*
+0
+#E######
+#>>.<^<#
+#.<..<<#
+#>v.><>#
+#<^v^^>#
+######.#
+1
+#E######
+#E>3.<.#
+#<..<<.#
+#>2.22.#
+#>v..^<#
+######.#
+2
+#E######
+#.2>2..#
+#E^22^<#
+#.>2.^>#
+#.>..<.#
+######.#
+3
+#E######
+#<^<22.#
+#E2<.2.#
+#><2>..#
+#..><..#
+######.#
+4
+#E######
+#E<..22#
+#<<.<..#
+#<2.>>.#
+#.^22^.#
+######.#
+5
+#E######
+#2Ev.<>#
+#<.<..<#
+#.^>^22#
+#.2..2.#
+######.#
+6
+#E######
+#>2E<.<#
+#.2v^2<#
+#>..>2>#
+#<....>#
+######.#
+7
+#E######
+#.22^2.#
+#<vE<2.#
+#>>v<>.#
+#>....<#
+######.#
+8
+#E######
+#.<>2^.#
+#..!<.<#
+#.22..>#
+#.2v^2.#
+######.#
+9
+#E######
+#<.2>>.#
+#.<<E<.#
+#>2>2^.#
+#.v><^.#
+######.#
+10
+#E######
+#.2..>2#
+#<2v!^.#
+#<>.>2.#
+#..<>..#
+######.#
+11
+#E######
+#2^.^2>#
+#<v<.^<#
+#..2E>2#
+#.<..>.#
+######.#
+12
+#E######
+#>>.<^<#
+#.<..<<#
+#>v.!<>#
+#<^v^^>#
+######.#
+13
+#E######
+#.>3.<.#
+#<..<<.#
+#>2.22.#
+#>v.E^<#
+######.#
+14
+#E######
+#.2>2..#
+#.^22^<#
+#.>2.^>#
+#.>.E<.#
+######.#
+15
+#E######
+#<^<22.#
+#.2<.2.#
+#><2>..#
+#..><E.#
+######.#
+16
+#E######
+#.<..22#
+#<<.<..#
+#<2.>>.#
+#.^22^E#
+######.#
+
+*/
