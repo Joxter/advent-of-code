@@ -5,11 +5,11 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test OK: ', part1(testInput), [54]);
-// console.log('answer: ', part1(inputData), [266]);
+console.log('test OK: ', part1(testInput) === 18);
+console.log('answer: ', part1(inputData), [266]);
 
-// console.log('test2 OK:', part2(testInput) === 123);
-// console.log('answer2:', part2(inputData));
+// console.log('test2 OK:', part2(testInput) === 54);
+// console.log('answer2:', part2(inputData), [853]);
 
 function part1(inp) {
   let winds = {}; // [position]: ['']
@@ -77,7 +77,7 @@ function part1(inp) {
 
       if (map[newRow] && map[newRow][newCol] === '.') {
         if (!minWinds[`${newRow},${newCol}`]) {
-          if (!qSet.has(`${newRow},${newCol},${minute + 1}`)) {
+          if (!qSet.has(`${newRow},${newCol},${minute + 1},${goal}`)) {
             queue.push([[newRow, newCol], minute + 1, goal]);
             qSet.add(`${newRow},${newCol},${minute + 1},${goal}`);
           }
@@ -89,6 +89,7 @@ function part1(inp) {
             ];
             qSet.clear();
             qSet.add(`${newRow},${newCol},${minute + 1},snacks`);
+            break;
           } else if (goal === 'snacks' && newRow === 0) {
             console.log('RESULT, snacks', minute + 1, iters);
             queue = [
@@ -96,6 +97,7 @@ function part1(inp) {
             ];
             qSet.clear();
             qSet.add(`0,1,${minute + 1},finish2`);
+            break;
           } else if (goal === 'finish2' &&  newRow === map.length - 1) {
             console.log('RESULT, finish2', minute + 1, iters);
             return minute + 1;
