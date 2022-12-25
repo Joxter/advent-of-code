@@ -9,3 +9,6 @@ reliability or maintainance.
 
 However, I wrote sometimes alternative more bussiness/production style code. 
 But only because I was bored
+
+# Finish
+<img width="657" alt="image" src="https://user-images.githubusercontent.com/3627930/209472928-288f08ea-01ca-41a6-bc0b-97a5464b69bc.png">
