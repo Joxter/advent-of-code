@@ -11,18 +11,19 @@ def part1(inp):
 
     for line in lines:
         for i in range(len(lines[0])):
-            if line[i] == '0':
-                commonBits[i] -= 1
-            else:
+            if line[i] == '1':
                 commonBits[i] += 1
+            else:
+                commonBits[i] -= 1
 
-    oxy = ''.join(list(map(lambda n: ('1' if n > 0 else '0'), commonBits)))
-    co2 = ''.join(list(map(lambda n: ('0' if n > 0 else '1'), commonBits)))
-    gamma, delta = int(oxy, 2) , int(co2, 2)
+    oxy = [('1' if n > 0 else '0') for n in commonBits]
+    co2 = [('0' if n > 0 else '1') for n in commonBits]
+
+    gamma, delta = int(''.join(oxy), 2), int(''.join(co2), 2)
 
     return gamma * delta
 
-def findOxyRating(lines, offset):
+def getRatingOf(lines, targetOnes, targetZeros, offset):
     if len(lines) == 1:
         return lines[0]
 
@@ -34,43 +35,25 @@ def findOxyRating(lines, offset):
             isMoreOne -= 1
 
     if (isMoreOne >= 0):
-        oxyList = list(filter(lambda line: line[offset] == '1', lines))
+        filteredList = [line for line in lines if line[offset] == targetOnes]
     else:
-        oxyList = list(filter(lambda line: line[offset] == '0', lines))
+        filteredList = [line for line in lines if line[offset] == targetZeros]
 
-    return findOxyRating(oxyList, offset + 1)
-
-def findCo2Rating(lines, offset):
-    if len(lines) == 1:
-        return lines[0]
-
-    isMoreOne = 0
-    for line in lines:
-        if line[offset] == '1':
-            isMoreOne += 1
-        else:
-            isMoreOne -= 1
-
-    if (isMoreOne < 0):
-        co2List = list(filter(lambda line: line[offset] == '1', lines))
-    else:
-        co2List = list(filter(lambda line: line[offset] == '0', lines))
-
-    return findCo2Rating(co2List, offset + 1)
+    return getRatingOf(filteredList, targetOnes, targetZeros, offset + 1)
 
 def part2(inp):
     lines = inp.split('\n')
 
-    oxy = findOxyRating(lines, 0)
-    co2 = findCo2Rating(lines, 0)
+    oxy = getRatingOf(lines, '1', '0', 0)
+    co2 = getRatingOf(lines, '0', '1', 0)
 
-    gamma, delta = int(oxy, 2) , int(co2, 2)
+    gamma, delta = int(oxy, 2), int(co2, 2)
 
     return gamma * delta
 
 
 print('test1', part1(testInp), [198])
-print('part1', part1(input))
+print('part1', part1(input), [3687446])
 
 print('test2', part2(testInp), [230])
-print('part2', part2(input))
+print('part2', part2(input), [4406844])
