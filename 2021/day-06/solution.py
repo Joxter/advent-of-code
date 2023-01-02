@@ -1,3 +1,9 @@
+
+# https://adventofcode.com/2021/day/___
+
+input = open('./input.txt', 'r').read()
+testInp = open('./test.txt', 'r').read()
+
 def part1(inp):
     lans = [int(n) for n in inp.split(',')]
 
@@ -43,8 +49,8 @@ def part2(inp):
 
     return sum([b[1] for b in bunches])
 
-print('test1', part1(testInp), [5934])
+print('test', part1(testInp), [5934])
 print('part1', part1(input), [363101])
 
-print('test2', part2(testInp), [26984457539])
+print('test', part2(testInp), [26984457539])
 print('part2', part2(input), [1644286074024])

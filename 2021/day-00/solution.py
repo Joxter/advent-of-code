@@ -10,8 +10,8 @@ def part1(inp):
 def part2(inp):
     return 3
 
-print('test1', part1(testInp), [])
-print('part1', part1(input))
+print('test', part1(testInp), [])
+print('part1', part1(input), [])
 
-print('test2', part2(testInp), [])
-print('part2', part2(input))
+print('test', part2(testInp), [])
+print('part2', part2(input), [])
