@@ -11,7 +11,7 @@ def part2(inp):
     return 3
 
 print('test', part1(testInp), [])
-print('part1', part1(input), [])
+# print('part1', part1(input), [])
 
-print('test', part2(testInp), [])
-print('part2', part2(input), [])
+# print('test', part2(testInp), [])
+# print('part2', part2(input), [])
