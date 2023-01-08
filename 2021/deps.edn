@@ -1,0 +1,9 @@
+{
+	:deps
+ {nrepl/nrepl                              {:mvn/version "1.0.0"}}
+
+;; ...
+:aliases {:nREPL
+          {:extra-deps
+            {nrepl/nrepl {:mvn/version "1.0.0"}}}}
+ }
