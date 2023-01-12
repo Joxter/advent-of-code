@@ -5,8 +5,8 @@ import fs from 'fs';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test_actual OK: ', part1_correct(testInput, 1) === 13);
-console.log('answer_actual: ', part1_correct(inputData, 1), [6018]);
+console.log('test_actual OK: ', part1(testInput, 1) === 13);
+console.log('answer_actual: ', part1(inputData, 1), [6018]);
 
 let test2Input = `R 5
 U 8
@@ -17,9 +17,9 @@ D 10
 L 25
 U 20`;
 console.log('test2 OK: ', part2(test2Input) === 36);
-console.log('answer2: ', part2(inputData), [2619]); // 491 is wrong???? correct 2619 O_o
+console.log('answer2: ', part2(inputData), [2619]);
 
-function part1_correct(inp) {
+function part1(inp) {
   return correct_approach_actually(inp, 1);
 }
 

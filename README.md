@@ -30,6 +30,8 @@ And even after all spoilers, my code for second part did not work properly, wher
 perfectly on test examples. It was the first day I wrote a visualization to debug. **I almost 
 gave up the Advent**. The only day, I submitted the solution was not retrieved from my code.
 I promise, I will come back to this task!
+   - UPD [FIX](https://github.com/Joxter/advent-2022/commit/db7ae4efc182a0a0ff1e9ceb157cb6df926c9c9b).
+   Nothing special, the first implementation of `follow` function was wrong despite the correct result for the test data. I discovered this after debugging by printing every movement of every knot
  - Day 11. I was **pissed off** at this "find another way to keep your worry levels manageable".. 
 like how dare a task hides essential requirements from me!
  - Day 15. The first one-star day. Just because I hung out with friends and got drunk.
@@ -46,7 +48,7 @@ It was my first Advent of Code. I expected way **easier** tasks, way more **comp
 and more fun/cute reward.
 
 Anyway, I'm very glad I got involved. I discovered a whole new style of coding, realized 
-that I like these puzzles **more** than my current work tasks..
+that I like these puzzles **more** than my current tasks at work..
 
 Now my further plan includes:
 - Finish Advent of Code 2022 and **understand** my mistakes.
