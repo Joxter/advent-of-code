@@ -1,15 +1,16 @@
 import fs from 'fs';
+import { runSolution } from '../utils.js';
 
 // https://adventofcode.com/2022/day/1
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test OK: ', run(testInput) === 24000);
-console.log('answer: ', run(inputData));
+runSolution('test  ', () => run(testInput), 24000)
+runSolution('part_1', () => run(inputData), 74711)
 
-console.log('test2 OK: ', runPart2(testInput) === 45000);
-console.log('answer2: ', runPart2(inputData));
+runSolution('test  ', () => runPart2(testInput), 45000)
+runSolution('part_2', () => runPart2(inputData), 209481)
 
 function run(inp) {
   let totals = inp.split('\n\n').map((calories) => {

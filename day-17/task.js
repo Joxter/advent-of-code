@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { runSolution } from '../utils.js';
 
 // https://adventofcode.com/2022/day/17
 
@@ -21,11 +22,11 @@ let rocks = [
 let testInput = fs.readFileSync('./testData.txt').toString(); // 40
 let inputData = fs.readFileSync('./input.txt').toString(); // 10091 (prime)
 
-console.log('test OK: ', part1(testInput) === 3068);
-console.log('answer: ', part1(inputData), [3153]);
+runSolution('test  ', () => part1(testInput), 3068)
+runSolution('part_1', () => part1(inputData), 3153)
 
-console.log('test2 OK:', part2test(testInput) === 1_514_285_714_288);
-console.log('answer2:', part2data(inputData), [1_553_665_689_155]);
+runSolution('test  ', () => part2test(testInput), 1_514_285_714_288)
+runSolution('part_2', () => part2data(inputData), 1_553_665_689_155)
 
 function part1(inp, rocklimit = 2022) {
   let result = 0;
