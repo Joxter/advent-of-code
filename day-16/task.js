@@ -4,20 +4,15 @@ import fs from 'fs';
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
+// todo fix cash, without it p2 is incredibly slow
 
-let start = Date.now();
 console.log('test OK: ', part1(testInput), [1651]);
 console.log('answer: ', part1(inputData), [2250]);
-console.log('sec', (Date.now() - start) / 1000);
-// 1.3
-// 1.2 - remove path
-// 1.1 - remove rawPath + add bitmask for opened
 
-// console.log('test2 OK:', part2(testInput) === 1707);
-// console.log('answer2:', part2(inputData));
+console.log('test2 OK:', part2(testInput), [1707]);
+console.log('answer2:', part2(inputData), [3015]);
 
-function part1(inp) {
-  let maxMins = 30;
+function parse(inp) {
   let map = {};
   let maxValves = 0;
   let heads = {};
@@ -25,7 +20,7 @@ function part1(inp) {
   inp.split('\n').forEach(line => {
     let [_, name, rate, next] = /Valve\s(..).+rate=(\d+).+valve[s]? (.+)/.exec(line);
 
-    if (+rate || name === 'AA') {
+    if (+rate && name !== 'AA') {
       heads[name] = 1 << maxValves;
       maxValves++;
     }
@@ -39,15 +34,27 @@ function part1(inp) {
 
   let newNewMap = transformMap(map);
 
-  let ans = goNext(newNewMap.AA, { released: 0, opened: heads.AA }, 1);
-  return ans;
+  return { newNewMap, allOpened, heads };
+}
 
-  function goNext(node, { released, opened }, minutes) {
+function part1(inp) {
+  let maxMins = 30;
+
+  let { allOpened, heads, newNewMap } = parse(inp);
+  // let cash = {};
+
+  return dfs(newNewMap.AA, { released: 0, opened: heads['AA'] }, 1);
+
+  function dfs(node, { released, opened }, minutes) {
+    // let key = `${node.name},${opened},${minutes}`;
+    // if (key in cash) {
+    //   return cash[key];
+    // }
     if (opened === allOpened || minutes > maxMins) {
       return released;
     }
 
-    return Math.max(
+    let result = Math.max(
       ...node.next
         .filter(_nodeName => {
           let [nodeName] = _nodeName.split(',');
@@ -59,7 +66,7 @@ function part1(inp) {
           let rate = newNewMap[nodeName].rate;
           let minLeft = maxMins - (minutes + +cost);
 
-          return goNext(
+          return dfs(
             newNewMap[nodeName],
             {
               released: released + +rate * minLeft,
@@ -69,74 +76,67 @@ function part1(inp) {
           );
         })
     );
+    // cash[key] = result;
+
+    return result;
   }
 }
 
 function part2(inp) {
   let maxMins = 26;
-  let map = {};
-  let maxValves = 1;
 
-  inp.split('\n').forEach(line => {
-    let [_, name, rate, next] = /Valve\s(..).+rate=(\d+).+valve[s]? (.+)/.exec(line);
+  let { allOpened, heads, newNewMap } = parse(inp);
+  let res = 0;
+  // let cash = {};
 
-    if (+rate) maxValves++;
-    map[name] = {
-      rate: +rate,
-      next: next.split(', '),
-      name,
-    };
-  });
+  let max = Math.floor(allOpened / 2);
 
-  let newNewMap = transformMap(map);
+  for (let i = 0; i < max; i++) {
+    console.log(i, max);
+    let opened1 = i | heads['AA'];
 
-  return splitCases();
+    let res1 = dfs(newNewMap.AA, { released: 0, opened: opened1 }, 1);
+    let res2 = dfs(newNewMap.AA, { released: 0, opened: opened1 ^ allOpened }, 1);
 
-  function splitCases() {
-    let heads = Object.keys(newNewMap).filter(it => it !== 'AA');
-    let allCases = permutationIterator(heads);
-
-    let from = Math.floor(heads.length / 3);
-    let to = Math.floor(heads.length / 2);
-
-    let result = 0;
-
-    for (let currCase of allCases) {
-      for (let j = from; j <= to; j++) {
-        let myArr = ['AA', ...currCase.slice(0, j)];
-        let elArr = ['AA', ...currCase.slice(j)];
-        let myScore = testPath(myArr);
-        let elScore = testPath(elArr);
-
-        result = Math.max(result, myScore + elScore);
-      }
-    }
-
-    return result;
+    res = Math.max(res, res1 + res2);
   }
 
-  function testPath(path) {
-    let released = 0;
-    let [curPoint, ...tail] = path;
-    let minutes = 1;
+  return res;
 
-    tail.forEach(nodeName => {
-      let cost = +newNewMap[curPoint].next
-        .filter(it => {
-          return it.startsWith(nodeName);
+  function dfs(node, { released, opened }, minutes) {
+    // let key = `${node.name},${opened},${minutes}`;
+    // if (key in cash) {
+    //   return cash[key];
+    // }
+    if (opened === allOpened || minutes > maxMins) {
+      return released;
+    }
+
+    let result = Math.max(
+      ...node.next
+        .filter(_nodeName => {
+          let [nodeName] = _nodeName.split(',');
+          return (opened & heads[nodeName]) === 0;
         })
-        .map(it => {
-          return it.split(',')[1];
-        });
+        .map(_nodeName => {
+          let [nodeName, cost] = _nodeName.split(',');
 
-      let rate = newNewMap[nodeName].rate;
-      let minLeft = maxMins - (minutes + +cost);
-      released += +rate * minLeft;
-      minutes += +cost + 1;
+          let rate = newNewMap[nodeName].rate;
+          let minLeft = maxMins - (minutes + +cost);
 
-      curPoint = nodeName;
-    });
-    return released;
+          return dfs(
+            newNewMap[nodeName],
+            {
+              released: released + +rate * minLeft,
+              opened: opened | heads[nodeName],
+            },
+            minutes + +cost + 1
+          );
+        })
+    );
+    // cash[key] = result;
+
+    return result;
   }
 }
 
@@ -190,51 +190,6 @@ function findPath(map, start, finish) {
       if (!path.includes(nodeName)) {
         dfs([...path, nodeName], score + 1);
       }
-    }
-  }
-}
-
-function render(map, lastLeftRock, lastRightRock, bottom) {
-  let result = '';
-
-  for (let y = -1; y <= bottom + 2; y++) {
-    let row = '';
-    for (let x = lastLeftRock - 2; x < lastRightRock + 2; x++) {
-      row += map[x + ',' + y] || '.';
-    }
-    result += String(y).padStart(3, '0') + ' ' + row + '\n';
-  }
-
-  console.log(result);
-}
-
-function* permutationIterator(object) {
-  if (object == null || object.length === 0) return;
-  const keys = Object.keys(object);
-  for (const indexes of permutate(keys)) {
-    yield indexes.map(i => object[i]);
-  }
-}
-
-// Heap's method, time complexity O(N)
-function* permutate(array) {
-  const { length } = array;
-  const c = new Array(length).fill(0);
-  let i = 1;
-
-  yield array.slice();
-  while (i < length) {
-    if (c[i] < i) {
-      const k = i % 2 && c[i];
-      const p = array[i];
-      array[i] = array[k];
-      array[k] = p;
-      ++c[i];
-      i = 1;
-      yield array.slice();
-    } else {
-      c[i] = 0;
-      ++i;
     }
   }
 }
