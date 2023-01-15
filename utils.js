@@ -4,11 +4,14 @@ export function runSolution(label, fn, answer = null) {
   let time = (Date.now() - start) / 1000;
 
   if (res === answer) {
-    console.log('✅', label, formatRes(res), 'sec', time);
+    console.log('✅', label, res, `[sec ${time}]`);
   } else {
-    console.log(`❌`, label, 'sec', time);
-    console.log(`  expected:`, formatRes(answer));
-    console.log(`  actual:  `, formatRes(res));
+    console.log(`❌`, label, `[sec ${time}]`);
+
+    if (answer !== null) {
+      console.log(`  expected:`, formatRes(answer));
+      console.log(`  actual:  `, formatRes(res));
+    }
   }
 }
 

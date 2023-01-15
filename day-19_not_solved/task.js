@@ -1,12 +1,17 @@
 import fs from 'fs';
+import { runSolution } from '../utils.js';
 
 // https://adventofcode.com/2022/day/19
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test OK: ', part1(testInput), [33]);
-console.log('answer: ', part1(inputData), [2193]);
+runSolution('test  ', () => part1(testInput), 33);
+runSolution('part_1', () => part1(inputData), 2193)
+
+// runSolution('test  ', () => part2(testInput))
+// runSolution('part_2', () => part2(inputData))
+
 
 // console.log('test2 OK:', part1(testInput) === 123);
 // console.log('answer2:', part1(inputData));
@@ -35,7 +40,7 @@ function part1(inp) {
       ...robots,
       max: [
         Math.max(+oreCost, +clayCost, +obsRobotOre, +geodeCostOre),
-        Math.max(+obsRobotClay),
+        +obsRobotClay,
         +geodeCostObs,
       ],
       number: +n,
@@ -43,18 +48,18 @@ function part1(inp) {
   });
   /*
   {
-    oreRobot: [ 4, 0, 0 ],
-    clayRobot: [ 2, 0, 0, 0 ],
+    oreRobot:      [ 4, 0, 0 ],
+    clayRobot:     [ 2, 0, 0, 0 ],
     obsidianRobot: [ 3, 14, 0 ],
-    geodeRobot: [ 2, 0, 7 ]
-    MAX: [ 4, 14, 7 ]
+    geodeRobot:    [ 2, 0, 7 ]
+    MAX:           [ 4, 14, 7 ]
   },
   {
-    oreRobot: [ 2, 0, 0 ],
-    clayRobot: [ 3, 0, 0, 0 ],
+    oreRobot:      [ 2, 0, 0 ],
+    clayRobot:     [ 3, 0, 0, 0 ],
     obsidianRobot: [ 3, 8, 0 ],
-    geodeRobot: [ 3, 0, 12 ] =>
-    MAX: [ 3, 0, 12 ] =>
+    geodeRobot:    [ 3, 0, 12 ] =>
+    MAX:           [ 3, 0, 12 ] =>
   }
 
 */
@@ -81,33 +86,27 @@ function simulateBlueprint(blueprint) {
   let maxGeo = 0;
   let saved = 0;
 
-  goNext(storage, robots, 1);
+  dfs(storage, robots, 1);
 
   return maxGeo;
 
   // ore, clay, obsidian, geode
-  function goNext(storage, robots, minute) {
-    const isCanBuild = canBuild(storage, robots, blueprint, MAX_MINUTES - minute);
-
+  function dfs(storage, robots, minute) {
     if (minute > MAX_MINUTES) {
       if (storage[3] > maxGeo) {
-        // render(storage, robots, isCanBuild, minute);
         maxGeo = storage[3];
-      } else {
-        // if (Math.random() * 5000000 < 1) {
-        //   render(storage, robots, isCanBuild, minute);
-        // }
       }
       return;
     }
 
+    const isCanBuild = canBuild(storage, robots, blueprint, MAX_MINUTES - minute);
 
     if (isCanBuild.geodeRobot) {
       let newRobots = [...robots];
       newRobots[3]++;
       let storageAfterBuild = buildRobot(storage, blueprint.geodeRobot);
       let storageAfterCollect = collectOres(storageAfterBuild, robots);
-      goNext(storageAfterCollect, newRobots, minute + 1);
+      dfs(storageAfterCollect, newRobots, minute + 1);
     } else {
 
       if (isCanBuild.obsidianRobot) {
@@ -115,33 +114,28 @@ function simulateBlueprint(blueprint) {
         newRobots[2]++;
         let storageAfterBuild = buildRobot(storage, blueprint.obsidianRobot);
         let storageAfterCollect = collectOres(storageAfterBuild, robots);
-        goNext(storageAfterCollect, newRobots, minute + 1);
-      } else {
-
-        let wasBuildSomething = false;
-
-        if (isCanBuild.clayRobot) {
-          wasBuildSomething = true;
-          let newRobots = [...robots];
-          newRobots[1]++;
-          let storageAfterBuild = buildRobot(storage, blueprint.clayRobot);
-          let storageAfterCollect = collectOres(storageAfterBuild, robots);
-          goNext(storageAfterCollect, newRobots, minute + 1);
-        }
-
-        if (isCanBuild.oreRobot) {
-          wasBuildSomething = true;
-          let newRobots = [...robots];
-          newRobots[0]++;
-          let storageAfterBuild = buildRobot(storage, blueprint.oreRobot);
-          let storageAfterCollect = collectOres(storageAfterBuild, robots);
-          goNext(storageAfterCollect, newRobots, minute + 1);
-        }
-
-        let newRobots = [...robots];
-        let storageAfterCollect = collectOres(storage, robots);
-        goNext(storageAfterCollect, newRobots, minute + 1);
+        dfs(storageAfterCollect, newRobots, minute + 1);
       }
+
+      if (isCanBuild.clayRobot) {
+        let newRobots = [...robots];
+        newRobots[1]++;
+        let storageAfterBuild = buildRobot(storage, blueprint.clayRobot);
+        let storageAfterCollect = collectOres(storageAfterBuild, robots);
+        dfs(storageAfterCollect, newRobots, minute + 1);
+      }
+
+      if (isCanBuild.oreRobot) {
+        let newRobots = [...robots];
+        newRobots[0]++;
+        let storageAfterBuild = buildRobot(storage, blueprint.oreRobot);
+        let storageAfterCollect = collectOres(storageAfterBuild, robots);
+        dfs(storageAfterCollect, newRobots, minute + 1);
+      }
+
+      let newRobots2 = [...robots];
+      let storageAfterCollect2 = collectOres(storage, robots);
+      dfs(storageAfterCollect2, newRobots2, minute + 1);
     }
   }
 }
@@ -165,36 +159,30 @@ function buildRobot(storage, robotRequirements) {
 
 function canBuild(storage, robots, blueprint, timeLeft) {
   // ore, clay, obsidian, geode
-  function howManyRobots(robotRequirements) {
-    let st = [...storage];
-    let cnt = 0;
-
-    while (
-      st[0] >= robotRequirements[0] &&
-      st[1] >= robotRequirements[1] &&
-      st[2] >= robotRequirements[2]
-      ) {
-      st[0] -= robotRequirements[0];
-      st[1] -= robotRequirements[1];
-      st[2] -= robotRequirements[2];
-      cnt++;
-    }
-
-    return cnt;
+  function can(robotRequirements) {
+    return storage[0] >= robotRequirements[0] &&
+      storage[1] >= robotRequirements[1] &&
+      storage[2] >= robotRequirements[2];
   }
 
   return {
     oreRobot:
-      storage[0] > timeLeft * blueprint.max[0] && false
-        ? 0
-        : robots[0] < blueprint.max[0] ? howManyRobots(blueprint.oreRobot) : 0,
-    clayRobot: storage[1] > timeLeft * blueprint.max[1]&& false
-      ? 0
-      : robots[1] < blueprint.max[1] ? howManyRobots(blueprint.clayRobot) : 0,
-    obsidianRobot: storage[1] > timeLeft * blueprint.max[2]&& false
-      ? 0
-      : robots[2] < blueprint.max[2] ? howManyRobots(blueprint.obsidianRobot) : 0,
-    geodeRobot: howManyRobots(blueprint.geodeRobot),
+      storage[0] > timeLeft * blueprint.max[0]
+        ? false
+        : robots[0] < blueprint.max[0]
+          ? can(blueprint.oreRobot)
+          : false,
+    clayRobot: storage[1] > timeLeft * blueprint.max[1]
+      ? false
+      : robots[1] < blueprint.max[1]
+        ? can(blueprint.clayRobot)
+        : false,
+    obsidianRobot: storage[1] > timeLeft * blueprint.max[2]
+      ? false
+      : robots[2] < blueprint.max[2]
+        ? can(blueprint.obsidianRobot)
+        : false,
+    geodeRobot: can(blueprint.geodeRobot),
   };
 }
 
@@ -221,8 +209,8 @@ blueprint 7 0
 blueprint 8 1
 blueprint 9 10
 blueprint 10 5
-blueprint 11 3 (2)
-blueprint 12 5 (4)
+blueprint 11 3
+blueprint 12 5
 blueprint 13 3
 blueprint 14 0
 blueprint 15 0
@@ -233,7 +221,7 @@ blueprint 19 3
 blueprint 20 5
 blueprint 21 0
 blueprint 22 0
-blueprint 23 15 (14)
+blueprint 23 15
 blueprint 24 13
 blueprint 25 6
 blueprint 26 3
