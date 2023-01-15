@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { runSolution } from '../utils.js';
 
 // https://adventofcode.com/2022/day/2
 
@@ -13,13 +14,19 @@ const SCISSORS = 3;
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test OK: ', run(testInput) === 15);
-console.log('answer: ', run(inputData));
+runSolution('test  ', () => part1(testInput), 15);
+runSolution('part_1', () => part1(inputData), 10310);
 
-console.log('test2 OK: ', runPart2(testInput) === 12);
-console.log('answer2: ', runPart2(inputData));
+runSolution('test  ', () => part2(testInput), 12);
+runSolution('part_2', () => part2(inputData), 14859);
 
-function run(inp) {
+runSolution('[no advent] test  ', () => part1noAdvent(testInput), 15);
+runSolution('[no advent] part_1', () => part1noAdvent(inputData), 10310);
+
+runSolution('[no advent] test  ', () => part2noAdvent(testInput), 12);
+runSolution('[no advent] part_2', () => part2noAdvent(inputData), 14859);
+
+function part1(inp) {
   const scores = {
     // rock
     'A X': ROCK + DRAW,
@@ -39,16 +46,13 @@ function run(inp) {
 
   let total = inp.split('\n')
     .reduce((sum, set) => {
-      return sum + (scores[set] || 0)
-    }, 0)
+      return sum + (scores[set] || 0);
+    }, 0);
 
-  return total
+  return total;
 }
 
-// X means you need to lose,
-// Y means you need to end the round in a draw,
-// and Z means you need to win"
-function runPart2(inp) {
+function part2(inp) {
   const scores2 = {
     // rock
     'A X': SCISSORS + LOSE,
@@ -68,9 +72,56 @@ function runPart2(inp) {
 
   let total = inp.split('\n')
     .reduce((sum, set) => {
-      return sum + (scores2[set] || 0)
-    }, 0)
+      return sum + (scores2[set] || 0);
+    }, 0);
 
-  return total
+  return total;
 }
 
+// inspired https://www.youtube.com/watch?v=lNFMyI3JBeY
+function part1noAdvent(inp) {
+  let total = 0;
+
+  inp.split('\n')
+    .forEach((line) => {
+      let [x, y] = line.split(' ');
+      x = x.charCodeAt(0) - 'A'.charCodeAt(0);
+      y = y.charCodeAt(0) - 'X'.charCodeAt(0);
+
+      if (x === y) {
+        total += 3;
+      } else if ((y - x + 3) % 3 === 1) {
+        total += 6;
+      }
+      total += y + 1;
+    });
+
+  return total;
+}
+
+// X means you need to lose,
+// Y means you need to end the round in a draw,
+// and Z means you need to win
+function part2noAdvent(inp) {
+  return  4; // todo IMPLEMENT
+  let total = 0;
+
+  // A X
+  // B Y
+  // C Z
+  inp.split('\n')
+    .forEach((line) => {
+      let [x, y] = line.split(' ');
+      x = x.charCodeAt(0) - 'A'.charCodeAt(0);
+      y = y.charCodeAt(0) - 'X'.charCodeAt(0);
+
+      if (x === y) {
+        total += 3;
+      } else if ((y - x + 3) % 3 === 1) {
+        total += 6;
+      }
+      total += y + 1;
+    });
+
+  return total;
+}
