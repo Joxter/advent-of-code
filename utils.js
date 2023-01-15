@@ -3,22 +3,16 @@ export function runSolution(label, fn, answer = null) {
   let res = fn();
   let time = (Date.now() - start) / 1000;
 
+  if (answer === null) {
+    console.log('❓ ', label, res, `[sec ${time}]`);
+    return;
+  }
+
   if (res === answer) {
     console.log('✅', label, res, `[sec ${time}]`);
   } else {
     console.log(`❌`, label, `[sec ${time}]`);
-
-    if (answer !== null) {
-      console.log(`  expected:`, formatRes(answer));
-      console.log(`  actual:  `, formatRes(res));
-    }
+    console.log(`  expected:`, answer);
+    console.log(`  actual:  `, res);
   }
-}
-
-function formatRes(x) {
-  if (typeof x === 'number') {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '_');
-  }
-
-  return x;
 }

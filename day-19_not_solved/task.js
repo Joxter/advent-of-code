@@ -6,12 +6,12 @@ import { runSolution } from '../utils.js';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-//                                                                  cash
-// runSolution('test  ', () => part1(testInput), 33);  // sec 24     4.2
-// runSolution('part_1', () => part1(inputData), 2193) // sec 157   32.4
+//                                                                 cash   optGeo
+runSolution('test  ', () => part1(testInput), 33); //    sec 24     4.2      0.9
+runSolution('part_1', () => part1(inputData), 2193); //  sec 157   32.4     15.0
 
-runSolution('test  ', () => part2(testInput), 56);
-runSolution('part_2', () => part2(inputData));
+runSolution('test  ', () => part2(testInput), 3410); //  sec          -      5.1
+runSolution('part_2', () => part2(inputData), 7200); //  sec          -     13.8
 
 function parse(inp) {
   let blueprints = inp.split('\n').map((line) => {
@@ -51,7 +51,7 @@ function part1(inp) {
 
   return (
     blueprints
-      .map((blueprint, i, blueprints) => {
+      .map((blueprint, i) => {
         let max = simulateBlueprint(blueprint, 24);
         console.log('blueprint', blueprint.number, max);
         return (i + 1) * max;
@@ -66,12 +66,12 @@ function part2(inp) {
   return (
     blueprints
       .slice(0, 3)
-      .map((blueprint, i, blueprints) => {
+      .map((blueprint) => {
         let max = simulateBlueprint(blueprint, 32);
         console.log('blueprint', blueprint.number, max);
-        return (i + 1) * max;
+        return max;
       })
-      .reduce((sum, it) => sum + it, 0)
+      .reduce((sum, it) => sum * it, 1)
   );
 }
 
@@ -80,14 +80,12 @@ function simulateBlueprint(blueprint, maxMinutes) {
   let robots = [1, 0, 0, 0];
 
   let maxGeo = 0;
-  let saved = 0;
   let cash = {};
 
   dfs(storage, robots, 1);
 
   return maxGeo;
 
-  // ore, clay, obsidian, geode
   function dfs(storage, robots, minute) {
     let key = `${storage.join(',')},${robots.join(',')},${minute}`;
     if (key in cash) {
@@ -98,6 +96,12 @@ function simulateBlueprint(blueprint, maxMinutes) {
         maxGeo = storage[3];
       }
       return storage[3];
+    }
+
+    let n = (maxMinutes - minute) + robots[3];
+    let optGeo = storage[3] + Math.floor(n * (1 + n) / 2);
+    if (optGeo < maxGeo) {
+      return 0;
     }
 
     const isCanBuild = canBuild(storage, robots, blueprint, maxMinutes - minute);
@@ -165,7 +169,6 @@ function buildRobot(storage, robotRequirements) {
 }
 
 function canBuild(storage, robots, blueprint, timeLeft) {
-  // ore, clay, obsidian, geode
   function can(robotRequirements) {
     return storage[0] >= robotRequirements[0] &&
       storage[1] >= robotRequirements[1] &&
