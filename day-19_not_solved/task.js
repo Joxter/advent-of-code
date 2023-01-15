@@ -6,17 +6,13 @@ import { runSolution } from '../utils.js';
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-runSolution('test  ', () => part1(testInput), 33);
-runSolution('part_1', () => part1(inputData), 2193)
+// runSolution('test  ', () => part1(testInput), 33);  // sec 24
+// runSolution('part_1', () => part1(inputData), 2193) // sec 157
 
-// runSolution('test  ', () => part2(testInput))
-// runSolution('part_2', () => part2(inputData))
+runSolution('test  ', () => part2(testInput), 56);
+// runSolution('part_2', () => part2(inputData));
 
-
-// console.log('test2 OK:', part1(testInput) === 123);
-// console.log('answer2:', part1(inputData));
-
-function part1(inp) {
+function parse(inp) {
   let blueprints = inp.split('\n').map((line) => {
     let [
       ,
@@ -46,31 +42,16 @@ function part1(inp) {
       number: +n,
     };
   });
-  /*
-  {
-    oreRobot:      [ 4, 0, 0 ],
-    clayRobot:     [ 2, 0, 0, 0 ],
-    obsidianRobot: [ 3, 14, 0 ],
-    geodeRobot:    [ 2, 0, 7 ]
-    MAX:           [ 4, 14, 7 ]
-  },
-  {
-    oreRobot:      [ 2, 0, 0 ],
-    clayRobot:     [ 3, 0, 0, 0 ],
-    obsidianRobot: [ 3, 8, 0 ],
-    geodeRobot:    [ 3, 0, 12 ] =>
-    MAX:           [ 3, 0, 12 ] =>
-  }
+  return blueprints;
+}
 
-*/
+function part1(inp) {
+  let blueprints = parse(inp);
 
-  // ore, clay, obsidian, geode
   return (
-    // [blueprints[22]]
     blueprints
-      // .slice(4, 11)
       .map((blueprint, i, blueprints) => {
-        let max = simulateBlueprint(blueprint);
+        let max = simulateBlueprint(blueprint, 24);
         console.log('blueprint', blueprint.number, max);
         return (i + 1) * max;
       })
@@ -78,8 +59,22 @@ function part1(inp) {
   );
 }
 
-function simulateBlueprint(blueprint) {
-  const MAX_MINUTES = 24; // 24
+function part2(inp) {
+  let blueprints = parse(inp);
+
+  return (
+    blueprints
+      .slice(0, 3)
+      .map((blueprint, i, blueprints) => {
+        let max = simulateBlueprint(blueprint, 32);
+        console.log('blueprint', blueprint.number, max);
+        return (i + 1) * max;
+      })
+      .reduce((sum, it) => sum + it, 0)
+  );
+}
+
+function simulateBlueprint(blueprint, maxMinutes) {
   let storage = [0, 0, 0, 0];
   let robots = [1, 0, 0, 0];
 
@@ -92,14 +87,14 @@ function simulateBlueprint(blueprint) {
 
   // ore, clay, obsidian, geode
   function dfs(storage, robots, minute) {
-    if (minute > MAX_MINUTES) {
+    if (minute > maxMinutes) {
       if (storage[3] > maxGeo) {
         maxGeo = storage[3];
       }
       return;
     }
 
-    const isCanBuild = canBuild(storage, robots, blueprint, MAX_MINUTES - minute);
+    const isCanBuild = canBuild(storage, robots, blueprint, maxMinutes - minute);
 
     if (isCanBuild.geodeRobot) {
       let newRobots = [...robots];
@@ -230,10 +225,3 @@ blueprint 28 0
 blueprint 29 0
 blueprint 30 15
 */
-
-function part2(inp) {
-  let result = 0;
-  inp.trim().split('\n').forEach((line) => {
-  });
-  return result;
-}
