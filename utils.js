@@ -1,6 +1,13 @@
 export function runSolution(label, fn, answer = null) {
   let start = Date.now();
-  let res = fn();
+  let res = null;
+  try {
+    res = fn();
+  } catch (err) {
+    console.error(err);
+    res = 'ERROR';
+  }
+
   let time = (Date.now() - start) / 1000;
 
   if (answer === null) {
