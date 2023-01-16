@@ -99,28 +99,24 @@ function part1noAdvent(inp) {
   return total;
 }
 
-// X means you need to lose,
-// Y means you need to end the round in a draw,
-// and Z means you need to win
 function part2noAdvent(inp) {
-  return  4; // todo IMPLEMENT
   let total = 0;
 
-  // A X
-  // B Y
-  // C Z
   inp.split('\n')
     .forEach((line) => {
       let [x, y] = line.split(' ');
       x = x.charCodeAt(0) - 'A'.charCodeAt(0);
-      y = y.charCodeAt(0) - 'X'.charCodeAt(0);
 
-      if (x === y) {
-        total += 3;
-      } else if ((y - x + 3) % 3 === 1) {
-        total += 6;
+      if (y === 'Z') {
+        let winPos = (x + 1) % 3;
+        total += winPos + 6 + 1;
+      } else if (y === 'Y') {
+        let drawPos = x;
+        total += drawPos + 3 + 1;
+      } else {
+        let losePos = (x - 1 + 3) % 3;
+        total += losePos + 1;
       }
-      total += y + 1;
     });
 
   return total;
