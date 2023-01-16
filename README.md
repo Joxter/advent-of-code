@@ -14,7 +14,7 @@ Some late tasks have to be optimized for performance because a raw bruteforce
 solution is very slow. Sometimes a slight improvement can reduce time from decades
 to seconds - the best feeling ever.
 
-I stent one day maximum to thing and solve daily tasks.
+I decided to spend a maximum of one day to solve problems.
 
 ## Some remarks
 
