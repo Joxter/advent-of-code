@@ -39,6 +39,9 @@ like how dare a task hides essential requirements from me!
  - Day 17. Achievement "Tetris has been written" unlocked. Visualisation first approach is also nice.
  - Day 19. There is some veeeery obscure bug in my solution. Even the first part was not solved.
 Nevertheless, I was **happy** to solve the problem
+   - UPD [DONE](https://github.com/Joxter/advent-2022/commit/c41702aca3ef07245d6af84a50bf1448077412cd).
+   I was very close to solving the first part, I had different optimizations and one of them was wrong. 
+   I also came up with an optimization to help solve the second part, but I thought that in most cases it is useless
  - Day 22. **CUBE! IT IS A CUBE!** Despite several iterations of debugging, my answer for the second
 part was not correct. Stockholm syndrome in action - I really like the advent
  - Day 25! I spent much more time I expect on the last day. I used to be good at math. I was a 
