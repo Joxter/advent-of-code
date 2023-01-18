@@ -1,5 +1,16 @@
 import fs from 'fs';
 
+// row, col
+let portals = {
+  ...creatPortals([50, 100], [50, 149], 'v', [50, 100], [99, 100], '>'), // line1
+  ...creatPortals([0, 150], [49, 150], '>', [149, 100], [100, 100], '>'), // line2 ??? bug
+  ...creatPortals([150, 50], [150, 99], 'v', [150, 50], [199, 50], '>'), // line3
+  ...creatPortals([-1, 100], [-1, 149], '^', [200, 0], [200, 49], 'v'), // line4
+  ...creatPortals([0, 49], [49, 49], '<', [149, -1], [100, -1], '<'), // line5
+  ...creatPortals([-1, 50], [-1, 99], '^', [150, -1], [199, -1], '<'), // line6
+  ...creatPortals([50, 49], [99, 49], '<', [99, 0], [99, 49], '^'), // line7
+};
+
 // https://adventofcode.com/2022/day/22
 
 let testInput = fs.readFileSync('./testData.txt').toString();
@@ -11,7 +22,7 @@ let inputTEST = fs.readFileSync('./inputTEST.txt').toString();
 
 // console.log('test2 OK:', part2(testInput) === 123);
 console.log('answer2:', part2(inputData));
-// console.log('answer2:', part2(inputTEST));
+// console.log('answer2:', part2(inputTEST)); // 107228 [ 106, 56 ]
 
 function part1(inp) {
   let dirDelta = {
@@ -120,6 +131,7 @@ function part2(inp) {
 
   let map = strMap.split('\n').map((line) => {
     return line.split('');
+    // return line.split('').map((c) => c === '#' ? '.' : c);
   });
   // row, col
   let curPos = [0, map[0].findIndex(it => it === '.')];
@@ -134,14 +146,15 @@ function part2(inp) {
 
   let directionArrow = clockDir[currDirection % 4];
 
+  // console.log(route);
   // route = [
   //   'R50', 'R52', 'L3', 'L49', 'R48', 'L3', 'L6',
-    // 'R47', 'L3', 'L12', 'R102', 'R2', 'R12', 'L12', 'R4', 'R60',
-    // 'R10', 'L3', 'L7', 'R95', 'L3', 'L10'
+  //   'R47', 'L3', 'L12', 'R102', 'R2', 'R12', 'L18', 'R4', 'R60',
+  //   'R10', 'L3', 'L7', 'R95', 'L3', 'L10'
   // ];
 
   // console.log(route.length);
-  // route = route.slice(0, 7);
+  // route = route.slice(0, 4);
   // console.log(route);
   route.forEach((p, i) => {
     let direction = p.slice(0, 1);
@@ -165,7 +178,7 @@ function part2(inp) {
   render(map, path, curPos);
 
   // console.log(directionArrow);
-  let arrowPoint = { '>': 0, 'v': 1, '<': 2, '^': 3 }[directionArrow];
+  let arrowPoint = { '>': 0, 'v': 1, '<': 2, '^': 3 }[clockDir[currDirection % 4]];
 
   // 113299 is low :(
   // after fixing a mistake in INPUT...
@@ -173,6 +186,8 @@ function part2(inp) {
   // after fixing a BUG in code...
   // 33375
   // 197123 :(
+  // 197120 :(
+  // 197122 :(
 
   return 1000 * (curPos[0] + 1) + 4 * (curPos[1] + 1) + arrowPoint;
 
@@ -194,7 +209,7 @@ function part2(inp) {
       if (nextChar === '.') return [[newRow, newCol], arrowToNumber[directionArrow]];
       if (nextChar === '#') return [[row, col], arrowToNumber[directionArrow]];
 
-      let [mCoords, dir] = moveTile([newRow, newCol], directionArrow);
+      let [mCoords, dir] = goPortal([newRow, newCol], directionArrow);
 
       if (map[mCoords[0]][mCoords[1]] === '#') {
         return [[row, col], arrowToNumber[directionArrow]];
@@ -202,7 +217,7 @@ function part2(inp) {
       return [mCoords, dir];
     }
 
-    let [mCoords, dir] = moveTile([newRow, newCol], directionArrow);
+    let [mCoords, dir] = goPortal([newRow, newCol], directionArrow);
 
     if (map[mCoords[0]][mCoords[1]] === '#') {
       return [[row, col], arrowToNumber[directionArrow]];
@@ -210,119 +225,26 @@ function part2(inp) {
     return [mCoords, dir];
   }
 
-  function moveTile([row, col], arrow) {
-    let right = 100_000;
-    let down = 100_001;
-    let left = 100_002;
-    let up = 100_003;
-    // console.log({row, col});
-
-    let isLine1 = (it) => it >= 0 && it <= 49;
-    let isLine2 = (it) => it >= 50 && it <= 99;
-    let isLine3 = (it) => it >= 100 && it <= 149;
-    let isLine4 = (it) => it >= 150 && it <= 199;
-    let isLine5 = (it) => it >= 200 && it <= 249;
-
-    // row, col
-    let portals = {
-      ...creatPortals([50, 100], [50, 149], 'v', [50, 100], [99, 100], '>'), // line1
-      ...creatPortals([0, 150], [49, 150], '>', [149, 100], [100, 100], '>'), // line2 ??? bug
-      ...creatPortals([150, 50], [150, 99], 'v', [150, 50], [199, 50], '>'), // line3
-      ...creatPortals([-1, 100], [-1, 149], '^', [200, 0], [200, 49], 'v'), // line4
-      ...creatPortals([0, 49], [49, 49], '<', [149, -1], [100, -1], '<'), // line5
-      ...creatPortals([-1, 50], [-1, 99], '^', [150, -1], [199, -1], '<'), // line6
-      ...creatPortals([50, 49], [99, 49], '<', [99, 0], [99, 49], '^'), // line7
-    }
+  function goPortal([row, col], arrow) {
+    // let right = 100_000;
+    // let down = 100_001;
+    // let left = 100_002;
+    // let up = 100_003;
 
     if (portals[`${row},${col},${arrow}`]) {
       let [resRow, resCol, resArr] = portals[`${row},${col},${arrow}`].split(',');
       let ar = {
-        '>' : 100_000,
-         'v' : 100_001,
-         '<' : 100_002,
-         '^' : 100_003,
-      }
+        '>': 100_000,
+        'v': 100_001,
+        '<': 100_002,
+        '^': 100_003,
+      };
 
-      return [[+resRow, +resCol], ar[resArr]]
+      return [[+resRow, +resCol], ar[resArr]];
     }
 
     throw 3;
-
-    // // line1, under 2
-    if (arrow === 'v' && row === 50 && isLine3(col)) {
-      return [[col - 50, 99], left]; // OK
-    }
-    // line1, right 3
-    if (arrow === '>' && col === 100 && isLine2(row)) {
-      return [[49, row + 50], up]; // OK
-    }
-
-    // line2, right 2
-    if (col === 150 && isLine1(row)) {
-      // console.log('line2 2', `${row},${col},${arrow}`, [[100 + (49 - row), 99], left]);
-      // console.log('>>>>>>>> 11');
-      return [[100 + (49 - row), 99], left]; // OK
-    }
-    // line2, right 4
-    if (col === 100 && isLine3(row)) {
-      // console.log('line2 4', `${row},${col},${arrow}`, [[0 + (150 - row), 149], left]);
-      // console.log('>>>>>>>> 22');
-      return [[0 + (150 - row), 149], left]; // OK
-    }
-
-    // line3, under 4
-    if (arrow === 'v' && row === 150 && isLine2(col)) {
-      return [[col + 100, 49], left]; // OK
-    }
-    // line3, right 6
-    if (arrow === '>' && col === 50 && isLine4(row)) {
-      return [[149, row - 100], up]; // OK
-    }
-
-    // line4, over 2
-    if (row === -1 && isLine3(col)) {
-      return [[199, col - 100], up]; // OK
-    }
-    // line4, under 6
-    if (row === 200 && isLine1(col)) {
-      return [[0, col + 100], down]; // OK
-    }
-
-    // line5, left 1
-    if (col === 49 && isLine1(row)) {
-      return [[150 - row, 0], right]; // OK
-    }
-    // line5, left 5
-    if (col === -1 && isLine3(row)) {
-      return [[150 - row, 50], right];// OK
-    }
-
-    // line6, over 1
-    if (row === -1 && isLine2(col)) {
-      return [[100 + col, 0], right]; // OK
-    }
-    // line6, left 6
-    if (col === -1 && isLine4(row)) {
-      return [[0, row - 100], down]; // OK
-    }
-
-    // line7, right 3
-    if (arrow === '<' && col === 49 && isLine2(row)) {
-      console.log(arrow);
-      return [[100, row - 50], down]; // OK
-    }
-    // line7, up 5
-    if (arrow === '^' && row === 99 && isLine1(col)) {
-      return [[col + 50, 50], right]; // OK
-    }
-
-    // [row, col]
-    // 0-49 | 50-99 | 100-149 | 150-199 | 20
-    /*
-          '>' '<'  '^'  'v'
-    */
-
-    return [[row, col], down];
+    // return [[row, col], down];
   }
 }
 
@@ -375,7 +297,7 @@ function creatPortals(fromA, fromB, fromArrow, toA, toB, toArrow) {
     '<': '>',
     '^': 'v',
     'v': '^',
-  }
+  };
 
   line1.forEach((l1, i) => {
     let l2 = line2[i];
@@ -412,16 +334,33 @@ function myRange(a, b) {
 
 function render(map, path, final) {
   // {[row,col]: '>'}
-  let result = map.map((row, rowI) => {
-    return row.map((char, colI) => {
-      if (final.join(',') === rowI + ',' + colI) return 'X';
+
+  let result = '';
+
+  for (let rowI = -1; rowI <= 300; rowI++) {
+    let row = '';
+    for (let colI = -1; colI <= 300; colI++) {
+      // if (final.join(',') === rowI + ',' + colI) return 'X';
 
       let pChar = path[rowI + ',' + colI];
+      // let pChar = (rowI + ',' + colI) in path ? dirArr[path[rowI + ',' + colI]] : null;
 
-      return pChar || char;
+      let mapChar = map[rowI]?.[colI];
+      let portal = portals[rowI + ',' + colI + ',^']
+        ? '^'
+        : portals[rowI + ',' + colI + ',v']
+          ? 'v'
+          : portals[rowI + ',' + colI + ',>']
+            ? '>'
+            : portals[rowI + ',' + colI + ',<']
+              ? '<'
+              : null;
 
-    }).join('');
-  }).join('\n');
+      row += pChar || portal || mapChar || '+';
+    }
+    result += row + '\n';
+  }
+
   // console.log(result);
   fs.writeFileSync('./path.txt', result);
 }
