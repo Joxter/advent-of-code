@@ -44,6 +44,8 @@ Nevertheless, I was **happy** to solve the problem
    I also came up with an optimization to help solve the second part, but I thought that in most cases it is useless
  - Day 22. **CUBE! IT IS A CUBE!** Despite several iterations of debugging, my answer for the second
 part was not correct. Stockholm syndrome in action - I really like the advent
+   - I DID IT! my knowledge of English does not allow me to fully describe my emotions from solving 
+   this problem, you can evaluate the level of madness by the quality of the code [here](https://github.com/Joxter/advent-2022/commit/8326ff50fbf3bdbffd038b8b4979789291539795)
  - Day 25! I spent much more time I expect on the last day. I used to be good at math. I was a 
 bit upset that for the second star I had to get 2 stars for all the previous days:(
 
