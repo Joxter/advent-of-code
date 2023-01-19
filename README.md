@@ -7,7 +7,7 @@ you need to get the **answer**. The code should solve only one specific problem
 only once. You **don't** have to worrying about performance, reliability and 
 maintainance.
 
-# Sum up
+# Result (25-12-2022)
 <img width="657" alt="image" src="https://user-images.githubusercontent.com/3627930/209472928-288f08ea-01ca-41a6-bc0b-97a5464b69bc.png">
 
 Some late tasks have to be optimized for performance because a raw bruteforce 
@@ -56,7 +56,7 @@ Anyway, I'm very glad I got involved. I discovered a whole new style of coding, 
 that I like these puzzles **more** than my current tasks at work..
 
 Now my further plan includes:
-- Finish Advent of Code 2022 and **understand** my mistakes.
+- Finish Advent of Code 2022 and **understand** my mistakes (DONE 18-01-2023).
 - Solve previous years in **different new languages** for me.
 - Better understand the algorithms, because it seems that I **like** it!
 
