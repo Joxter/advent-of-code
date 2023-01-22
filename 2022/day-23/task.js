@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { runSolution } from '../utils.js';
+import { runSolution } from '../../utils.js';
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();

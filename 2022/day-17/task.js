@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { runSolution } from '../utils.js';
+import { runSolution } from '../../utils.js';
 
 // https://adventofcode.com/2022/day/17
 
