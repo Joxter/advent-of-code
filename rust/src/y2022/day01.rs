@@ -13,7 +13,7 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
             lines
                 .lines()
                 .map(|line| line.parse::<i32>().unwrap())
-                .sum::<i32>()
+                .sum()
         })
         .collect();
 
