@@ -21,7 +21,8 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
         ("C Z", SCISSORS + DRAW),
     ]);
 
-    input.lines()
+    input
+        .lines()
         .map(|line| scores.get(line).unwrap())
         .sum::<i32>()
 }
@@ -31,17 +32,16 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
         ("A X", SCISSORS + LOSE),
         ("A Y", ROCK + DRAW),
         ("A Z", PAPER + WIN),
-
         ("B X", ROCK + LOSE),
         ("B Y", PAPER + DRAW),
         ("B Z", SCISSORS + WIN),
-
         ("C X", PAPER + LOSE),
         ("C Y", SCISSORS + DRAW),
         ("C Z", ROCK + WIN),
     ]);
 
-    input.lines()
+    input
+        .lines()
         .map(|line| scores.get(line).unwrap())
         .sum::<i32>()
 }

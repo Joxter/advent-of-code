@@ -1,12 +1,14 @@
 use crate::y2022::day01::{naive_js_copy_part1, naive_js_copy_part2};
 use crate::y2022::day02;
+use crate::y2022::day03;
 use std::fs;
 
 mod y2022;
 
 fn main() {
-    y2022_d01();
-    y2022_d02();
+    // y2022_d01();
+    // y2022_d02();
+    y2022_d03();
 }
 
 struct Answers {
@@ -73,24 +75,54 @@ fn y2022_d02() {
     let answers = parse_answers("../2022/inputs/d02/answer.txt");
 
     println!(
-        "day1 part1 test {} [{}]",
+        "day2 part1 test {} [{}]",
         day02::naive_js_copy_part1(&test_inp),
         answers.part1_test
     );
     println!(
-        "day1 part1 {} [{}]",
+        "day2 part1 {} [{}]",
         day02::naive_js_copy_part1(&inp),
         answers.part1
     );
 
     println!(
-        "day1 part2 test {} [{}]",
+        "day2 part2 test {} [{}]",
         day02::naive_js_copy_part2(&test_inp),
         answers.part2_test
     );
     println!(
-        "day1 part2 {} [{}]",
+        "day2 part2 {} [{}]",
         day02::naive_js_copy_part2(&inp),
+        answers.part2
+    );
+}
+
+#[allow(dead_code)]
+fn y2022_d03() {
+    let test_inp = fs::read_to_string("../2022/inputs/d03/test.txt").unwrap();
+    let inp = fs::read_to_string("../2022/inputs/d03/input.txt").unwrap();
+
+    let answers = parse_answers("../2022/inputs/d03/answer.txt");
+
+    println!(
+        "day3 part1 test {} [{}]",
+        day03::naive_js_copy_part1(&test_inp),
+        answers.part1_test
+    );
+    println!(
+        "day3 part1 {} [{}]",
+        day03::naive_js_copy_part1(&inp),
+        answers.part1
+    );
+
+    println!(
+        "day3 part2 test {} [{}]",
+        day03::naive_js_copy_part2(&test_inp),
+        answers.part2_test
+    );
+    println!(
+        "day3 part2 {} [{}]",
+        day03::naive_js_copy_part2(&inp),
         answers.part2
     );
 }

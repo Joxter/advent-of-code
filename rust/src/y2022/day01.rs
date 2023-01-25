@@ -9,12 +9,7 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
 pub fn naive_js_copy_part2(input: &str) -> i32 {
     let mut arr: Vec<i32> = input
         .split("\n\n")
-        .map(|lines| {
-            lines
-                .lines()
-                .map(|line| line.parse::<i32>().unwrap())
-                .sum()
-        })
+        .map(|lines| lines.lines().map(|line| line.parse::<i32>().unwrap()).sum())
         .collect();
 
     arr.sort_by(|a, b| b.cmp(a));
