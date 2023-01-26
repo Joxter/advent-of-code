@@ -1,4 +1,4 @@
-use crate::y2022::day01::{naive_js_copy_part1, naive_js_copy_part2};
+use crate::y2022::day01;
 use crate::y2022::day02;
 use crate::y2022::day03;
 use std::fs;
@@ -6,9 +6,24 @@ use std::fs;
 mod y2022;
 
 fn main() {
-    // y2022_d01();
-    // y2022_d02();
-    y2022_d03();
+    run_solution(
+        "../2022/inputs/d01",
+        "day1",
+        Box::new(day01::naive_js_copy_part1),
+        Box::new(day01::naive_js_copy_part2),
+    );
+    run_solution(
+        "../2022/inputs/d02",
+        "day2",
+        Box::new(day02::naive_js_copy_part1),
+        Box::new(day02::naive_js_copy_part2),
+    );
+    run_solution(
+        "../2022/inputs/d03",
+        "day3",
+        Box::new(day03::naive_js_copy_part1),
+        Box::new(day03::naive_js_copy_part2),
+    );
 }
 
 struct Answers {
@@ -37,92 +52,37 @@ fn parse_answers(path: &str) -> Answers {
     }
 }
 
-#[allow(dead_code)]
-fn y2022_d01() {
-    let test_inp = fs::read_to_string("../2022/inputs/d01/test.txt").unwrap();
-    let inp = fs::read_to_string("../2022/inputs/d01/input.txt").unwrap();
+// looks very shitty
+fn run_solution(input_folder: &str, label: &str, part_1: Box<dyn Fn(&str) -> i32>, part_2: Box<dyn Fn(&str) -> i32>)
+{
+    let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder)).unwrap();
+    let inp = fs::read_to_string(format!("{}/input.txt", input_folder)).unwrap();
 
-    let answers = parse_answers("../2022/inputs/d01/answer.txt");
+    let answers = parse_answers(format!("{}/answer.txt", input_folder).as_str());
 
     println!(
-        "day1 part1 test {} [{}]",
-        naive_js_copy_part1(&test_inp),
+        "{} part1 test {} [{}]",
+        label,
+        part_1(&test_inp),
         answers.part1_test
     );
     println!(
-        "day1 part1 {} [{}]",
-        naive_js_copy_part1(&inp),
+        "{} part1 {} [{}]",
+        label,
+        part_1(&inp),
         answers.part1
     );
 
     println!(
-        "day1 part2 test {} [{}]",
-        naive_js_copy_part2(&test_inp),
+        "{} part2 test {} [{}]",
+        label,
+        part_2(&test_inp),
         answers.part2_test
     );
     println!(
-        "day1 part2 {} [{}]",
-        naive_js_copy_part2(&inp),
-        answers.part2
-    );
-}
-
-#[allow(dead_code)]
-fn y2022_d02() {
-    let test_inp = fs::read_to_string("../2022/inputs/d02/test.txt").unwrap();
-    let inp = fs::read_to_string("../2022/inputs/d02/input.txt").unwrap();
-
-    let answers = parse_answers("../2022/inputs/d02/answer.txt");
-
-    println!(
-        "day2 part1 test {} [{}]",
-        day02::naive_js_copy_part1(&test_inp),
-        answers.part1_test
-    );
-    println!(
-        "day2 part1 {} [{}]",
-        day02::naive_js_copy_part1(&inp),
-        answers.part1
-    );
-
-    println!(
-        "day2 part2 test {} [{}]",
-        day02::naive_js_copy_part2(&test_inp),
-        answers.part2_test
-    );
-    println!(
-        "day2 part2 {} [{}]",
-        day02::naive_js_copy_part2(&inp),
-        answers.part2
-    );
-}
-
-#[allow(dead_code)]
-fn y2022_d03() {
-    let test_inp = fs::read_to_string("../2022/inputs/d03/test.txt").unwrap();
-    let inp = fs::read_to_string("../2022/inputs/d03/input.txt").unwrap();
-
-    let answers = parse_answers("../2022/inputs/d03/answer.txt");
-
-    println!(
-        "day3 part1 test {} [{}]",
-        day03::naive_js_copy_part1(&test_inp),
-        answers.part1_test
-    );
-    println!(
-        "day3 part1 {} [{}]",
-        day03::naive_js_copy_part1(&inp),
-        answers.part1
-    );
-
-    println!(
-        "day3 part2 test {} [{}]",
-        day03::naive_js_copy_part2(&test_inp),
-        answers.part2_test
-    );
-    println!(
-        "day3 part2 {} [{}]",
-        day03::naive_js_copy_part2(&inp),
+        "{} part2 {} [{}]",
+        label,
+        part_2(&inp),
         answers.part2
     );
 }
