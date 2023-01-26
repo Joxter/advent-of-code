@@ -1,28 +1,35 @@
 use crate::y2022::day01;
 use crate::y2022::day02;
 use crate::y2022::day03;
+use crate::y2022::day04;
 use std::fs;
 
 mod y2022;
 
 fn main() {
+    // run_solution(
+    //     "../2022/inputs/d01",
+    //     "day1",
+    //     Box::new(day01::naive_js_copy_part1),
+    //     Box::new(day01::naive_js_copy_part2),
+    // );
+    // run_solution(
+    //     "../2022/inputs/d02",
+    //     "day2",
+    //     Box::new(day02::naive_js_copy_part1),
+    //     Box::new(day02::naive_js_copy_part2),
+    // );
+    // run_solution(
+    //     "../2022/inputs/d03",
+    //     "day3",
+    //     Box::new(day03::naive_js_copy_part1),
+    //     Box::new(day03::naive_js_copy_part2),
+    // );
     run_solution(
-        "../2022/inputs/d01",
-        "day1",
-        Box::new(day01::naive_js_copy_part1),
-        Box::new(day01::naive_js_copy_part2),
-    );
-    run_solution(
-        "../2022/inputs/d02",
-        "day2",
-        Box::new(day02::naive_js_copy_part1),
-        Box::new(day02::naive_js_copy_part2),
-    );
-    run_solution(
-        "../2022/inputs/d03",
-        "day3",
-        Box::new(day03::naive_js_copy_part1),
-        Box::new(day03::naive_js_copy_part2),
+        "../2022/inputs/d04",
+        "day4",
+        Box::new(day04::naive_js_copy_part1),
+        Box::new(day04::naive_js_copy_part2),
     );
 }
 
@@ -53,8 +60,12 @@ fn parse_answers(path: &str) -> Answers {
 }
 
 // looks very shitty
-fn run_solution(input_folder: &str, label: &str, part_1: Box<dyn Fn(&str) -> i32>, part_2: Box<dyn Fn(&str) -> i32>)
-{
+fn run_solution(
+    input_folder: &str,
+    label: &str,
+    part_1: Box<dyn Fn(&str) -> i32>,
+    part_2: Box<dyn Fn(&str) -> i32>,
+) {
     let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder)).unwrap();
     let inp = fs::read_to_string(format!("{}/input.txt", input_folder)).unwrap();
 
@@ -66,12 +77,7 @@ fn run_solution(input_folder: &str, label: &str, part_1: Box<dyn Fn(&str) -> i32
         part_1(&test_inp),
         answers.part1_test
     );
-    println!(
-        "{} part1 {} [{}]",
-        label,
-        part_1(&inp),
-        answers.part1
-    );
+    println!("{} part1 {} [{}]", label, part_1(&inp), answers.part1);
 
     println!(
         "{} part2 test {} [{}]",
@@ -79,10 +85,5 @@ fn run_solution(input_folder: &str, label: &str, part_1: Box<dyn Fn(&str) -> i32
         part_2(&test_inp),
         answers.part2_test
     );
-    println!(
-        "{} part2 {} [{}]",
-        label,
-        part_2(&inp),
-        answers.part2
-    );
+    println!("{} part2 {} [{}]", label, part_2(&inp), answers.part2);
 }
