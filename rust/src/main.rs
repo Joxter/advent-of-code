@@ -1,7 +1,12 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
+
 use crate::y2022::day01;
 use crate::y2022::day02;
 use crate::y2022::day03;
 use crate::y2022::day04;
+use crate::y2022::day05;
+use std::fmt::Display;
 use std::fs;
 
 mod y2022;
@@ -25,11 +30,17 @@ fn main() {
     //     Box::new(day03::naive_js_copy_part1),
     //     Box::new(day03::naive_js_copy_part2),
     // );
+    // run_solution(
+    //     "../2022/inputs/d04",
+    //     "day4",
+    //     Box::new(day04::naive_js_copy_part1),
+    //     Box::new(day04::naive_js_copy_part2),
+    // );
     run_solution(
-        "../2022/inputs/d04",
-        "day4",
-        Box::new(day04::naive_js_copy_part1),
-        Box::new(day04::naive_js_copy_part2),
+        "../2022/inputs/d05",
+        "day5",
+        Box::new(day05::naive_js_copy_part1),
+        Box::new(day05::naive_js_copy_part2),
     );
 }
 
@@ -60,11 +71,11 @@ fn parse_answers(path: &str) -> Answers {
 }
 
 // looks very shitty
-fn run_solution(
+fn run_solution<T: Display>(
     input_folder: &str,
     label: &str,
-    part_1: Box<dyn Fn(&str) -> i32>,
-    part_2: Box<dyn Fn(&str) -> i32>,
+    part_1: Box<dyn Fn(&str) -> T>,
+    part_2: Box<dyn Fn(&str) -> T>,
 ) {
     let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder)).unwrap();
     let inp = fs::read_to_string(format!("{}/input.txt", input_folder)).unwrap();

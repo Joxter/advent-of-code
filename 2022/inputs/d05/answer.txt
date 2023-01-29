@@ -1,0 +1,4 @@
+part1_test CMZ
+part1 TQRFCBSJJ
+part2_test MCD
+part2 RMHFJNVFP
