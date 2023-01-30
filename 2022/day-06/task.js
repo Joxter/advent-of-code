@@ -16,9 +16,9 @@ runSolution('alter(4) ', () => part1alter(inputData), 1134);
 runSolution('alter(14)', () => part2alter(inputData), 2263);
 
 function part1(line) {
-  let marker = line.slice(0, 3).split('');
+  let marker = line.slice(0, 4).split('');
 
-  for (let j = 3; j < line.length; j++) {
+  for (let j = 4; j < line.length; j++) {
     marker[j % 4] = line[j];
     if (new Set(marker).size === 4) {
       return j + 1;
@@ -27,9 +27,9 @@ function part1(line) {
 }
 
 function part2(line) {
-  let marker = line.slice(0, 13).split('');
+  let marker = line.slice(0, 14).split('');
 
-  for (let j = 13; j < line.length; j++) {
+  for (let j = 14; j < line.length; j++) {
     marker[j % 14] = line[j];
     if (new Set(marker).size === 14) {
       return j + 1;

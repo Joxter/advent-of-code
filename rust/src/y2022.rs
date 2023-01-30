@@ -5,6 +5,7 @@ pub mod day02;
 pub mod day03;
 pub mod day04;
 pub mod day05;
+pub mod day06;
 
 pub fn run_2022() {
     // run_solution(
@@ -31,10 +32,16 @@ pub fn run_2022() {
     //     day04::naive_js_copy_part1,
     //     day04::naive_js_copy_part2,
     // );
+    // run_solution(
+    //     "../2022/inputs/d05",
+    //     "day5",
+    //     day05::naive_js_copy_part1,
+    //     day05::naive_js_copy_part2,
+    // );
     run_solution(
-        "../2022/inputs/d05",
-        "day5",
-        day05::naive_js_copy_part1,
-        day05::naive_js_copy_part2,
+        "../2022/inputs/d06",
+        "day6",
+        day06::naive_js_copy_part1,
+        day06::naive_js_copy_part2,
     );
 }
