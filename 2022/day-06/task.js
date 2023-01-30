@@ -1,55 +1,48 @@
 import fs from 'fs';
+import { runSolution } from '../../utils.js';
 
 // https://adventofcode.com/2022/day/6
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test: ', part1(testInput));
-console.log('answer: ', part1(inputData));
+runSolution('test  ', () => part1(testInput), 7);
+runSolution('part_1', () => part1(inputData), 1134);
 
-console.log('test2: ', part2(testInput));
-console.log('answer2: ', part2(inputData));
+runSolution('test  ', () => part2(testInput), 19);
+runSolution('part_2', () => part2(inputData), 2263);
 
-console.log('alter(4) OK: ', part1alter(inputData));
-console.log('alter(14) OK: ', part2alter(inputData));
+runSolution('alter(4) ', () => part1alter(inputData), 1134);
+runSolution('alter(14)', () => part2alter(inputData), 2263);
 
-function part1(inp) {
-  return inp.split('\n').map((line) => {
-    let marker = line.slice(0, 3).split('');
+function part1(line) {
+  let marker = line.slice(0, 3).split('');
 
-    for (let j = 3; j < line.length; j++) {
-      marker[j % 4] = line[j];
-      if (new Set(marker).size === 4) {
-        return j + 1;
-      }
+  for (let j = 3; j < line.length; j++) {
+    marker[j % 4] = line[j];
+    if (new Set(marker).size === 4) {
+      return j + 1;
     }
-  });
+  }
 }
 
-function part2(inp) {
-  return inp.split('\n').map((line) => {
-    let marker = line.slice(0, 13).split('');
+function part2(line) {
+  let marker = line.slice(0, 13).split('');
 
-    for (let j = 13; j < line.length; j++) {
-      marker[j % 14] = line[j];
-      if (new Set(marker).size === 14) {
-        return j + 1;
-      }
+  for (let j = 13; j < line.length; j++) {
+    marker[j % 14] = line[j];
+    if (new Set(marker).size === 14) {
+      return j + 1;
     }
-  });
+  }
 }
 
 function part1alter(inp) {
-  return inp.split('\n').map((line) => {
-    return noSetSolution(4, line);
-  });
+  return noSetSolution(4, inp);
 }
 
 function part2alter(inp) {
-  return inp.split('\n').map((line) => {
-    return noSetSolution(14, line);
-  });
+  return noSetSolution(14, inp);
 }
 
 function noSetSolution(len, line) {

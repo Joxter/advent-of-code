@@ -3,8 +3,8 @@
 
 use crate::y2022::run_2022;
 
-mod y2022;
 mod answer;
+mod y2022;
 
 fn main() {
     run_2022()

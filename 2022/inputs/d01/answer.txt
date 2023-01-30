@@ -1,4 +1,8 @@
-part1_test 24000
-part1 74711
-part2_test 45000
-part2 209481
+- part1_test
+24000
+- part1
+74711
+- part2_test
+45000
+- part2
+209481

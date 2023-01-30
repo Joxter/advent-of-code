@@ -2,6 +2,7 @@ use std::fmt::Display;
 use std::fs;
 use std::time::{Duration, SystemTime};
 
+#[derive(Debug)]
 struct Answers {
     part1_test: String,
     part1: String,
@@ -34,27 +35,36 @@ struct AoC_day {
 
 impl Answers {
     pub fn parse(path: &str) -> Answers {
-        let ans_str = fs::read_to_string(path).unwrap();
+        let mut ans = Answers {
+            part1_test: "".to_string(),
+            part1: "".to_string(),
+            part2_test: "".to_string(),
+            part2: "".to_string(),
+        };
 
-        let bbb: Vec<String> = ans_str
-            .lines()
-            .map(|l| {
-                let splited_iter: Vec<_> = l.split(' ').collect();
-                splited_iter.last().unwrap().to_string()
-            })
-            .collect();
-
-        Answers {
-            part1_test: bbb[0].clone(),
-            part1: bbb[1].clone(),
-            part2_test: bbb[2].clone(),
-            part2: bbb[3].clone(),
+        let mut stage = 0;
+        for line in fs::read_to_string(path).unwrap().lines() {
+            match line {
+                "- part1_test" => stage = 1,
+                "- part1" => stage = 2,
+                "- part2_test" => stage = 3,
+                "- part2" => stage = 4,
+                _ => match stage {
+                    1 => ans.part1_test.push_str(line),
+                    2 => ans.part1.push_str(line),
+                    3 => ans.part2_test.push_str(line),
+                    4 => ans.part2.push_str(line),
+                    _ => (),
+                },
+            }
         }
+
+        ans
     }
 
     pub fn check_p1_test<F, R: Display>(&self, label: &str, solution_cb: F)
-        where
-            F: Fn() -> R,
+    where
+        F: Fn() -> R,
     {
         let sys_time = SystemTime::now();
         let answer = format!("{}", solution_cb());
@@ -69,8 +79,8 @@ impl Answers {
     }
 
     pub fn check_p1<F, R: Display>(&self, label: &str, solution_cb: F)
-        where
-            F: Fn() -> R,
+    where
+        F: Fn() -> R,
     {
         let sys_time = SystemTime::now();
         let answer = format!("{}", solution_cb());
@@ -80,8 +90,8 @@ impl Answers {
     }
 
     pub fn check_p2_test<F, R: Display>(&self, label: &str, solution_cb: F)
-        where
-            F: Fn() -> R,
+    where
+        F: Fn() -> R,
     {
         let sys_time = SystemTime::now();
         let answer = format!("{}", solution_cb());
@@ -96,8 +106,8 @@ impl Answers {
     }
 
     pub fn check_p2<F, R: Display>(&self, label: &str, solution_cb: F)
-        where
-            F: Fn() -> R,
+    where
+        F: Fn() -> R,
     {
         let sys_time = SystemTime::now();
         let answer = format!("{}", solution_cb());
@@ -120,9 +130,9 @@ impl Answers {
 }
 
 pub fn run_solution<F, F2, R: Display>(input_folder: &str, label: &str, part_1: F, part_2: F2)
-    where
-        F: Fn(&str) -> R,
-        F2: Fn(&str) -> R,
+where
+    F: Fn(&str) -> R,
+    F2: Fn(&str) -> R,
 {
     let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder)).unwrap();
     let inp = fs::read_to_string(format!("{}/input.txt", input_folder)).unwrap();
