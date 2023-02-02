@@ -1,4 +1,4 @@
-use crate::answer::run_solution;
+use crate::answer::AoCDay;
 
 pub mod day01;
 pub mod day02;
@@ -8,40 +8,22 @@ pub mod day05;
 pub mod day06;
 
 pub fn run_2022() {
-    // run_solution(
-    //     "../2022/inputs/d01",
-    //     "day1",
-    //     day01::naive_js_copy_part1,
-    //     day01::naive_js_copy_part2,
-    // );
-    // run_solution(
-    //     "../2022/inputs/d02",
-    //     "day2",
-    //     day02::naive_js_copy_part1,
-    //     day02::naive_js_copy_part2,
-    // );
-    // run_solution(
-    //     "../2022/inputs/d03",
-    //     "day3",
-    //     day03::naive_js_copy_part1,
-    //     day03::naive_js_copy_part2,
-    // );
-    // run_solution(
-    //     "../2022/inputs/d04",
-    //     "day4",
-    //     day04::naive_js_copy_part1,
-    //     day04::naive_js_copy_part2,
-    // );
-    // run_solution(
-    //     "../2022/inputs/d05",
-    //     "day5",
-    //     day05::naive_js_copy_part1,
-    //     day05::naive_js_copy_part2,
-    // );
-    run_solution(
-        "../2022/inputs/d06",
-        "day6",
-        day06::naive_js_copy_part1,
-        day06::naive_js_copy_part2,
-    );
+    // AoCDay::new(2022, 1)
+    //     .part1("naive js copy", &day01::naive_js_copy_part1)
+    //     .part2("naive js copy", &day01::naive_js_copy_part2);
+    // AoCDay::new(2022, 2)
+    //     .part1("naive js copy", &day02::naive_js_copy_part1)
+    //     .part2("naive js copy", &day02::naive_js_copy_part2);
+    // AoCDay::new(2022, 3)
+    //     .part1("naive js copy", &day03::naive_js_copy_part1)
+    //     .part2("naive js copy", &day03::naive_js_copy_part2);
+    // AoCDay::new(2022, 4)
+    //     .part1("naive js copy", &day04::naive_js_copy_part1)
+    //     .part2("naive js copy", &day04::naive_js_copy_part2);
+    // AoCDay::new(2022, 5)
+    //     .part1("naive js copy", &day05::naive_js_copy_part1)
+    //     .part2("naive js copy", &day05::naive_js_copy_part2);
+    AoCDay::new(2022, 6)
+        .part1("naive js copy", &day06::naive_js_copy_part1)
+        .part2("naive js copy", &day06::naive_js_copy_part2);
 }

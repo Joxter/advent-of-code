@@ -1,45 +1,74 @@
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use std::fs;
 use std::time::{Duration, SystemTime};
 
-#[derive(Debug)]
-struct Answers {
-    part1_test: String,
-    part1: String,
-    part2_test: String,
-    part2: String,
-}
-
 /*
-// todo
-struct Part {
-    test: String,
-    input: String,
-    ans_test: String,
-    ans_input: String,
-}
+// now:
+AoCDay::new(2022, 6)
+    .part1("naive js copy", &day06::naive_js_copy_part1)
+    .part2("naive js copy", &day06::naive_js_copy_part2);
 
-struct AoC_day {
-    number: u8,
-    part1: Part,
-    part2: Part,
-}
+// 2022/06 part 1
+//   ✅ [sec 0.000] (test) naive js copy
+//   ✅ [sec 0.004] naive js copy
+// 2022/06 part 2
+//   ✅ [sec 0.000] (test) naive js copy
+//   ✅ [sec 0.018] naive js copy
 
-// sort of:
-//   AoC_day::number(4).part1([
-//      ('naive', day03::part1)
-//      ('optimal', day03::part1_optimal)
-//   ])
-
+todo sort of:
+// 2022/06:
+//   part 1
+//     ✅[sec 0.123] ✅[sec 0.123] naive js copy
+//     ✅[sec 0.000] ✅[sec 0.004] fast
+//   part 2
+//     ❌[sec 0.123] ------------- naive js copy
+//       expected: 123
+//       actual:   111
+//     ❌------------ [sec 0.123]  naive js copy
+//       expected: 123
+//       actual:   111
 */
 
-impl Answers {
-    pub fn parse(path: &str) -> Answers {
-        let mut ans = Answers {
-            part1_test: "".to_string(),
-            part1: "".to_string(),
-            part2_test: "".to_string(),
-            part2: "".to_string(),
+pub struct Answers {
+    for_test: String,
+    for_input: String,
+}
+
+pub struct AoCDay {
+    year: u32,
+    day: u32,
+    test_input: String,
+    input: String,
+    part1_answers: Option<Answers>,
+    part2_answers: Option<Answers>,
+}
+
+impl AoCDay {
+    pub fn new(year: u32, day: u32) -> Self {
+        let input_folder = format!("../{}/inputs/d{:02}", year, day);
+
+        let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder)).unwrap();
+        let input = fs::read_to_string(format!("{}/input.txt", input_folder)).unwrap();
+        let (part1, part2) = AoCDay::parse_parts(format!("{}/answer.txt", input_folder).as_str());
+
+        AoCDay {
+            year,
+            day,
+            test_input: test_inp,
+            input,
+            part1_answers: Some(part1),
+            part2_answers: Some(part2),
+        }
+    }
+
+    pub fn parse_parts(path: &str) -> (Answers, Answers) {
+        let mut part1 = Answers {
+            for_test: "".to_string(),
+            for_input: "".to_string(),
+        };
+        let mut part2 = Answers {
+            for_test: "".to_string(),
+            for_input: "".to_string(),
         };
 
         let mut stage = 0;
@@ -50,96 +79,95 @@ impl Answers {
                 "- part2_test" => stage = 3,
                 "- part2" => stage = 4,
                 _ => match stage {
-                    1 => ans.part1_test.push_str(line),
-                    2 => ans.part1.push_str(line),
-                    3 => ans.part2_test.push_str(line),
-                    4 => ans.part2.push_str(line),
+                    1 => part1.for_test.push_str(line),
+                    2 => part1.for_input.push_str(line),
+                    3 => part2.for_test.push_str(line),
+                    4 => part2.for_input.push_str(line),
                     _ => (),
                 },
             }
         }
 
-        ans
+        (part1, part2)
     }
 
-    pub fn check_p1_test<F, R: Display>(&self, label: &str, solution_cb: F)
+    pub fn part1<F, R: Display>(&self, description: &str, solution: &F) -> &Self
     where
-        F: Fn() -> R,
+        F: Fn(&str) -> R,
     {
-        let sys_time = SystemTime::now();
-        let answer = format!("{}", solution_cb());
-        let time = sys_time.elapsed().unwrap();
+        println!("{}/{:02} part 1", self.year, self.day);
 
-        self.print_res(
-            &format!("{label} part_1 test"),
-            &self.part1_test,
-            &answer,
-            &time,
-        );
+        if let Some(answer) = &self.part1_answers {
+            let sys_time = SystemTime::now();
+            let current_answer = solution(&self.test_input);
+            let time = sys_time.elapsed().unwrap();
+
+            self.print_res(
+                &format!("(test) {}", description),
+                &answer.for_test,
+                &current_answer.to_string(),
+                &time,
+            );
+
+            let sys_time = SystemTime::now();
+            let current_answer = solution(&self.input);
+            let time = sys_time.elapsed().unwrap();
+
+            self.print_res(
+                &description,
+                &answer.for_input,
+                &current_answer.to_string(),
+                &time,
+            );
+        } else {
+            unimplemented!();
+        }
+        self
     }
 
-    pub fn check_p1<F, R: Display>(&self, label: &str, solution_cb: F)
+    pub fn part2<F, R: Display>(&self, description: &str, solution: &F) -> &Self
     where
-        F: Fn() -> R,
+        F: Fn(&str) -> R,
     {
-        let sys_time = SystemTime::now();
-        let answer = format!("{}", solution_cb());
-        let time = sys_time.elapsed().unwrap();
+        println!("{}/{:02} part 2", self.year, self.day);
 
-        self.print_res(&format!("{label} part_1"), &self.part1, &answer, &time);
+        if let Some(answer) = &self.part2_answers {
+            let sys_time = SystemTime::now();
+            let current_answer = solution(&self.test_input);
+            let time = sys_time.elapsed().unwrap();
+
+            self.print_res(
+                &format!("(test) {}", description),
+                &answer.for_test,
+                &current_answer.to_string(),
+                &time,
+            );
+
+            let sys_time = SystemTime::now();
+            let current_answer = solution(&self.input);
+            let time = sys_time.elapsed().unwrap();
+
+            self.print_res(
+                &description,
+                &answer.for_input,
+                &current_answer.to_string(),
+                &time,
+            );
+        } else {
+            unimplemented!();
+        }
+        self
     }
 
-    pub fn check_p2_test<F, R: Display>(&self, label: &str, solution_cb: F)
-    where
-        F: Fn() -> R,
-    {
-        let sys_time = SystemTime::now();
-        let answer = format!("{}", solution_cb());
-        let time = sys_time.elapsed().unwrap();
-
-        self.print_res(
-            &format!("{label} part_2 test"),
-            &self.part2_test,
-            &answer,
-            &time,
-        );
-    }
-
-    pub fn check_p2<F, R: Display>(&self, label: &str, solution_cb: F)
-    where
-        F: Fn() -> R,
-    {
-        let sys_time = SystemTime::now();
-        let answer = format!("{}", solution_cb());
-        let time = sys_time.elapsed().unwrap();
-
-        self.print_res(&format!("{label} part_2"), &self.part2, &answer, &time);
-    }
-
-    pub fn print_res(&self, label: &str, expected: &str, actual: &str, time: &Duration) {
+    fn print_res(&self, label: &str, expected: &str, actual: &str, time: &Duration) {
         let sec = time.as_millis() as f64 / 1000.0;
 
         if expected == actual {
-            println!("✅ {label}, {actual}, [sec {:.3}]", sec)
+            println!("  ✅ [sec {:.3}] {}", sec, label)
         } else {
-            println!("❌ {label}, [sec {}]", sec);
-            println!("  expected, {expected}");
-            println!("  actual,   {actual}");
+            println!("  ❌ [sec {:.3}] {}", sec, label);
+            println!("    expected: {expected}");
+            println!("    actual:   {actual}");
         }
     }
-}
-
-pub fn run_solution<F, F2, R: Display>(input_folder: &str, label: &str, part_1: F, part_2: F2)
-where
-    F: Fn(&str) -> R,
-    F2: Fn(&str) -> R,
-{
-    let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder)).unwrap();
-    let inp = fs::read_to_string(format!("{}/input.txt", input_folder)).unwrap();
-    let answers = Answers::parse(format!("{}/answer.txt", input_folder).as_str());
-
-    answers.check_p1_test(&label, || part_1(&test_inp));
-    answers.check_p1(&label, || part_1(&inp));
-    answers.check_p2_test(&label, || part_2(&test_inp));
-    answers.check_p2(&label, || part_2(&inp));
 }
