@@ -1,46 +1,18 @@
-use std::fmt::{Debug, Display};
+use std::fmt::{Debug, Display, Formatter};
 use std::fs;
 use std::time::{Duration, SystemTime};
 
-/*
-// now:
-AoCDay::new(2022, 6)
-    .part1("naive js copy", &day06::naive_js_copy_part1)
-    .part2("naive js copy", &day06::naive_js_copy_part2);
-
-// 2022/06 part 1
-//   ✅ [sec 0.000] (test) naive js copy
-//   ✅ [sec 0.004] naive js copy
-// 2022/06 part 2
-//   ✅ [sec 0.000] (test) naive js copy
-//   ✅ [sec 0.018] naive js copy
-
-todo sort of:
-// 2022/06:
-//   part 1
-//     ✅[sec 0.123] ✅[sec 0.123] naive js copy
-//     ✅[sec 0.000] ✅[sec 0.004] fast
-//   part 2
-//     ❌[sec 0.123] ------------- naive js copy
-//       expected: 123
-//       actual:   111
-//     ❌------------ [sec 0.123]  naive js copy
-//       expected: 123
-//       actual:   111
-*/
-
-pub struct Answers {
-    for_test: String,
-    for_input: String,
+pub struct PartAnswers {
+    answer: String,
+    results: Vec<(String, Duration, String)>, // (solution result, solution time, solution description)
 }
 
 pub struct AoCDay {
     year: u32,
     day: u32,
-    test_input: String,
-    input: String,
-    part1_answers: Option<Answers>,
-    part2_answers: Option<Answers>,
+    inputs: [String; 2],     // [test, real]
+    part1: [PartAnswers; 2], // [test, real]
+    part2: [PartAnswers; 2], // [test, real]
 }
 
 impl AoCDay {
@@ -49,29 +21,25 @@ impl AoCDay {
 
         let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder)).unwrap();
         let input = fs::read_to_string(format!("{}/input.txt", input_folder)).unwrap();
-        let (part1, part2) = AoCDay::parse_parts(format!("{}/answer.txt", input_folder).as_str());
+        let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
 
         AoCDay {
             year,
             day,
-            test_input: test_inp,
-            input,
-            part1_answers: Some(part1),
-            part2_answers: Some(part2),
+            inputs: [test_inp, input],
+            part1,
+            part2,
         }
     }
 
-    pub fn parse_parts(path: &str) -> (Answers, Answers) {
-        let mut part1 = Answers {
-            for_test: "".to_string(),
-            for_input: "".to_string(),
-        };
-        let mut part2 = Answers {
-            for_test: "".to_string(),
-            for_input: "".to_string(),
-        };
+    pub fn parse_answers(path: &str) -> ([PartAnswers; 2], [PartAnswers; 2]) {
+        let mut part1_test_parts = vec![];
+        let mut part1_parts = vec![];
+        let mut part2_test_parts = vec![];
+        let mut part2_parts = vec![];
 
         let mut stage = 0;
+
         for line in fs::read_to_string(path).unwrap().lines() {
             match line {
                 "- part1_test" => stage = 1,
@@ -79,83 +47,85 @@ impl AoCDay {
                 "- part2_test" => stage = 3,
                 "- part2" => stage = 4,
                 _ => match stage {
-                    1 => part1.for_test.push_str(line),
-                    2 => part1.for_input.push_str(line),
-                    3 => part2.for_test.push_str(line),
-                    4 => part2.for_input.push_str(line),
+                    1 => part1_test_parts.push(line.to_string()),
+                    2 => part1_parts.push(line.to_string()),
+                    3 => part2_test_parts.push(line.to_string()),
+                    4 => part2_parts.push(line.to_string()),
                     _ => (),
                 },
             }
         }
+        let part1_test = PartAnswers {
+            answer: part1_test_parts.join("\n"),
+            results: vec![],
+        };
+        let part1 = PartAnswers {
+            answer: part1_parts.join("\n"),
+            results: vec![],
+        };
+        let part2_test = PartAnswers {
+            answer: part2_test_parts.join("\n"),
+            results: vec![],
+        };
+        let part2 = PartAnswers {
+            answer: part2_parts.join("\n"),
+            results: vec![],
+        };
 
-        (part1, part2)
+        ([part1_test, part1], [part2_test, part2])
     }
 
-    pub fn part1<F, R: Display>(&self, description: &str, solution: &F) -> &Self
-    where
-        F: Fn(&str) -> R,
-    {
-        println!("{}/{:02} part 1", self.year, self.day);
-
-        if let Some(answer) = &self.part1_answers {
-            let sys_time = SystemTime::now();
-            let current_answer = solution(&self.test_input);
-            let time = sys_time.elapsed().unwrap();
-
-            self.print_res(
-                &format!("(test) {}", description),
-                &answer.for_test,
-                &current_answer.to_string(),
-                &time,
-            );
-
-            let sys_time = SystemTime::now();
-            let current_answer = solution(&self.input);
-            let time = sys_time.elapsed().unwrap();
-
-            self.print_res(
-                &description,
-                &answer.for_input,
-                &current_answer.to_string(),
-                &time,
-            );
-        } else {
-            unimplemented!();
-        }
-        self
+    pub fn part1<R: Display>(self, solutions: Vec<(&str, &dyn Fn(&str) -> R)>) -> Self {
+        self.run_part(solutions, false)
     }
 
-    pub fn part2<F, R: Display>(&self, description: &str, solution: &F) -> &Self
-    where
-        F: Fn(&str) -> R,
-    {
-        println!("{}/{:02} part 2", self.year, self.day);
+    pub fn part2<R: Display>(self, solutions: Vec<(&str, &dyn Fn(&str) -> R)>) -> Self {
+        self.run_part(solutions, true)
+    }
 
-        if let Some(answer) = &self.part2_answers {
+    fn run_part<R: Display>(
+        mut self,
+        solutions: Vec<(&str, &dyn Fn(&str) -> R)>,
+        is_part_2: bool,
+    ) -> Self {
+        for (description, solution) in solutions {
             let sys_time = SystemTime::now();
-            let current_answer = solution(&self.test_input);
+            let current_answer = solution(&self.inputs[0]);
             let time = sys_time.elapsed().unwrap();
 
-            self.print_res(
-                &format!("(test) {}", description),
-                &answer.for_test,
-                &current_answer.to_string(),
-                &time,
-            );
+            if is_part_2 {
+                self.part2[0].results.push((
+                    current_answer.to_string(),
+                    time,
+                    description.to_string(),
+                ));
+            } else {
+                self.part1[0].results.push((
+                    current_answer.to_string(),
+                    time,
+                    description.to_string(),
+                ));
+            }
 
             let sys_time = SystemTime::now();
-            let current_answer = solution(&self.input);
+            let current_answer = solution(&self.inputs[1]);
             let time = sys_time.elapsed().unwrap();
 
-            self.print_res(
-                &description,
-                &answer.for_input,
-                &current_answer.to_string(),
-                &time,
-            );
-        } else {
-            unimplemented!();
+            if is_part_2 {
+                self.part2[1].results.push((
+                    current_answer.to_string(),
+                    time,
+                    description.to_string(),
+                ));
+            } else {
+                self.part1[1].results.push((
+                    current_answer.to_string(),
+                    time,
+                    description.to_string(),
+                ));
+            }
         }
+
         self
     }
 
@@ -169,5 +139,78 @@ impl AoCDay {
             println!("    expected: {expected}");
             println!("    actual:   {actual}");
         }
+    }
+
+    // VERY UGLY :(
+    fn render_part(&self, test_data: &PartAnswers, actual_data: &PartAnswers) -> String {
+        let mut res = "".to_string();
+
+        let test_iter = test_data.results.iter();
+        let result_iter = actual_data.results.iter();
+
+        for (test_results, real_results) in test_iter.zip(result_iter) {
+            let test_time = test_results.1.as_millis() as f64 / 1000.0;
+            let real_time = real_results.1.as_millis() as f64 / 1000.0;
+            let description = &test_results.2;
+
+            let expected_test = &test_data.answer;
+            let expected_real = &actual_data.answer;
+            let actual_test = &test_results.0;
+            let actual_real = &real_results.0;
+
+            match (expected_test == actual_test, expected_real == actual_real) {
+                (true, true) => res.push_str(&format!(
+                    "      ✅ [sec {:.3}] ✅ [sec {:.3}] {description}\n",
+                    test_time, real_time
+                )),
+                (true, false) => {
+                    res.push_str(&format!(
+                        "      ✅ [sec {:.3}] ❌ ----------- {description}\n",
+                        test_time
+                    ));
+                    res.push_str(&format!(
+                        "                      expected: {expected_real}\n                      actual:   {actual_real}\n",
+                    ));
+                }
+                (false, true) => {
+                    res.push_str(&format!(
+                        "      ❌ ----------- ✅ [sec {:.3}] {description}\n",
+                        test_time
+                    ));
+                    res.push_str(&format!(
+                        "      expected: {expected_test}\n      actual:   {actual_test}\n",
+                    ));
+                }
+                (false, false) => {
+                    res.push_str(&format!(
+                        "      ❌ ----------- ❌ ----------- {description}\n"
+                    ));
+                    res.push_str(&format!(
+                        "       expected: [{expected_test}] actual: [{actual_test}]\n",
+                    ));
+                    res.push_str(&format!(
+                        "                    expected: [{expected_real}] actual: [{actual_real}]\n",
+                    ));
+                }
+            };
+        }
+
+        res
+    }
+}
+
+impl Display for AoCDay {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut res = "".to_string();
+
+        res.push_str(&format!("{}/{:02}:\n", self.year, self.day));
+
+        res.push_str(&format!("  part 1\n"));
+        res.push_str(&self.render_part(&self.part1[0], &self.part1[1]));
+
+        res.push_str(&format!("  part 2\n"));
+        res.push_str(&self.render_part(&self.part2[0], &self.part2[1]));
+
+        write!(f, "{}", res)
     }
 }
