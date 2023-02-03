@@ -75,60 +75,55 @@ impl AoCDay {
         ([part1_test, part1], [part2_test, part2])
     }
 
-    pub fn part1<R: Display>(self, solutions: Vec<(&str, &dyn Fn(&str) -> R)>) -> Self {
-        self.run_part(solutions, false)
-    }
-
     pub fn test_only<R: Display>(self, solution: &dyn Fn(&str) -> R) -> Self {
         solution(&self.inputs[0]);
         self
     }
 
-    pub fn part2<R: Display>(self, solutions: Vec<(&str, &dyn Fn(&str) -> R)>) -> Self {
-        self.run_part(solutions, true)
+    pub fn part1<R: Display>(self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
+        self.run_part(label, solution, false)
+    }
+
+    pub fn part2<R: Display>(self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
+        self.run_part(label, solution, true)
+    }
+
+    pub fn print(&self) {
+        println!("{}", self);
     }
 
     fn run_part<R: Display>(
         mut self,
-        solutions: Vec<(&str, &dyn Fn(&str) -> R)>,
-        is_part_2: bool,
+        description: &str,
+        solution: &dyn Fn(&str) -> R,
+        is_part_2: bool, // todo fix
     ) -> Self {
-        for (description, solution) in solutions {
-            let sys_time = SystemTime::now();
-            let current_answer = solution(&self.inputs[0]);
-            let time = sys_time.elapsed().unwrap();
+        let sys_time = SystemTime::now();
+        let current_answer = solution(&self.inputs[0]);
+        let time = sys_time.elapsed().unwrap();
 
-            if is_part_2 {
-                self.part2[0].results.push((
-                    current_answer.to_string(),
-                    time,
-                    description.to_string(),
-                ));
-            } else {
-                self.part1[0].results.push((
-                    current_answer.to_string(),
-                    time,
-                    description.to_string(),
-                ));
-            }
+        if is_part_2 {
+            self.part2[0]
+                .results
+                .push((current_answer.to_string(), time, description.to_string()));
+        } else {
+            self.part1[0]
+                .results
+                .push((current_answer.to_string(), time, description.to_string()));
+        }
 
-            let sys_time = SystemTime::now();
-            let current_answer = solution(&self.inputs[1]);
-            let time = sys_time.elapsed().unwrap();
+        let sys_time = SystemTime::now();
+        let current_answer = solution(&self.inputs[1]);
+        let time = sys_time.elapsed().unwrap();
 
-            if is_part_2 {
-                self.part2[1].results.push((
-                    current_answer.to_string(),
-                    time,
-                    description.to_string(),
-                ));
-            } else {
-                self.part1[1].results.push((
-                    current_answer.to_string(),
-                    time,
-                    description.to_string(),
-                ));
-            }
+        if is_part_2 {
+            self.part2[1]
+                .results
+                .push((current_answer.to_string(), time, description.to_string()));
+        } else {
+            self.part1[1]
+                .results
+                .push((current_answer.to_string(), time, description.to_string()));
         }
 
         self
@@ -146,12 +141,10 @@ impl AoCDay {
             let real_time = real_results.1.as_millis() as f64 / 1000.0;
             let description = &test_results.2;
 
-            let expected_test = &test_data.answer;
-            let expected_real = &actual_data.answer;
-            let actual_test = &test_results.0;
-            let actual_real = &real_results.0;
+            let is_test_ok = test_data.answer == test_results.0;
+            let is_real_ok = actual_data.answer == real_results.0;
 
-            match (expected_test == actual_test, expected_real == actual_real) {
+            match (is_test_ok, is_real_ok) {
                 (true, true) => res.push(format!(
                     "      ✅ [sec {:.3}] ✅ [sec {:.3}] {description}",
                     test_time, real_time
@@ -161,27 +154,31 @@ impl AoCDay {
                         "      ✅ [sec {:.3}] ❌ ----------- {description}",
                         test_time
                     ));
-                    res.push(format!("                      actual:   {actual_real}",));
-                    res.push(format!("                      expected: {expected_real}",));
                 }
                 (false, true) => {
                     res.push(format!(
                         "      ❌ ----------- ✅ [sec {:.3}] {description}",
                         test_time
                     ));
-                    res.push(format!("      expected: {expected_test}",));
-                    res.push(format!("      actual:   {actual_test}",));
                 }
                 (false, false) => {
                     res.push(format!("      ❌ ----------- ❌ ----------- {description}"));
-                    res.push(format!(
-                        "       expected: [{expected_test}] actual: [{actual_test}]",
-                    ));
-                    res.push(format!(
-                        "                    expected: [{expected_real}] actual: [{actual_real}]",
-                    ));
                 }
             };
+            if !is_test_ok {
+                res.push(format!("      expected: {}", test_data.answer));
+                res.push(format!("      actual:   {}", test_results.0));
+            }
+            if !is_real_ok {
+                res.push(format!(
+                    "                      actual:   {}",
+                    real_results.0
+                ));
+                res.push(format!(
+                    "                      expected: {}",
+                    actual_data.answer
+                ));
+            }
         }
 
         res.join("\n")
