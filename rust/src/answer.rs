@@ -79,6 +79,11 @@ impl AoCDay {
         self.run_part(solutions, false)
     }
 
+    pub fn test_only<R: Display>(self, solution: &dyn Fn(&str) -> R) -> Self {
+        solution(&self.inputs[0]);
+        self
+    }
+
     pub fn part2<R: Display>(self, solutions: Vec<(&str, &dyn Fn(&str) -> R)>) -> Self {
         self.run_part(solutions, true)
     }
@@ -129,21 +134,9 @@ impl AoCDay {
         self
     }
 
-    fn print_res(&self, label: &str, expected: &str, actual: &str, time: &Duration) {
-        let sec = time.as_millis() as f64 / 1000.0;
-
-        if expected == actual {
-            println!("  ✅ [sec {:.3}] {}", sec, label)
-        } else {
-            println!("  ❌ [sec {:.3}] {}", sec, label);
-            println!("    expected: {expected}");
-            println!("    actual:   {actual}");
-        }
-    }
-
     // VERY UGLY :(
     fn render_part(&self, test_data: &PartAnswers, actual_data: &PartAnswers) -> String {
-        let mut res = "".to_string();
+        let mut res = vec![];
 
         let test_iter = test_data.results.iter();
         let result_iter = actual_data.results.iter();
@@ -159,43 +152,39 @@ impl AoCDay {
             let actual_real = &real_results.0;
 
             match (expected_test == actual_test, expected_real == actual_real) {
-                (true, true) => res.push_str(&format!(
-                    "      ✅ [sec {:.3}] ✅ [sec {:.3}] {description}\n",
+                (true, true) => res.push(format!(
+                    "      ✅ [sec {:.3}] ✅ [sec {:.3}] {description}",
                     test_time, real_time
                 )),
                 (true, false) => {
-                    res.push_str(&format!(
-                        "      ✅ [sec {:.3}] ❌ ----------- {description}\n",
+                    res.push(format!(
+                        "      ✅ [sec {:.3}] ❌ ----------- {description}",
                         test_time
                     ));
-                    res.push_str(&format!(
-                        "                      expected: {expected_real}\n                      actual:   {actual_real}\n",
-                    ));
+                    res.push(format!("                      actual:   {actual_real}",));
+                    res.push(format!("                      expected: {expected_real}",));
                 }
                 (false, true) => {
-                    res.push_str(&format!(
-                        "      ❌ ----------- ✅ [sec {:.3}] {description}\n",
+                    res.push(format!(
+                        "      ❌ ----------- ✅ [sec {:.3}] {description}",
                         test_time
                     ));
-                    res.push_str(&format!(
-                        "      expected: {expected_test}\n      actual:   {actual_test}\n",
-                    ));
+                    res.push(format!("      expected: {expected_test}",));
+                    res.push(format!("      actual:   {actual_test}",));
                 }
                 (false, false) => {
-                    res.push_str(&format!(
-                        "      ❌ ----------- ❌ ----------- {description}\n"
+                    res.push(format!("      ❌ ----------- ❌ ----------- {description}"));
+                    res.push(format!(
+                        "       expected: [{expected_test}] actual: [{actual_test}]",
                     ));
-                    res.push_str(&format!(
-                        "       expected: [{expected_test}] actual: [{actual_test}]\n",
-                    ));
-                    res.push_str(&format!(
-                        "                    expected: [{expected_real}] actual: [{actual_real}]\n",
+                    res.push(format!(
+                        "                    expected: [{expected_real}] actual: [{actual_real}]",
                     ));
                 }
             };
         }
 
-        res
+        res.join("\n")
     }
 }
 
@@ -205,9 +194,11 @@ impl Display for AoCDay {
 
         res.push_str(&format!("{}/{:02}:\n", self.year, self.day));
 
-        res.push_str(&format!("  part 1\n"));
+        res.push_str("  part 1\n");
         res.push_str(&self.render_part(&self.part1[0], &self.part1[1]));
+        res.push_str("\n");
 
+        // todo check if results exist
         res.push_str(&format!("  part 2\n"));
         res.push_str(&self.render_part(&self.part2[0], &self.part2[1]));
 
