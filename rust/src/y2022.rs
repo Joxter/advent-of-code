@@ -7,6 +7,7 @@ pub mod day04;
 pub mod day05;
 pub mod day06;
 pub mod day07;
+pub mod day08;
 
 pub fn run_2022() {
     // AoCDay::new(2022, 1)
@@ -38,9 +39,14 @@ pub fn run_2022() {
     //     .part1("naive js copy", &day06::naive_js_copy_part1)
     //     .part2("naive js copy", &day06::naive_js_copy_part2)
     //     .print();
+    //
+    // AoCDay::new(2022, 7)
+    //     .part1("naive js copy", &day07::naive_js_copy_part1)
+    //     .part2("naive js copy", &day07::naive_js_copy_part2)
+    //     .print();
 
-    AoCDay::new(2022, 7)
-        .part1("naive js copy", &day07::naive_js_copy_part1)
-        .part2("naive js copy", &day07::naive_js_copy_part2)
+    AoCDay::new(2022, 8)
+        .part1("naive js copy", &day08::naive_js_copy_part1)
+        .part2("naive js copy", &day08::naive_js_copy_part2)
         .print();
 }
