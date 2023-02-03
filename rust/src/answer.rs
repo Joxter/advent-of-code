@@ -2,9 +2,21 @@ use std::fmt::{Debug, Display, Formatter};
 use std::fs;
 use std::time::{Duration, SystemTime};
 
-pub struct PartAnswers {
+struct SolutionResult {
+    res: String,
+    time: Duration,
+    descr: String,
+}
+
+impl SolutionResult {
+    fn get_sec(&self) -> f64 {
+        self.time.as_millis() as f64 / 1000.0
+    }
+}
+
+struct PartAnswers {
     answer: String,
-    results: Vec<(String, Duration, String)>, // (solution result, solution time, solution description)
+    results: Vec<SolutionResult>,
 }
 
 pub struct AoCDay {
@@ -32,7 +44,7 @@ impl AoCDay {
         }
     }
 
-    pub fn parse_answers(path: &str) -> ([PartAnswers; 2], [PartAnswers; 2]) {
+    fn parse_answers(path: &str) -> ([PartAnswers; 2], [PartAnswers; 2]) {
         let mut part1_test_parts = vec![];
         let mut part1_parts = vec![];
         let mut part2_test_parts = vec![];
@@ -102,34 +114,37 @@ impl AoCDay {
         let current_answer = solution(&self.inputs[0]);
         let time = sys_time.elapsed().unwrap();
 
+        let res = SolutionResult {
+            res: current_answer.to_string(),
+            time,
+            descr: description.to_string(),
+        };
+
         if is_part_2 {
-            self.part2[0]
-                .results
-                .push((current_answer.to_string(), time, description.to_string()));
+            self.part2[0].results.push(res);
         } else {
-            self.part1[0]
-                .results
-                .push((current_answer.to_string(), time, description.to_string()));
+            self.part1[0].results.push(res);
         }
 
         let sys_time = SystemTime::now();
         let current_answer = solution(&self.inputs[1]);
         let time = sys_time.elapsed().unwrap();
 
+        let res = SolutionResult {
+            res: current_answer.to_string(),
+            time,
+            descr: description.to_string(),
+        };
+
         if is_part_2 {
-            self.part2[1]
-                .results
-                .push((current_answer.to_string(), time, description.to_string()));
+            self.part2[1].results.push(res);
         } else {
-            self.part1[1]
-                .results
-                .push((current_answer.to_string(), time, description.to_string()));
+            self.part1[1].results.push(res);
         }
 
         self
     }
 
-    // VERY UGLY :(
     fn render_part(&self, test_data: &PartAnswers, actual_data: &PartAnswers) -> String {
         let mut res = vec![];
 
@@ -137,12 +152,12 @@ impl AoCDay {
         let result_iter = actual_data.results.iter();
 
         for (test_results, real_results) in test_iter.zip(result_iter) {
-            let test_time = test_results.1.as_millis() as f64 / 1000.0;
-            let real_time = real_results.1.as_millis() as f64 / 1000.0;
-            let description = &test_results.2;
+            let test_time = test_results.get_sec();
+            let real_time = real_results.get_sec();
+            let description = &test_results.descr;
 
-            let is_test_ok = test_data.answer == test_results.0;
-            let is_real_ok = actual_data.answer == real_results.0;
+            let is_test_ok = test_data.answer == test_results.res;
+            let is_real_ok = actual_data.answer == real_results.res;
 
             match (is_test_ok, is_real_ok) {
                 (true, true) => res.push(format!(
@@ -167,12 +182,12 @@ impl AoCDay {
             };
             if !is_test_ok {
                 res.push(format!("      expected: {}", test_data.answer));
-                res.push(format!("      actual:   {}", test_results.0));
+                res.push(format!("      actual:   {}", test_results.res));
             }
             if !is_real_ok {
                 res.push(format!(
                     "                      actual:   {}",
-                    real_results.0
+                    real_results.res
                 ));
                 res.push(format!(
                     "                      expected: {}",
@@ -187,6 +202,8 @@ impl AoCDay {
 
 impl Display for AoCDay {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        // todo check if results part1 and/or part2 exist
+
         let mut res = "".to_string();
 
         res.push_str(&format!("{}/{:02}:\n", self.year, self.day));
@@ -195,7 +212,6 @@ impl Display for AoCDay {
         res.push_str(&self.render_part(&self.part1[0], &self.part1[1]));
         res.push_str("\n");
 
-        // todo check if results exist
         res.push_str(&format!("  part 2\n"));
         res.push_str(&self.render_part(&self.part2[0], &self.part2[1]));
 
