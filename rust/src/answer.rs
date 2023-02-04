@@ -87,8 +87,13 @@ impl AoCDay {
         ([part1_test, part1], [part2_test, part2])
     }
 
-    pub fn test_only<R: Display>(self, solution: &dyn Fn(&str) -> R) -> Self {
+    pub fn test_only<R: Display>(self, _label: &str, solution: &dyn Fn(&str) -> R) -> Self {
         solution(&self.inputs[0]);
+        self
+    }
+
+    pub fn real_only<R: Display>(self, _label: &str, solution: &dyn Fn(&str) -> R) -> Self {
+        solution(&self.inputs[1]);
         self
     }
 

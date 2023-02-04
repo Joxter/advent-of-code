@@ -20,7 +20,7 @@ pub fn run_2022() {
     //     .part2("naive js copy", &day02::naive_js_copy_part2)
     //     .print();
 
-    // AoCDay::new(2022, 3) // WRONG
+    // AoCDay::new(2022, 3)
     //     .part1("naive js copy", &day03::naive_js_copy_part1)
     //     .part2("naive js copy", &day03::naive_js_copy_part2)
     //     .print();
@@ -30,10 +30,10 @@ pub fn run_2022() {
     //     .part2("naive js copy", &day04::naive_js_copy_part2)
     //     .print();
 
-    AoCDay::new(2022, 5)
-        .part1("naive js copy", &day05::naive_js_copy_part1)
-        .part2("naive js copy", &day05::naive_js_copy_part2)
-        .print();
+    // AoCDay::new(2022, 5)
+    //     .part1("naive js copy", &day05::naive_js_copy_part1)
+    //     .part2("naive js copy", &day05::naive_js_copy_part2)
+    //     .print();
 
     // AoCDay::new(2022, 6)
     //     .part1("naive js copy", &day06::naive_js_copy_part1)

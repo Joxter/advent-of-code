@@ -1,23 +1,20 @@
 use std::collections::HashSet;
 
 pub fn naive_js_copy_part1(input: &str) -> i32 {
-    // TODO wtf??? wrong answer
     input
         .lines()
         .map(|line| {
             let mut first_part = HashSet::new();
-            let line: Vec<_> = line.chars().collect();
-
-            for i in 1..(line.len() / 2) {
-                first_part.insert(line[i]);
+            for char in (&line[0..(line.len() / 2)]).chars() {
+                first_part.insert(char);
             }
 
-            for i in (line.len() / 2)..line.len() {
-                if first_part.contains(&line[i]) {
-                    return if line[i].is_uppercase() {
-                        (line[i] as i32) - 38
+            for char in (&line[line.len() / 2..]).chars() {
+                if first_part.contains(&char) {
+                    return if char.is_uppercase() {
+                        (char as i32) - 38
                     } else {
-                        (line[i] as i32) - 96
+                        (char as i32) - 96
                     };
                 }
             }
