@@ -1,23 +1,16 @@
 import fs from 'fs';
+import { runSolution } from '../../utils.js';
 
 // https://adventofcode.com/2022/day/9
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test_actual OK: ', part1(testInput, 1) === 13);
-console.log('answer_actual: ', part1(inputData, 1), [6018]);
+runSolution('test  ', () => part1(testInput), 96);
+// runSolution('part_1', () => part1(inputData), 6018);
 
-let test2Input = `R 5
-U 8
-L 8
-D 3
-R 17
-D 10
-L 25
-U 20`;
-console.log('test2 OK: ', part2(test2Input) === 36);
-console.log('answer2: ', part2(inputData), [2619]);
+// runSolution('test  ', () => part2(testInput), 38);
+// runSolution('part_2', () => part2(inputData), 2619);
 
 function part1(inp) {
   return correct_approach_actually(inp, 1);
@@ -34,12 +27,9 @@ function correct_approach_actually(inp, ropeLen) {
   });
   let delta = { 'U': [1, 0], 'D': [-1, 0], 'R': [0, 1], 'L': [0, -1], };
 
-  // fs.writeFileSync('./out.txt', '');
-
   inp.split('\n').map((line) => {
     let [direction, steps] = line.split(' ');
     steps = +steps;
-    // fs.appendFileSync('./out.txt', `${line}\n`);
 
     while (steps--) {
       rope[0][0] += delta[direction][0];
@@ -47,13 +37,11 @@ function correct_approach_actually(inp, ropeLen) {
 
       for (let i = 1; i < rope.length; i++) {
         rope[i] = follow(rope[i], rope[i - 1]);
-        // renderHistory(50, 50, [15, 21], history, rope);
       }
+      console.log(rope[ropeLen].join(','));
       history.add(rope[ropeLen].join(','));
     }
-    // renderHistory(50, 50, [15, 21], history, rope);
   });
-  // renderHistory(13, 30, [5, 11], history, rope);
 
   return history.size;
 }
@@ -108,8 +96,6 @@ function renderHistory(height, width, focus, history, rope) {
   });
 
   rope.forEach(([x, y], i) => {
-    // const [x, y] = cell.split(',').map(it => +it);
-
     if (field[x + focus[0]] && field[x + focus[0]][y + focus[1]]) {
       field[x + focus[0]][y + focus[1]] = i;
     }
@@ -120,8 +106,8 @@ function renderHistory(height, width, focus, history, rope) {
   let res = field.map((row) => {
     return row.join('');
   }).join('\n');
-  // console.log(res);
+  console.log(res);
 
-  fs.appendFileSync('./out.txt', res);
-  fs.appendFileSync('./out.txt', '\n');
+  // fs.appendFileSync('./out.txt', res);
+  // fs.appendFileSync('./out.txt', '\n');
 }
