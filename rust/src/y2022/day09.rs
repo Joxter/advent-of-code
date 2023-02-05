@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-#[derive(Debug)]
+#[derive(Eq, Hash, PartialEq, Clone, Copy)]
 struct Point(i32, i32);
 
 pub fn naive_js_copy_part1(input: &str) -> usize {
@@ -12,7 +12,7 @@ pub fn naive_js_copy_part2(input: &str) -> usize {
 }
 
 fn simulate(input: &str, rope_len: usize) -> usize {
-    let mut history = HashSet::new();
+    let mut history: HashSet<Point> = HashSet::new();
 
     let mut rope = Vec::with_capacity(rope_len + 1);
     for _i in 0..=rope_len {
@@ -37,7 +37,7 @@ fn simulate(input: &str, rope_len: usize) -> usize {
             for i in 1..=rope_len {
                 rope[i] = follow(&rope[i], &rope[i - 1]);
             }
-            history.insert(format!("{:?}", rope.last().unwrap()));
+            history.insert(*(rope.last().unwrap()));
         }
     }
     history.len()
@@ -56,18 +56,18 @@ fn follow(tail: &Point, head: &Point) -> Point {
 
     if tail.0 == head.0 {
         if tail.1 < head.1 {
-            res.1 += 1
+            res.1 += 1;
         } else if tail.1 > head.1 {
-            res.1 -= 1
+            res.1 -= 1;
         };
         return res;
     }
 
     if tail.1 == head.1 {
         if tail.0 < head.0 {
-            res.0 += 1
+            res.0 += 1;
         } else if tail.0 > head.0 {
-            res.0 -= 0
+            res.0 -= 1;
         };
         return res;
     }

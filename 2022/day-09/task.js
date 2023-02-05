@@ -7,10 +7,10 @@ let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
 runSolution('test  ', () => part1(testInput), 96);
-// runSolution('part_1', () => part1(inputData), 6018);
+runSolution('part_1', () => part1(inputData), 6018);
 
-// runSolution('test  ', () => part2(testInput), 38);
-// runSolution('part_2', () => part2(inputData), 2619);
+runSolution('test  ', () => part2(testInput), 38);
+runSolution('part_2', () => part2(inputData), 2619);
 
 function part1(inp) {
   return correct_approach_actually(inp, 1);
@@ -38,7 +38,6 @@ function correct_approach_actually(inp, ropeLen) {
       for (let i = 1; i < rope.length; i++) {
         rope[i] = follow(rope[i], rope[i - 1]);
       }
-      console.log(rope[ropeLen].join(','));
       history.add(rope[ropeLen].join(','));
     }
   });
