@@ -51,9 +51,8 @@ pub fn run_2022() {
     //     .part2("naive js copy", &day08::naive_js_copy_part2)
     //     .print();
 
-    AoCDay::new(2022, 9)
-        // .test_only("naive js copy", &day09::naive_js_copy_part1)
-        .part1("naive js copy", &day09::naive_js_copy_part1)
-        .part2("naive js copy", &day09::naive_js_copy_part2)
-        .print();
+    // AoCDay::new(2022, 9)
+    //     .part1("naive js copy", &day09::naive_js_copy_part1)
+    //     .part2("naive js copy", &day09::naive_js_copy_part2)
+    //     .print();
 }
