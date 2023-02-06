@@ -39,13 +39,13 @@ pub fn naive_js_copy_part1(input: &str) -> String {
     let steps: Vec<(usize, usize, usize)> = steps
         .lines()
         .map(|line| {
-            let parts = line.split(" ").collect::<Vec<&str>>();
+            let parts = line.split(' ').collect::<Vec<&str>>();
 
-            return (
+            (
                 parts[1].parse::<usize>().unwrap(),
                 parts[3].parse::<usize>().unwrap(),
                 parts[5].parse::<usize>().unwrap(),
-            );
+            )
         })
         .collect();
 
@@ -71,13 +71,13 @@ pub fn naive_js_copy_part2(input: &str) -> String {
     let steps: Vec<(usize, usize, usize)> = steps
         .lines()
         .map(|line| {
-            let parts = line.split(" ").collect::<Vec<&str>>();
+            let parts = line.split(' ').collect::<Vec<&str>>();
 
-            return (
+            (
                 parts[1].parse::<usize>().unwrap(),
                 parts[3].parse::<usize>().unwrap(),
                 parts[5].parse::<usize>().unwrap(),
-            );
+            )
         })
         .collect();
 

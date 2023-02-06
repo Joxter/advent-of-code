@@ -20,7 +20,7 @@ fn simulate(input: &str, rope_len: usize) -> usize {
     }
 
     for line in input.lines() {
-        let (direction, steps) = line.split_once(" ").unwrap();
+        let (direction, steps) = line.split_once(' ').unwrap();
         let steps = steps.parse::<i32>().unwrap();
 
         for _i in 0..steps {
@@ -35,7 +35,7 @@ fn simulate(input: &str, rope_len: usize) -> usize {
             };
 
             for i in 1..=rope_len {
-                rope[i] = follow(&rope[i], &rope[i - 1]);
+                rope[i] = follow(rope[i], rope[i - 1]);
             }
             history.insert(*(rope.last().unwrap()));
         }
@@ -43,14 +43,14 @@ fn simulate(input: &str, rope_len: usize) -> usize {
     history.len()
 }
 
-fn length_between(a: &Point, b: &Point) -> i32 {
+fn length_between(a: Point, b: Point) -> i32 {
     i32::max((a.0 - b.0).abs(), (a.1 - b.1).abs())
 }
 
-fn follow(tail: &Point, head: &Point) -> Point {
+fn follow(tail: Point, head: Point) -> Point {
     let mut res = Point(tail.0, tail.1);
 
-    if length_between(&tail, &head) < 2 {
+    if length_between(tail, head) < 2 {
         return res;
     }
 

@@ -13,5 +13,5 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
         .collect();
 
     arr.sort_by(|a, b| b.cmp(a));
-    return arr[0] + arr[1] + arr[2];
+    arr[0] + arr[1] + arr[2]
 }

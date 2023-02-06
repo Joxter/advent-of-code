@@ -5,23 +5,19 @@ fn parse(input: &str) -> HashMap<String, i32> {
     let mut current_path = "".to_string();
 
     for line in input.lines() {
-        if line.starts_with("$ cd ") {
-            let dir_name = &line[5..];
-
+        if let Some(dir_name) = line.strip_prefix("$ cd ") {
             if dir_name == ".." {
                 current_path = cut_last_folder(&current_path);
+            } else if dir_name == "/" {
+                current_path = "/".to_string();
             } else {
-                if dir_name == "/" {
-                    current_path = "/".to_string();
-                } else {
-                    current_path.push_str(&format!("{dir_name}/"));
-                }
+                current_path.push_str(&format!("{dir_name}/"));
             }
             if !folders.contains_key(&current_path) {
                 folders.insert(current_path.clone(), 0);
             }
         } else {
-            let file_size = line.split_once(" ").unwrap().0.parse::<i32>().unwrap_or(0);
+            let file_size = line.split_once(' ').unwrap().0.parse::<i32>().unwrap_or(0);
 
             if file_size > 0 {
                 let mut dir = current_path.clone();
@@ -63,13 +59,13 @@ fn cut_last_folder(path: &str) -> String {
         return "".to_string();
     }
 
-    let mut arr = Vec::from_iter(path.split("/"));
+    let mut arr = Vec::from_iter(path.split('/'));
     arr.pop();
     arr.pop();
 
     let mut res = arr.join("/");
 
-    if res.len() > 0 && res.chars().last().unwrap() != '/' {
+    if !res.is_empty() && !res.ends_with('/') {
         res.push_str("/");
     }
 
