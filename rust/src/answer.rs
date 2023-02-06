@@ -215,7 +215,7 @@ impl Display for AoCDay {
 
         res.push_str("  part 1\n");
         res.push_str(&self.render_part(&self.part1[0], &self.part1[1]));
-        res.push_str("\n");
+        res.push('\n');
 
         res.push_str("  part 2\n");
         res.push_str(&self.render_part(&self.part2[0], &self.part2[1]));

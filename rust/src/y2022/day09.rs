@@ -47,7 +47,7 @@ fn length_between(a: Point, b: Point) -> i32 {
     i32::max((a.0 - b.0).abs(), (a.1 - b.1).abs())
 }
 
-fn follow(tail: Point, head: Point) -> Point {
+#[allow(clippy::all)] fn follow(tail: Point, head: Point) -> Point {
     let mut res = Point(tail.0, tail.1);
 
     if length_between(tail, head) < 2 {
@@ -85,4 +85,19 @@ fn follow(tail: Point, head: Point) -> Point {
     }
 
     res
+}
+
+fn follow_better(mut tail: Point, head: Point) -> Point {
+    // no comments..
+    if (tail.0 - head.0).abs() > 1 || (tail.1 - head.1).abs() > 1 {
+        if tail.0 != head.0 {
+            tail.0 += (head.0 - tail.0).signum();
+        }
+
+        if tail.1 != head.1 {
+            tail.1 += (head.1 - tail.1).signum();
+        }
+    }
+
+    tail
 }

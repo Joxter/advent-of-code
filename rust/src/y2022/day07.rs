@@ -66,7 +66,7 @@ fn cut_last_folder(path: &str) -> String {
     let mut res = arr.join("/");
 
     if !res.is_empty() && !res.ends_with('/') {
-        res.push_str("/");
+        res.push('/');
     }
 
     if res.is_empty() {

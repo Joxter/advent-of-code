@@ -5,11 +5,11 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
         .lines()
         .map(|line| {
             let mut first_part = HashSet::new();
-            for char in (&line[0..(line.len() / 2)]).chars() {
+            for char in line[0..(line.len() / 2)].chars() {
                 first_part.insert(char);
             }
 
-            for char in (&line[line.len() / 2..]).chars() {
+            for char in line[line.len() / 2..].chars() {
                 if first_part.contains(&char) {
                     return if char.is_uppercase() {
                         (char as i32) - 38

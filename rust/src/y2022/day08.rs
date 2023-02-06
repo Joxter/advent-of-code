@@ -16,12 +16,11 @@ pub fn naive_js_copy_part1(input: &str) -> usize {
 
     let mut result: HashSet<(usize, usize)> = HashSet::new();
 
-    for i in 0..height {
+    for (i, row) in grid.iter().enumerate() {
         let mut max = -1;
-        for j in 0..width {
-            let cur = grid[i][j];
-            if cur > max {
-                max = cur;
+        for (j, cur) in row.iter().enumerate() {
+            if *cur > max {
+                max = *cur;
                 result.insert((i, j));
 
                 if max == 9 {
@@ -32,7 +31,7 @@ pub fn naive_js_copy_part1(input: &str) -> usize {
 
         let mut max = -1;
         for j in (0..width).rev() {
-            let cur = grid[i][j];
+            let cur = row[j];
             if cur > max {
                 max = cur;
                 result.insert((i, j));
@@ -46,8 +45,8 @@ pub fn naive_js_copy_part1(input: &str) -> usize {
 
     for j in 0..height {
         let mut max = -1;
-        for i in 0..width {
-            let cur = grid[i][j];
+        for (i, row) in grid.iter().enumerate() {
+            let cur = row[j];
             if cur > max {
                 max = cur;
                 result.insert((i, j));
@@ -95,7 +94,6 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
             let current_tree = grid[i][j];
 
             let mut left_score = 0;
-            // println!("{}", current_tree);
             if j > 0 {
                 for a in (0..=(j - 1)).rev() {
                     left_score += 1;
@@ -124,6 +122,7 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
             }
 
             let mut bottom_score = 0;
+            #[allow(clippy::all)]
             for a in (i + 1)..height {
                 bottom_score += 1;
                 if current_tree <= grid[a][j] {
