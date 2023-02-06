@@ -2,6 +2,44 @@ use std::fmt::{Debug, Display, Formatter};
 use std::fs;
 use std::time::{Duration, SystemTime};
 
+/*
+// TODO
+//  ??? add Options to inputs and answers
+Day {
+  day: 3,
+  year: 2022,
+  part_1: { // struct Part
+    test_input: "2+2",
+    test_answer: "4",
+    real_input: "3+3",
+    real_answer: "6",
+    solutions: [
+      { // struct Solution
+        label: "naive js copy"
+        test_answer: "4"
+        real_answer: "6"
+        test_times: [0.013,0.015]
+        real_times: [0.013,0.015]
+      },
+      {
+        label: "naive js copy"
+        test_answer: "4"
+        real_answer: "6"
+        test_times: [0.013,0.015]
+        real_times: [0.013,0.015]
+      }
+    ]
+  },
+  part_2: {
+    test_input: "2*2",
+    test_answer: "4",
+    real_input: "3*3",
+    real_answer: "9",
+    solutions: [],
+  },
+}
+*/
+
 struct SolutionResult {
     res: String,
     time: Duration,
@@ -152,7 +190,13 @@ impl AoCDay {
 
     fn render_part(&self, test_data: &PartAnswers, actual_data: &PartAnswers) -> String {
         let mut res = vec![];
+        /*
+        todo make more compact
 
+        2022/09: part 1 ✅ [sec 0.000] ✅ [sec 0.008] naive js copy
+                        ✅ [sec 0.000] ✅ [sec 0.008] optimal solution
+                 part 2 ✅ [sec 0.000] ✅ [sec 0.015] naive js copy
+        */
         let test_iter = test_data.results.iter();
         let result_iter = actual_data.results.iter();
 
