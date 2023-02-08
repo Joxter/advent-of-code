@@ -230,18 +230,32 @@ impl AoCDay {
                 }
             };
             if !is_test_ok {
-                res.push(format!("      expected: {}", test_data.answer));
-                res.push(format!("      actual:   {}", test_results.res));
+                res.push(format!(
+                    "      expected: {}",
+                    optional_ln(&test_data.answer)
+                ));
+                res.push(format!(
+                    "      actual:   {}",
+                    optional_ln(&test_results.res)
+                ));
             }
             if !is_real_ok {
                 res.push(format!(
                     "                      actual:   {}",
-                    real_results.res
+                    optional_ln(&real_results.res)
                 ));
                 res.push(format!(
                     "                      expected: {}",
-                    actual_data.answer
+                    optional_ln(&actual_data.answer)
                 ));
+            }
+        }
+
+        fn optional_ln(s: &str) -> String {
+            if s.contains('\n') {
+                format!("\n{s}")
+            } else {
+                s.to_string()
             }
         }
 
