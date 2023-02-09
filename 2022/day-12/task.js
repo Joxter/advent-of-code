@@ -1,15 +1,16 @@
 import fs from 'fs';
+import { runSolution } from '../../utils.js';
 
 // https://adventofcode.com/2022/day/12
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test OK: ', part1(testInput) === 31);
-console.log('answer: ', part1(inputData), [497]);
+runSolution('test  ', () => part1(testInput), 31);
+runSolution('part_1', () => part1(inputData), 497);
 
-console.log('test2 OK:', part2(testInput) === 29);
-console.log('answer2:', part2(inputData), [492]);
+runSolution('test  ', () => part2(testInput), 29);
+runSolution('part_2', () => part2(inputData), 492);
 
 function part1(inp) {
   let heightMap = Object.fromEntries('abcdefghijklmnopqrstuvwxyz'
