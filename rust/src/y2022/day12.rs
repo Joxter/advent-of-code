@@ -79,11 +79,7 @@ fn find_path(
     unreachable!();
 }
 
-fn get_neibs(
-    (x, y): Position,
-    visited: &HashSet<Position>,
-    grid: &[Vec<char>],
-) -> Vec<Position> {
+fn get_neibs((x, y): Position, visited: &HashSet<Position>, grid: &[Vec<char>]) -> Vec<Position> {
     let mut res = vec![];
 
     if x > 0 && !visited.contains(&(x - 1, y)) {
