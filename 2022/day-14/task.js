@@ -1,15 +1,16 @@
 import fs from "fs";
+import { runSolution } from '../../utils.js';
 
 // https://adventofcode.com/2022/day/14
 
 let testInput = fs.readFileSync("./testData.txt").toString();
 let inputData = fs.readFileSync("./input.txt").toString();
 
-console.log("test OK: ", part1(testInput) === 24);
-console.log("answer: ", part1(inputData), [745]);
+runSolution('test  ', () => part1(testInput), 24);
+runSolution('part_1', () => part1(inputData), 745);
 
-console.log("test2 OK:", part2(testInput) === 93);
-console.log("answer2:", part2(inputData), [27551]);
+runSolution('test  ', () => part2(testInput), 93);
+runSolution('part_2', () => part2(inputData), 27551);
 
 function part1(inp) {
   let map = {};
@@ -59,6 +60,8 @@ function part1(inp) {
 
     return [x, y];
   }
+
+  console.log(Object.keys(map).length);
 
   let result = 0;
   let sandSource = [500, 0];

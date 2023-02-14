@@ -85,7 +85,7 @@ pub fn naive_js_copy_part2(input: &str) -> usize {
     (index_of_2 + 1) * (index_of_6 + 1)
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 enum Parts {
     Num(i64),
     Arr(Vec<Parts>),
