@@ -97,7 +97,6 @@ pub fn run_2022(days: &HashSet<i32>) {
     }
     if days.contains(&14) || days.is_empty() {
         AoCDay::new(2022, 14)
-            // .test_only("naive js copy", &day14::naive_js_copy_part1)
             .part1("naive js copy", &day14::naive_js_copy_part1)
             .part2("naive js copy", &day14::naive_js_copy_part2)
             .print();
