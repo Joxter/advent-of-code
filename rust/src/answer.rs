@@ -6,8 +6,8 @@ use std::{fs, io};
 pub struct AoCDay {
     year: u32,
     day: u32,
-    test_input: String,
-    real_input: String,
+    test_input: io::Result<String>,
+    real_input: io::Result<String>,
     part1: Part,
     part2: Part,
 }
@@ -111,23 +111,26 @@ impl Solution {
 }
 
 impl AoCDay {
-    pub fn new(year: u32, day: u32) -> Result<Self, String> {
+    pub fn new(year: u32, day: u32) -> Self {
         let input_folder = format!("../{}/inputs/d{:02}", year, day);
-
-        let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder))
-            .map_err(|a| format!("Can't open test input file for day {day} {a}"))?;
-        let input = fs::read_to_string(format!("{}/input.txt", input_folder))
-            .map_err(|a| format!("Can't open real input file for day {day} {a}"))?;
+        let (test_input, real_input) = AoCDay::parse_inputs(&input_folder);
         let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
 
-        Ok(AoCDay {
+        AoCDay {
             year,
             day,
-            test_input: test_inp,
-            real_input: input,
+            test_input,
+            real_input,
             part1,
             part2,
-        })
+        }
+    }
+
+    fn parse_inputs(input_folder: &str) -> (io::Result<String>, io::Result<String>) {
+        let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder));
+        let input = fs::read_to_string(format!("{}/input.txt", input_folder));
+
+        (test_inp, input)
     }
 
     fn parse_answers(path: &str) -> (Part, Part) {
@@ -186,22 +189,30 @@ impl AoCDay {
     }
 
     pub fn test_only<R: Display>(self, _label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        solution(&self.test_input);
+        if let Ok(inp) = &self.test_input {
+            solution(inp);
+        }
         self
     }
 
     pub fn real_only<R: Display>(self, _label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        solution(&self.real_input);
+        if let Ok(inp) = &self.real_input {
+            solution(inp);
+        }
         self
     }
 
     pub fn part1<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        self.part1.solutions.push(self.run_part(label, solution));
+        if let Ok(solution) = self.run_part(label, solution) {
+            self.part1.solutions.push(solution);
+        }
         self
     }
 
     pub fn part2<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        self.part2.solutions.push(self.run_part(label, solution));
+        if let Ok(solution) = self.run_part(label, solution) {
+            self.part2.solutions.push(solution);
+        }
         self
     }
 
@@ -209,21 +220,30 @@ impl AoCDay {
         println!("{}", self);
     }
 
-    fn run_part<R: Display>(&self, description: &str, solution: &dyn Fn(&str) -> R) -> Solution {
-        let sys_time = SystemTime::now();
-        let test_answer = solution(&self.test_input);
-        let test_time = sys_time.elapsed().unwrap();
+    fn run_part<R: Display>(
+        &self,
+        description: &str,
+        solution: &dyn Fn(&str) -> R,
+    ) -> Result<Solution, String> {
+        match (&self.test_input, &self.real_input) {
+            (Ok(test_input), Ok(real_input)) => {
+                let sys_time = SystemTime::now();
+                let test_answer = solution(test_input);
+                let test_time = sys_time.elapsed().unwrap();
 
-        let sys_time = SystemTime::now();
-        let real_answer = solution(&self.real_input);
-        let real_time = sys_time.elapsed().unwrap();
+                let sys_time = SystemTime::now();
+                let real_answer = solution(real_input);
+                let real_time = sys_time.elapsed().unwrap();
 
-        Solution {
-            label: description.to_string(),
-            test_answer: test_answer.to_string(),
-            real_answer: real_answer.to_string(),
-            test_time,
-            real_time,
+                Ok(Solution {
+                    label: description.to_string(),
+                    test_answer: test_answer.to_string(),
+                    real_answer: real_answer.to_string(),
+                    test_time,
+                    real_time,
+                })
+            }
+            _ => Err("Day inputs are invalid".to_string()),
         }
     }
 }

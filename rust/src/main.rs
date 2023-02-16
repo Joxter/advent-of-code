@@ -8,7 +8,7 @@ use std::{env, io};
 mod answer;
 mod y2022;
 
-fn main() -> Result<(), String> {
+fn main() {
     let days: HashSet<i32> = env::args()
         .filter_map(|arg| arg.parse::<i32>().ok())
         .collect();
