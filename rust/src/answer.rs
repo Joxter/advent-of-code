@@ -3,8 +3,6 @@ use std::io::BufRead;
 use std::time::{Duration, SystemTime};
 use std::{fs, io};
 
-// todo handle errors
-
 pub struct AoCDay {
     year: u32,
     day: u32,
@@ -55,16 +53,14 @@ impl Solution {
         let (test_time, real_time) = self.get_time_sec();
         let description = &self.label;
 
-        // todo it should be better way to write it
-        let is_test_ok = correct_test
-            .as_ref()
-            .map(|v| *v == self.test_answer)
-            .unwrap_or(false);
+        let is_test_ok = match correct_test {
+            Some(v) => *v == self.test_answer,
+            None => false,
+        };
         let is_real_ok = match correct_real {
             Some(v) => *v == self.real_answer,
             None => false,
         };
-
         match (is_test_ok, is_real_ok) {
             (true, true) => res.push(format!(
                 "✅ [sec {:.3}] ✅ [sec {:.3}] {description}",
@@ -135,10 +131,10 @@ impl AoCDay {
     }
 
     fn parse_answers(path: &str) -> (Part, Part) {
-        let mut part1_test_parts: Option<Vec<String>> = None;
-        let mut part1_real_parts: Option<Vec<String>> = None;
-        let mut part2_test_parts: Option<Vec<String>> = None;
-        let mut part2_real_parts: Option<Vec<String>> = None;
+        let mut part1_test_parts: Vec<String> = vec![];
+        let mut part1_real_parts: Vec<String> = vec![];
+        let mut part2_test_parts: Vec<String> = vec![];
+        let mut part2_real_parts: Vec<String> = vec![];
 
         let mut stage = 0;
 
@@ -151,31 +147,10 @@ impl AoCDay {
                         "- part2_test" => stage = 3,
                         "- part2" => stage = 4,
                         _ => match stage {
-                            1 => {
-                                // todo it should be better way to write it
-                                match &mut part1_test_parts {
-                                    Some(v) => v.push(line.to_string()),
-                                    None => part1_test_parts = Some(vec![line.to_string()]),
-                                };
-                            }
-                            2 => {
-                                match &mut part1_real_parts {
-                                    Some(v) => v.push(line.to_string()),
-                                    None => part1_real_parts = Some(vec![line.to_string()]),
-                                };
-                            }
-                            3 => {
-                                match &mut part2_test_parts {
-                                    Some(v) => v.push(line.to_string()),
-                                    None => part2_test_parts = Some(vec![line.to_string()]),
-                                };
-                            }
-                            4 => {
-                                match &mut part2_real_parts {
-                                    Some(v) => v.push(line.to_string()),
-                                    None => part2_real_parts = Some(vec![line.to_string()]),
-                                };
-                            }
+                            1 => part1_test_parts.push(line.to_string()),
+                            2 => part1_real_parts.push(line.to_string()),
+                            3 => part2_test_parts.push(line.to_string()),
+                            4 => part2_real_parts.push(line.to_string()),
                             _ => (),
                         },
                     }
@@ -189,14 +164,21 @@ impl AoCDay {
             }
         }
 
+        fn to_option_string(v: Vec<String>) -> Option<String> {
+            match v.is_empty() {
+                true => None,
+                false => Some(v.join("\n")),
+            }
+        }
+
         let part1 = Part {
-            test_answer: part1_test_parts.map(|it| it.join("\n")),
-            real_answer: part1_real_parts.map(|it| it.join("\n")),
+            test_answer: to_option_string(part1_test_parts),
+            real_answer: to_option_string(part1_real_parts),
             solutions: vec![],
         };
         let part2 = Part {
-            test_answer: part2_test_parts.map(|it| it.join("\n")),
-            real_answer: part2_real_parts.map(|it| it.join("\n")),
+            test_answer: to_option_string(part2_test_parts),
+            real_answer: to_option_string(part2_real_parts),
             solutions: vec![],
         };
 
@@ -213,24 +195,21 @@ impl AoCDay {
         self
     }
 
-    pub fn part1<R: Display>(self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        self.run_part(label, solution, false)
+    pub fn part1<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
+        self.part1.solutions.push(self.run_part(label, solution));
+        self
     }
 
-    pub fn part2<R: Display>(self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        self.run_part(label, solution, true)
+    pub fn part2<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
+        self.part2.solutions.push(self.run_part(label, solution));
+        self
     }
 
     pub fn print(&self) {
         println!("{}", self);
     }
 
-    fn run_part<R: Display>(
-        mut self,
-        description: &str,
-        solution: &dyn Fn(&str) -> R,
-        is_part_2: bool,
-    ) -> Self {
+    fn run_part<R: Display>(&self, description: &str, solution: &dyn Fn(&str) -> R) -> Solution {
         let sys_time = SystemTime::now();
         let test_answer = solution(&self.test_input);
         let test_time = sys_time.elapsed().unwrap();
@@ -239,51 +218,44 @@ impl AoCDay {
         let real_answer = solution(&self.real_input);
         let real_time = sys_time.elapsed().unwrap();
 
-        let res = Solution {
+        Solution {
             label: description.to_string(),
             test_answer: test_answer.to_string(),
             real_answer: real_answer.to_string(),
             test_time,
             real_time,
-        };
-
-        if is_part_2 {
-            self.part2.solutions.push(res);
-        } else {
-            self.part1.solutions.push(res);
         }
-
-        self
     }
 }
 
 impl Display for AoCDay {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let mut res = "".to_string();
+        let mut res = vec![];
         let day_prefix = format!("{}/{:02}:", self.year, self.day);
 
-        for (i, sol_lines) in self.part1.render_to_lines().iter().enumerate() {
-            // todo idea ???
-            //    store offset of strings separately to reduce intermediate string concatenations
-            if i == 0 {
-                res.push_str(&format!("{day_prefix} part 1 {}\n", sol_lines));
-            } else {
-                res.push_str(&format!("{}{}\n", " ".repeat(16), sol_lines));
+        // todo idea ???
+        //    store offset of strings separately to reduce intermediate string concatenations
+        let part1_lines = self.part1.render_to_lines();
+        if !part1_lines.is_empty() {
+            res.push(format!("{day_prefix} part 1 {}", part1_lines[0]));
+            for l in &part1_lines[1..] {
+                res.push(format!("{}{}", " ".repeat(16), l));
             }
         }
 
-        for (i, sol_lines) in self.part2.render_to_lines().iter().enumerate() {
-            if i == 0 {
-                if self.part1.solutions.is_empty() {
-                    res.push_str(&format!("{day_prefix} part 2 {}\n", sol_lines));
-                } else {
-                    res.push_str(&format!("{} part 2 {}\n", " ".repeat(8), sol_lines));
-                }
+        let part2_lines = self.part2.render_to_lines();
+        if !part2_lines.is_empty() {
+            if part1_lines.is_empty() {
+                res.push(format!("{day_prefix} part 2 {}", part2_lines[0]));
             } else {
-                res.push_str(&format!("{}{}\n", " ".repeat(16), sol_lines));
+                res.push(format!("{} part 2 {}", " ".repeat(8), part2_lines[0]));
+            }
+
+            for l in &part2_lines[1..] {
+                res.push(format!("{}{}", " ".repeat(16), l));
             }
         }
 
-        write!(f, "{}", res)
+        write!(f, "{}", res.join("\n") + "\n")
     }
 }
