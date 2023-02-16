@@ -1,6 +1,7 @@
 use std::fmt::{Debug, Display, Formatter};
-use std::fs;
+use std::io::BufRead;
 use std::time::{Duration, SystemTime};
+use std::{fs, io};
 
 // todo handle errors
 
@@ -14,8 +15,8 @@ pub struct AoCDay {
 }
 
 struct Part {
-    test_answer: String,
-    real_answer: String,
+    test_answer: Option<String>,
+    real_answer: Option<String>,
     solutions: Vec<Solution>,
 }
 
@@ -35,13 +36,25 @@ impl Solution {
         )
     }
 
-    fn render_to_lines(&self, correct_test: &str, correct_real: &str) -> Vec<String> {
+    fn render_to_lines(
+        &self,
+        correct_test: &Option<String>,
+        correct_real: &Option<String>,
+    ) -> Vec<String> {
         let mut res = vec![];
 
         let (test_time, real_time) = self.get_time_sec();
         let description = &self.label;
-        let is_test_ok = self.test_answer == correct_test;
-        let is_real_ok = self.real_answer == correct_real;
+
+        // todo it should be better way to write it
+        let is_test_ok = match correct_test {
+            Some(v) => *v == self.test_answer,
+            None => false,
+        };
+        let is_real_ok = match correct_real {
+            Some(v) => *v == self.real_answer,
+            None => false,
+        };
 
         match (is_test_ok, is_real_ok) {
             (true, true) => res.push(format!(
@@ -65,14 +78,15 @@ impl Solution {
             }
         };
         if !is_test_ok {
-            res.push(format!("expected: {}", optional_ln(&correct_test)));
+            if let Some(a) = correct_test {
+                res.push(format!("expected: {}", optional_ln(a)));
+            }
             res.push(format!("actual:   {}", optional_ln(&self.test_answer)));
         }
         if !is_real_ok {
-            res.push(format!(
-                "              actual:   {}",
-                optional_ln(&correct_real)
-            ));
+            if let Some(a) = correct_real {
+                res.push(format!("              actual:   {}", optional_ln(a)));
+            }
             res.push(format!(
                 "              expected: {}",
                 optional_ln(&self.real_answer)
@@ -92,55 +106,88 @@ impl Solution {
 }
 
 impl AoCDay {
-    pub fn new(year: u32, day: u32) -> Self {
+    pub fn new(year: u32, day: u32) -> Result<Self, String> {
         let input_folder = format!("../{}/inputs/d{:02}", year, day);
 
-        let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder)).unwrap();
-        let input = fs::read_to_string(format!("{}/input.txt", input_folder)).unwrap();
+        let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder))
+            .map_err(|a| format!("Can't open test input file for day {day} {a}"))?;
+        let input = fs::read_to_string(format!("{}/input.txt", input_folder))
+            .map_err(|a| format!("Can't open real input file for day {day} {a}"))?;
         let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
 
-        AoCDay {
+        Ok(AoCDay {
             year,
             day,
             test_input: test_inp,
             real_input: input,
             part1,
             part2,
-        }
+        })
     }
 
     fn parse_answers(path: &str) -> (Part, Part) {
-        let mut part1_test_parts = vec![];
-        let mut part1_real_parts = vec![];
-        let mut part2_test_parts = vec![];
-        let mut part2_real_parts = vec![];
+        let mut part1_test_parts: Option<Vec<String>> = None;
+        let mut part1_real_parts: Option<Vec<String>> = None;
+        let mut part2_test_parts: Option<Vec<String>> = None;
+        let mut part2_real_parts: Option<Vec<String>> = None;
 
         let mut stage = 0;
 
-        for line in fs::read_to_string(path).unwrap().lines() {
-            match line {
-                "- part1_test" => stage = 1,
-                "- part1" => stage = 2,
-                "- part2_test" => stage = 3,
-                "- part2" => stage = 4,
-                _ => match stage {
-                    1 => part1_test_parts.push(line.to_string()),
-                    2 => part1_real_parts.push(line.to_string()),
-                    3 => part2_test_parts.push(line.to_string()),
-                    4 => part2_real_parts.push(line.to_string()),
-                    _ => (),
-                },
+        match fs::read_to_string(path) {
+            Ok(aa) => {
+                for line in aa.lines() {
+                    match line {
+                        "- part1_test" => stage = 1,
+                        "- part1" => stage = 2,
+                        "- part2_test" => stage = 3,
+                        "- part2" => stage = 4,
+                        _ => match stage {
+                            1 => {
+                                // todo it should be better way to write it
+                                match &mut part1_test_parts {
+                                    Some(v) => v.push(line.to_string()),
+                                    None => part1_test_parts = Some(vec![line.to_string()]),
+                                };
+                            }
+                            2 => {
+                                match &mut part1_real_parts {
+                                    Some(v) => v.push(line.to_string()),
+                                    None => part1_real_parts = Some(vec![line.to_string()]),
+                                };
+                            }
+                            3 => {
+                                match &mut part2_test_parts {
+                                    Some(v) => v.push(line.to_string()),
+                                    None => part2_test_parts = Some(vec![line.to_string()]),
+                                };
+                            }
+                            4 => {
+                                match &mut part2_real_parts {
+                                    Some(v) => v.push(line.to_string()),
+                                    None => part2_real_parts = Some(vec![line.to_string()]),
+                                };
+                            }
+                            _ => (),
+                        },
+                    }
+                }
+            }
+            Err(e) => {
+                println!(
+                    "Can't oped the file with answers\nPath: '{}'\nError: {}",
+                    path, e
+                );
             }
         }
 
         let part1 = Part {
-            test_answer: part1_test_parts.join("\n"),
-            real_answer: part1_real_parts.join("\n"),
+            test_answer: part1_test_parts.map(|it| it.join("\n")),
+            real_answer: part1_real_parts.map(|it| it.join("\n")),
             solutions: vec![],
         };
         let part2 = Part {
-            test_answer: part2_test_parts.join("\n"),
-            real_answer: part2_real_parts.join("\n"),
+            test_answer: part2_test_parts.map(|it| it.join("\n")),
+            real_answer: part2_real_parts.map(|it| it.join("\n")),
             solutions: vec![],
         };
 
@@ -187,8 +234,8 @@ impl AoCDay {
             label: description.to_string(),
             test_answer: test_answer.to_string(),
             real_answer: real_answer.to_string(),
-            test_time: test_time,
-            real_time: real_time,
+            test_time,
+            real_time,
         };
 
         if is_part_2 {
@@ -230,7 +277,7 @@ impl Display for AoCDay {
                 .enumerate()
             {
                 if i == 0 {
-                    if (self.part1.solutions.is_empty()) {
+                    if self.part1.solutions.is_empty() {
                         res.push_str(&format!("{day_prefix} part 2 {}\n", line));
                     } else {
                         res.push_str(&format!("{} part 2 {}\n", " ".repeat(8), line));

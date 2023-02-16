@@ -57,20 +57,15 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
             return get_finish_pos(map, (x + 1, y + 1), bottom);
         }
 
-        return Some((x, y));
+        Some((x, y))
     }
 
     let mut result = 0;
     let sand_source = (500, 0);
 
-    loop {
-        match get_finish_pos(&map, sand_source, bottom) {
-            Some(pos) => {
-                result += 1;
-                map.insert(pos, 'o')
-            }
-            None => break,
-        };
+    while let Some(pos) = get_finish_pos(&map, sand_source, bottom) {
+        result += 1;
+        map.insert(pos, 'o');
     }
 
     result
@@ -94,7 +89,7 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
             return get_finish_pos(map, (x + 1, y + 1), bottom);
         }
 
-        return (x, y);
+        (x, y)
     }
 
     let mut result = 0;
