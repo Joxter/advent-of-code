@@ -28,6 +28,15 @@ struct Solution {
     real_time: Duration,
 }
 
+impl Part {
+    fn render_to_lines(&self) -> Vec<String> {
+        self.solutions
+            .iter()
+            .flat_map(|solution| solution.render_to_lines(&self.test_answer, &self.real_answer))
+            .collect()
+    }
+}
+
 impl Solution {
     fn get_time_sec(&self) -> (f64, f64) {
         (
@@ -47,10 +56,10 @@ impl Solution {
         let description = &self.label;
 
         // todo it should be better way to write it
-        let is_test_ok = match correct_test {
-            Some(v) => *v == self.test_answer,
-            None => false,
-        };
+        let is_test_ok = correct_test
+            .as_ref()
+            .map(|v| *v == self.test_answer)
+            .unwrap_or(false);
         let is_real_ok = match correct_real {
             Some(v) => *v == self.real_answer,
             None => false,
@@ -253,38 +262,25 @@ impl Display for AoCDay {
         let mut res = "".to_string();
         let day_prefix = format!("{}/{:02}:", self.year, self.day);
 
-        for solution in &self.part1.solutions {
-            // todo move render_to_lines to Part
-            for (i, line) in solution
-                .render_to_lines(&self.part1.test_answer, &self.part1.real_answer)
-                .iter()
-                .enumerate()
-            {
-                if i == 0 {
-                    res.push_str(&format!("{day_prefix} part 1 {}\n", line));
-                } else {
-                    res.push_str(&format!("{}{}\n", " ".repeat(16), line));
-                    // todo idea ???
-                    //    store offset of strings separately to reduce intermediate string concatenations
-                }
+        for (i, sol_lines) in self.part1.render_to_lines().iter().enumerate() {
+            // todo idea ???
+            //    store offset of strings separately to reduce intermediate string concatenations
+            if i == 0 {
+                res.push_str(&format!("{day_prefix} part 1 {}\n", sol_lines));
+            } else {
+                res.push_str(&format!("{}{}\n", " ".repeat(16), sol_lines));
             }
         }
 
-        for solution in &self.part2.solutions {
-            for (i, line) in solution
-                .render_to_lines(&self.part2.test_answer, &self.part2.real_answer)
-                .iter()
-                .enumerate()
-            {
-                if i == 0 {
-                    if self.part1.solutions.is_empty() {
-                        res.push_str(&format!("{day_prefix} part 2 {}\n", line));
-                    } else {
-                        res.push_str(&format!("{} part 2 {}\n", " ".repeat(8), line));
-                    }
+        for (i, sol_lines) in self.part2.render_to_lines().iter().enumerate() {
+            if i == 0 {
+                if self.part1.solutions.is_empty() {
+                    res.push_str(&format!("{day_prefix} part 2 {}\n", sol_lines));
                 } else {
-                    res.push_str(&format!("{}{}\n", " ".repeat(16), line));
+                    res.push_str(&format!("{} part 2 {}\n", " ".repeat(8), sol_lines));
                 }
+            } else {
+                res.push_str(&format!("{}{}\n", " ".repeat(16), sol_lines));
             }
         }
 
