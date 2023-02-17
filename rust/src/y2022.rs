@@ -2,21 +2,22 @@ use crate::answer::AoCDay;
 use std::collections::HashSet;
 use std::io;
 
-pub mod day01;
-pub mod day02;
-pub mod day03;
-pub mod day04;
-pub mod day05;
-pub mod day06;
-pub mod day07;
-pub mod day08;
-pub mod day09;
-pub mod day10;
-pub mod day11;
-pub mod day12;
-pub mod day13;
-pub mod day14;
-pub mod day15;
+mod day01;
+mod day02;
+mod day03;
+mod day04;
+mod day05;
+mod day06;
+mod day07;
+mod day08;
+mod day09;
+mod day10;
+mod day11;
+mod day12;
+mod day13;
+mod day14;
+mod day15;
+mod day16;
 
 pub fn run_2022(days: &HashSet<i32>) {
     if days.contains(&1) || days.is_empty() {
@@ -113,6 +114,13 @@ pub fn run_2022(days: &HashSet<i32>) {
             .part2_real("naive js copy", &|inp| {
                 day15::naive_js_copy_part2(inp, 4_000_000)
             })
+            .print();
+    }
+    if days.contains(&16) || days.is_empty() {
+        // todo not implemented, I should know more to imp
+        AoCDay::new(2022, 16)
+            .part1("naive js copy", &day16::naive_js_copy_part1)
+            // .part2("naive js copy", &day16::naive_js_copy_part2)
             .print();
     }
 }

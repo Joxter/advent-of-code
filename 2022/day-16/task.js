@@ -1,26 +1,21 @@
 import fs from 'fs';
+import { runSolution } from '../../utils.js';
 
 // https://adventofcode.com/2022/day/16
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
-// todo fix cash, p2 takes 10 mins
+// todo fix perf, p2 takes 10 mins
 //          upd. cash is huge and make it worse
 
-let start = Date.now();
-console.log('test OK: ', part1(testInput), [1651]);
-console.log('answer: ', part1(inputData), [2250]);
-console.log('sec', (Date.now() - start) / 1000);
+runSolution('test  ', () => part1(testInput), 1651)
+runSolution('part_1', () => part1(inputData), 2250)
 
-start = Date.now();
-console.log('test2 OK:', part2(testInput), [1707]);
-console.log('answer2:', part2(inputData), [3015]);
-console.log('sec', (Date.now() - start) / 1000);
+runSolution('test  ', () => part2(testInput), 1707)
+runSolution('part_2', () => part2(inputData), 3015)
 
-start = Date.now();
-console.log('(cash) test2 OK:', part2_cash(testInput), [1707]);
-console.log('(cash) answer2:', part2_cash(inputData), [3015]);
-console.log('sec', (Date.now() - start) / 1000);
+runSolution('(cash) test  ', () => part2_cash(testInput), 1707)
+runSolution('(cash) part_2', () => part2_cash(inputData), 3015)
 
 function parse(inp) {
   let map = {};
@@ -56,10 +51,6 @@ function part1(inp) {
   return dfs(newNewMap.AA, { released: 0, opened: heads['AA'] }, 1);
 
   function dfs(node, { released, opened }, minutes) {
-    // let key = `${node.name},${opened},${minutes}`;
-    // if (key in cash) {
-    //   return cash[key];
-    // }
     if (opened === allOpened || minutes > maxMins) {
       return released;
     }
