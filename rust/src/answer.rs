@@ -75,7 +75,7 @@ impl Solution {
             (false, true) => {
                 res.push(format!(
                     "❌ ----------- ✅ [sec {:.3}] {description}",
-                    test_time
+                    real_time
                 ));
             }
             (false, false) => {
@@ -89,13 +89,13 @@ impl Solution {
             res.push(format!("actual:   {}", optional_ln(&self.test_answer)));
         }
         if !is_real_ok {
-            if let Some(a) = correct_real {
-                res.push(format!("              actual:   {}", optional_ln(a)));
-            }
             res.push(format!(
                 "              expected: {}",
                 optional_ln(&self.real_answer)
             ));
+            if let Some(a) = correct_real {
+                res.push(format!("              actual:   {}", optional_ln(a)));
+            }
         }
 
         fn optional_ln(s: &str) -> String {
@@ -209,6 +209,34 @@ impl AoCDay {
         self
     }
 
+    pub fn part1_test<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
+        if let Ok(solution) = self.run_test(label, solution) {
+            self.part1.solutions.push(solution);
+        }
+        self
+    }
+
+    pub fn part1_real<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
+        if let Ok(solution) = self.run_real(label, solution) {
+            self.part1.solutions.push(solution);
+        }
+        self
+    }
+
+    pub fn part2_test<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
+        if let Ok(solution) = self.run_test(label, solution) {
+            self.part2.solutions.push(solution);
+        }
+        self
+    }
+
+    pub fn part2_real<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
+        if let Ok(solution) = self.run_real(label, solution) {
+            self.part2.solutions.push(solution);
+        }
+        self
+    }
+
     pub fn part2<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
         if let Ok(solution) = self.run_part(label, solution) {
             self.part2.solutions.push(solution);
@@ -240,6 +268,54 @@ impl AoCDay {
                     test_answer: test_answer.to_string(),
                     real_answer: real_answer.to_string(),
                     test_time,
+                    real_time,
+                })
+            }
+            _ => Err("Day inputs are invalid".to_string()),
+        }
+    }
+
+    // todo WIP
+    fn run_test<R: Display>(
+        &self,
+        description: &str,
+        solution: &dyn Fn(&str) -> R,
+    ) -> Result<Solution, String> {
+        match &self.test_input {
+            Ok(test_input) => {
+                let sys_time = SystemTime::now();
+                let test_answer = solution(test_input);
+                let test_time = sys_time.elapsed().unwrap();
+
+                Ok(Solution {
+                    label: description.to_string(),
+                    test_answer: test_answer.to_string(),
+                    real_answer: "".to_string(), // todo fix
+                    test_time,
+                    real_time: Duration::from_secs(1), // todo fix
+                })
+            }
+            _ => Err("Day inputs are invalid".to_string()),
+        }
+    }
+
+    // todo WIP
+    fn run_real<R: Display>(
+        &self,
+        description: &str,
+        solution: &dyn Fn(&str) -> R,
+    ) -> Result<Solution, String> {
+        match &self.real_input {
+            Ok(real_input) => {
+                let sys_time = SystemTime::now();
+                let real_answer = solution(real_input);
+                let real_time = sys_time.elapsed().unwrap();
+
+                Ok(Solution {
+                    label: description.to_string(),
+                    test_answer: "".to_string(), // todo fix
+                    real_answer: real_answer.to_string(),
+                    test_time: Duration::from_secs(1), // todo fix
                     real_time,
                 })
             }

@@ -51,7 +51,6 @@ function part1(inp, ROW) {
 }
 
 function part2(inp, aaa) {
-  let map = {};
 
   let signals = [];
   let beacons = [];
@@ -63,9 +62,6 @@ function part2(inp, aaa) {
         .exec(line)
         .slice(1)
         .map((n) => +n);
-
-      map[`${sx},${sy}`] = 'S';
-      map[`${bx},${by}`] = 'B';
 
       signals.push([sx, sy]);
       beacons.push([bx, by]);
