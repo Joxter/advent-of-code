@@ -42,13 +42,13 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
                 };
 
                 dfs(
-                    &new_map,
+                    new_map,
                     nod_name,
                     released + rate * left_mins,
                     new_opened,
                     minutes + cost + 1,
                     all_opened,
-                    &heads,
+                    heads,
                 )
             })
             .max()
@@ -113,13 +113,13 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
                 };
 
                 dfs(
-                    &new_map,
+                    new_map,
                     nod_name,
                     released + rate * left_mins,
                     new_opened,
                     minutes + cost + 1,
                     all_opened,
-                    &heads,
+                    heads,
                 )
             })
             .max()
@@ -150,7 +150,7 @@ fn parse(input: &str) -> (HashMap<&str, Valve2>, i32, HashMap<&str, i32>) {
 
         let name = parts[1];
         let rate = parts[4][5..parts[4].len() - 1].parse::<i32>().unwrap();
-        let next = Vec::from_iter(parts[9..].into_iter().map(|n| &n[0..2]));
+        let next = Vec::from_iter(parts[9..].iter().map(|n| &n[0..2]));
 
         if rate > 0 && name != "AA" {
             heads.insert(name, 1 << max_valves);
@@ -182,7 +182,7 @@ fn transform_map<'a, 'b>(map: &HashMap<&'a str, Valve<'b>>) -> HashMap<&'b str, 
         }
 
         new_map.insert(
-            &from_name,
+            from_name,
             Valve2 {
                 name: from_name,
                 rate: map.get(from_name).unwrap().rate,
@@ -197,11 +197,11 @@ fn transform_map<'a, 'b>(map: &HashMap<&'a str, Valve<'b>>) -> HashMap<&'b str, 
 fn find_path<'a>(map: &HashMap<&str, Valve>, start: &str, finish: &'a str) -> (&'a str, i32) {
     let mut results: Vec<i32> = vec![];
 
-    dfs(&mut results, vec![start], 0, finish, &map);
+    dfs(&mut results, vec![start], 0, finish, map);
 
     return (finish, *results.iter().min().unwrap());
 
-    fn dfs<'a>(
+    fn dfs(
         results: &mut Vec<i32>,
         path: Vec<&str>,
         score: i32,
@@ -213,30 +213,12 @@ fn find_path<'a>(map: &HashMap<&str, Valve>, start: &str, finish: &'a str) -> (&
             results.push(score);
         }
 
-        for node_name in &map.get(last.clone()).unwrap().next {
+        for node_name in &map.get(last).unwrap().next {
             if !path.contains(node_name) {
                 let mut new_path = path.clone();
                 new_path.push(node_name);
-                dfs(results, new_path, score + 1, finish, &map);
+                dfs(results, new_path, score + 1, finish, map);
             }
         }
     }
 }
-
-/*
-
-  function dfs(path, score) {
-    let last = path[path.length - 1];
-    if (last === finish) {
-      results.push([score, path]);
-      return;
-    }
-
-    for (let i = 0; i < map[last].next.length; i++) {
-      let [nodeName] = map[last].next[i].split(',');
-      if (!path.includes(nodeName)) {
-        dfs([...path, nodeName], score + 1);
-      }
-    }
-  }
-*/
