@@ -117,10 +117,9 @@ pub fn run_2022(days: &HashSet<i32>) {
             .print();
     }
     if days.contains(&16) || days.is_empty() {
-        // todo not implemented, I should know more to imp
         AoCDay::new(2022, 16)
-            .part1("naive js copy", &day16::naive_js_copy_part1)
-            // .part2("naive js copy", &day16::naive_js_copy_part2)
+            .part1("naive js copy", &day16::naive_js_copy_part1) // sec  1.032
+            .part2("naive js copy", &day16::naive_js_copy_part2) // sec 86.641
             .print();
     }
 }

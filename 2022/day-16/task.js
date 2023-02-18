@@ -46,7 +46,6 @@ function part1(inp) {
   let maxMins = 30;
 
   let { allOpened, heads, newNewMap } = parse(inp);
-  // let cash = {};
 
   return dfs(newNewMap.AA, { released: 0, opened: heads['AA'] }, 1);
 
@@ -92,8 +91,7 @@ function part2(inp) {
   let max = Math.floor(allOpened / 2);
 
   for (let i = 0; i < max; i++) {
-    // console.log(i, max);
-    let opened1 = i | heads['AA'];
+    let opened1 = i;
 
     let res1 = dfs(newNewMap.AA, { released: 0, opened: opened1 }, 1);
     let res2 = dfs(newNewMap.AA, { released: 0, opened: opened1 ^ allOpened }, 1);

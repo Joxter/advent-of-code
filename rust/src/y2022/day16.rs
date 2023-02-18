@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 /*
-// todo copy the c
+todo fix the worst code ever
 */
 
 pub fn naive_js_copy_part1(input: &str) -> i32 {
@@ -18,7 +18,8 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
         all_opened: i32,
         heads: &HashMap<&str, i32>,
     ) -> i32 {
-        if opened == all_opened || minutes > 30 {
+        let max_mins = 30;
+        if opened == all_opened || minutes > max_mins {
             return released;
         }
 
@@ -28,12 +29,11 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
             .next
             .iter()
             .filter(|nod_name| {
-                // dbg!(nod_name);
                 return nod_name.0 == "AA" || (opened & heads.get(nod_name.0).unwrap()) == 0;
             })
             .map(|(nod_name, cost)| {
                 let mut rate = new_map.get(nod_name).unwrap().rate;
-                let mut left_mins = 30 - (minutes + cost);
+                let mut left_mins = max_mins - (minutes + cost);
 
                 let new_opened = if *nod_name == "AA" {
                     opened
@@ -54,57 +54,77 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
             .max()
             .unwrap()
     }
-
-    /*  let maxMins = 30;
-
-      let { allOpened, heads, newNewMap } = parse(inp);
-
-      return dfs(newNewMap.AA, { released: 0, opened: heads['AA'] }, 1);
-
-      function dfs(node, { released, opened }, minutes) {
-        if (opened === allOpened || minutes > maxMins) {
-          return released;
-        }
-
-        let result = Math.max(
-          ...node.next
-            .filter(_nodeName => {
-              let [nodeName] = _nodeName.split(',');
-              return (opened & heads[nodeName]) === 0;
-            })
-            .map(_nodeName => {
-              let [nodeName, cost] = _nodeName.split(',');
-
-              let rate = newNewMap[nodeName].rate;
-              let minLeft = maxMins - (minutes + +cost);
-
-              return dfs(
-                newNewMap[nodeName],
-                {
-                  released: released + +rate * minLeft,
-                  opened: opened | heads[nodeName],
-                },
-                minutes + +cost + 1
-              );
-            })
-        );
-        // cash[key] = result;
-
-        return result;
-      }
-
-    */
-    4
 }
 
 pub fn naive_js_copy_part2(input: &str) -> i32 {
-    let mut arr: Vec<i32> = input
-        .split("\n\n")
-        .map(|lines| lines.lines().map(|line| line.parse::<i32>().unwrap()).sum())
-        .collect();
+    let (new_map, all_opened, heads) = parse(input);
+    let mut res = 0;
+    let max = all_opened / 2;
 
-    arr.sort_by(|a, b| b.cmp(a));
-    arr[0] + arr[1] + arr[2]
+    for i in 0..max {
+        let opened1 = i;
+
+        let res1 = dfs(&new_map, "AA", 0, opened1, 1, all_opened, &heads);
+        let res2 = dfs(
+            &new_map,
+            "AA",
+            0,
+            opened1 ^ all_opened,
+            1,
+            all_opened,
+            &heads,
+        );
+
+        res = i32::max(res, res1 + res2);
+    }
+
+    return res;
+
+    fn dfs(
+        new_map: &HashMap<&str, Valve2>,
+        node_name: &str,
+        released: i32,
+        opened: i32,
+        minutes: i32,
+        all_opened: i32,
+        heads: &HashMap<&str, i32>,
+    ) -> i32 {
+        let max_mins = 26;
+        if opened == all_opened || minutes > max_mins {
+            return released;
+        }
+
+        new_map
+            .get(node_name)
+            .unwrap()
+            .next
+            .iter()
+            .filter(|nod_name| {
+                return nod_name.0 == "AA" || (opened & heads.get(nod_name.0).unwrap()) == 0;
+            })
+            .map(|(nod_name, cost)| {
+                let mut rate = new_map.get(nod_name).unwrap().rate;
+                let mut left_mins = max_mins - (minutes + cost);
+
+                let new_opened = if *nod_name == "AA" {
+                    opened
+                } else {
+                    heads.get(nod_name).unwrap() | opened
+                };
+
+                dfs(
+                    &new_map,
+                    nod_name,
+                    released + rate * left_mins,
+                    new_opened,
+                    minutes + cost + 1,
+                    all_opened,
+                    &heads,
+                )
+            })
+            .max()
+            .unwrap()
+    }
 }
 
 struct Valve<'a> {
