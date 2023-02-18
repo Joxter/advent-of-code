@@ -18,6 +18,7 @@ mod day13;
 mod day14;
 mod day15;
 mod day16;
+mod day17;
 
 pub fn run_2022(days: &HashSet<i32>) {
     if days.contains(&1) || days.is_empty() {
@@ -120,6 +121,13 @@ pub fn run_2022(days: &HashSet<i32>) {
         AoCDay::new(2022, 16)
             .part1("naive js copy", &day16::naive_js_copy_part1) // sec  1.032
             .part2("naive js copy", &day16::naive_js_copy_part2) // sec 86.641
+            .print();
+    }
+    if days.contains(&17) || days.is_empty() {
+        // panic!("123");
+        AoCDay::new(2022, 17)
+            .part1_test("naive js copy", &day17::naive_js_copy_part1)
+            // .part2("naive js copy", &day17::naive_js_copy_part2)
             .print();
     }
 }

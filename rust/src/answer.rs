@@ -188,58 +188,50 @@ impl AoCDay {
         (part1, part2)
     }
 
-    pub fn test_only<R: Display>(self, _label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        if let Ok(inp) = &self.test_input {
-            solution(inp);
-        }
-        self
-    }
-
-    pub fn real_only<R: Display>(self, _label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        if let Ok(inp) = &self.real_input {
-            solution(inp);
-        }
-        self
-    }
-
     pub fn part1<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        if let Ok(solution) = self.run_part(label, solution) {
-            self.part1.solutions.push(solution);
+        match self.run_part(label, solution) {
+            Ok(solution) => self.part1.solutions.push(solution),
+            Err(err) => println!("{err}"),
         }
         self
     }
 
     pub fn part1_test<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        if let Ok(solution) = self.run_test(label, solution) {
-            self.part1.solutions.push(solution);
+        match self.run_test(label, solution) {
+            Ok(solution) => self.part1.solutions.push(solution),
+            Err(err) => println!("{err}"),
         }
         self
     }
 
     pub fn part1_real<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        if let Ok(solution) = self.run_real(label, solution) {
-            self.part1.solutions.push(solution);
+        match self.run_real(label, solution) {
+            Ok(solution) => self.part1.solutions.push(solution),
+            Err(err) => println!("{err}"),
         }
         self
     }
 
     pub fn part2_test<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        if let Ok(solution) = self.run_test(label, solution) {
-            self.part2.solutions.push(solution);
+        match self.run_test(label, solution) {
+            Ok(solution) => self.part2.solutions.push(solution),
+            Err(err) => println!("{err}"),
         }
         self
     }
 
     pub fn part2_real<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        if let Ok(solution) = self.run_real(label, solution) {
-            self.part2.solutions.push(solution);
+        match self.run_real(label, solution) {
+            Ok(solution) => self.part2.solutions.push(solution),
+            Err(err) => println!("{err}"),
         }
         self
     }
 
     pub fn part2<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        if let Ok(solution) = self.run_part(label, solution) {
-            self.part2.solutions.push(solution);
+        match self.run_part(label, solution) {
+            Ok(solution) => self.part2.solutions.push(solution),
+            Err(err) => println!("{err}"),
         }
         self
     }
@@ -271,7 +263,14 @@ impl AoCDay {
                     real_time,
                 })
             }
-            _ => Err("Day inputs are invalid".to_string()),
+            (Err(err), _) => Err(format!(
+                "Day {} test input file is invalid\n{}",
+                self.day, err
+            )),
+            (_, Err(err)) => Err(format!(
+                "Day {} real input file is invalid\n{}",
+                self.day, err
+            )),
         }
     }
 
@@ -295,7 +294,10 @@ impl AoCDay {
                     real_time: Duration::from_secs(1), // todo fix
                 })
             }
-            _ => Err("Day inputs are invalid".to_string()),
+            Err(err) => Err(format!(
+                "Day {} test input file is invalid\n{}",
+                self.day, err
+            )),
         }
     }
 
@@ -319,7 +321,10 @@ impl AoCDay {
                     real_time,
                 })
             }
-            _ => Err("Day inputs are invalid".to_string()),
+            Err(err) => Err(format!(
+                "Day {} real input file is invalid\n{}",
+                self.day, err
+            )),
         }
     }
 }
