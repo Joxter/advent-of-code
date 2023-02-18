@@ -32,8 +32,8 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
                 return nod_name.0 == "AA" || (opened & heads.get(nod_name.0).unwrap()) == 0;
             })
             .map(|(nod_name, cost)| {
-                let mut rate = new_map.get(nod_name).unwrap().rate;
-                let mut left_mins = max_mins - (minutes + cost);
+                let rate = new_map.get(nod_name).unwrap().rate;
+                let left_mins = max_mins - (minutes + cost);
 
                 let new_opened = if *nod_name == "AA" {
                     opened
@@ -103,8 +103,8 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
                 return nod_name.0 == "AA" || (opened & heads.get(nod_name.0).unwrap()) == 0;
             })
             .map(|(nod_name, cost)| {
-                let mut rate = new_map.get(nod_name).unwrap().rate;
-                let mut left_mins = max_mins - (minutes + cost);
+                let rate = new_map.get(nod_name).unwrap().rate;
+                let left_mins = max_mins - (minutes + cost);
 
                 let new_opened = if *nod_name == "AA" {
                     opened
