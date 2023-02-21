@@ -22,14 +22,18 @@ let rocks = [
 let testInput = fs.readFileSync('./testData.txt').toString(); // 40
 let inputData = fs.readFileSync('./input.txt').toString(); // 10091 (prime)
 
+let tower = JSON.parse(
+`[["#","#","#","#","#","#","#"],[" "," ","1","1","1","1"," "],[" "," "," ","2"," "," "," "],[" "," ","2","2","2"," "," "],[" "," ","3","2","4"," "," "],[" "," ","3"," ","4"," "," "],["3","3","3"," ","4"," "," "],[" "," "," "," ","4"," "," "],[" "," "," "," ","5","5"," "],[" "," "," "," ","5","5"," "],[" ","1","1","1","1","4"," "],[" "," ","2"," "," ","4"," "],[" ","2","2","2","3","4"," "],[" "," ","2"," ","3","4"," "],[" "," ","3","3","3"," "," "],[" "," ","5","5"," "," "," "],[" "," ","5","5"," "," "," "]]`);
+// render(tower, null, [0, 20]);
+
 runSolution('test  ', () => part1(testInput), 3068)
 runSolution('part_1', () => part1(inputData), 3153)
 
 runSolution('test  ', () => part2test(testInput), 1_514_285_714_288)
 runSolution('part_2', () => part2data(inputData), 1_553_665_689_155)
 
-function part1(inp, rocklimit = 2022) {
-  let result = 0;
+function part1(inp) {
+  let rocklimit = 2022;
   let jet = inp.trim().split(''); // "<" left, ">" right
 
   let currentRockN = 0;
@@ -48,6 +52,11 @@ function part1(inp, rocklimit = 2022) {
     currentRockN++;
     let rockId = (currentRockN - 1) % rocks.length;
     let currentRock = createRock(rocks[rockId], 2, tower.length + 3);
+
+    if (currentRockN > 10) {
+      render(tower, null, [0,20])
+      return ;
+    }
 
     while (true) {
       let jetAction = jet[jetCnt++ % jet.length] === '<' ? moveLeft : moveRight;
@@ -80,7 +89,7 @@ function isOverlaps(tower, rock) {
         return row === i && col === j;
       });
 
-      if (towerChar && rockChar) {
+      if (towerChar !== ' ' && rockChar) {
         return true;
       }
     }
@@ -92,7 +101,7 @@ function isOverlaps(tower, rock) {
 function saveRock(tower, rock, rockId) {
   rock.forEach(([row, col]) => {
     if (!tower[row]) {
-      tower[row] = Array(7).fill(null);
+      tower[row] = Array(7).fill(' ');
     }
     tower[row][col] = rockId;
   });
