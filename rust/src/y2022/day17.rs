@@ -16,9 +16,9 @@ const ROCKS: [&str; 5] = [
     ".#.
 ###
 .#.",
-    "###
+    "..#
 ..#
-..#",
+###",
     "#
 #
 #
@@ -28,7 +28,10 @@ const ROCKS: [&str; 5] = [
 ];
 
 pub fn naive_js_copy_part1(input: &str) -> usize {
-    let rock_limit = 2022;
+    simulate(input, 2022)
+}
+
+fn simulate(input: &str, rock_limit: usize) -> usize {
     let jet = Vec::from_iter(input.chars());
     let mut current_rock_n = 0;
 
@@ -36,17 +39,11 @@ pub fn naive_js_copy_part1(input: &str) -> usize {
     let mut jet_cnt = 0;
 
     while current_rock_n < rock_limit {
-        println!("{}", tower.t.len());
+        // println!("{}", tower.t.len());
         current_rock_n += 1;
 
         let rock_id = (current_rock_n - 1) % ROCKS.len();
         let mut current_rock = Rock::new(ROCKS[rock_id], 2, tower.t.len() + 3);
-
-        // if current_rock_n > 10 {
-        //     let serialized = serde_json::to_string(&tower.t).unwrap();
-        //     println!("{}", serialized);
-        //     break;
-        // }
 
         loop {
             let mut jet_moved_rock = if jet[jet_cnt % jet.len()] == '<' {
@@ -57,13 +54,13 @@ pub fn naive_js_copy_part1(input: &str) -> usize {
 
             jet_cnt += 1;
 
-            if is_overlaps_2(&tower, &jet_moved_rock) {
+            if is_overlap(&tower, &jet_moved_rock) {
                 jet_moved_rock = current_rock.clone();
             }
 
             let moved_down_rock = jet_moved_rock.move_down();
 
-            if is_overlaps_2(&tower, &moved_down_rock) {
+            if is_overlap(&tower, &moved_down_rock) {
                 jet_moved_rock.save_rock(&mut tower, rock_id as u32 + 1);
                 break;
             } else {
@@ -75,31 +72,41 @@ pub fn naive_js_copy_part1(input: &str) -> usize {
     tower.t.len() - 1
 }
 
-pub fn naive_js_copy_part2(input: &str) -> i32 {
-    4
+pub fn naive_js_copy_part2_test(input: &str) -> usize {
+    let rock_limit = 1_000_000_000_000;
+
+    let no_loop_rocks = 15;
+
+    let loop_rocks = 35;
+    let loop_height = 53;
+
+    let amount_of_loops = (rock_limit - no_loop_rocks) / loop_rocks;
+
+    let new_limit = rock_limit - amount_of_loops * loop_rocks;
+    let rendered_height = simulate(input, new_limit);
+
+    rendered_height + amount_of_loops * loop_height
 }
 
-fn is_overlaps_2(tower: &Tower, rock: &Rock) -> bool {
+pub fn naive_js_copy_part2_real(input: &str) -> usize {
+    let rock_limit = 1_000_000_000_000;
 
-    let mut i = tower.t.len() - 1;
-    loop {
-        for j in 0..7 {
-            let tower_char = &tower.t[i][j];
+    let no_loop_rocks = 632;
+    let no_loop_height = 1006;
 
-            let rock_char = rock.r.contains(&(i, j));
-            if *tower_char != ' ' && rock_char {
-                return true;
-            }
-        }
+    let loop_rocks = 2337 - no_loop_rocks;
+    let loop_height = 3655 - no_loop_height;
 
-        if i == 0 { break; }
-        i -= 1;
-    }
-    false
+    let amount_of_loops = (rock_limit - no_loop_rocks) / loop_rocks;
+
+    let new_limit = rock_limit - amount_of_loops * loop_rocks;
+    let rendered_height = simulate(input, new_limit);
+
+    rendered_height + amount_of_loops * loop_height
 }
 
-fn is_overlaps(tower: &Tower, rock: &Rock) -> bool {
-    for (i, tower_row) in tower.t.iter().rev().enumerate() {
+fn is_overlap(tower: &Tower, rock: &Rock) -> bool {
+    for (i, tower_row) in tower.t.iter().enumerate().rev() {
         for (j, tower_char) in tower_row.iter().enumerate() {
             let rock_char = rock.r.contains(&(i, j));
             if *tower_char != ' ' && rock_char {
@@ -117,8 +124,8 @@ impl Rock {
 
         Vec::from_iter(str.lines())
             .iter()
-            .enumerate()
             .rev()
+            .enumerate()
             .for_each(|(row, line)| {
                 line.chars().enumerate().for_each(|(col, char)| {
                     if char == '#' {
@@ -131,11 +138,11 @@ impl Rock {
     }
 
     fn save_rock(&self, tower: &mut Tower, rock_id: u32) {
-        self.r.iter().rev().for_each(|(row, col)| {
+        self.r.iter().for_each(|(row, col)| {
             if tower.t.get(*row).is_none() {
                 tower.t.push([' '; 7]);
             }
-            tower.t[*row][*col] = char::from_digit(rock_id, 10).unwrap(); // 0-4 possible
+            tower.t[*row][*col] = char::from_digit(rock_id, 10).unwrap();
         });
     }
 

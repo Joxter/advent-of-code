@@ -124,10 +124,10 @@ pub fn run_2022(days: &HashSet<i32>) {
             .print();
     }
     if days.contains(&17) || days.is_empty() {
-        // panic!("123");
         AoCDay::new(2022, 17)
-            .part1_test("naive js copy", &day17::naive_js_copy_part1)
-            // .part2("naive js copy", &day17::naive_js_copy_part2)
+            .part1("naive js copy", &day17::naive_js_copy_part1)
+            .part2_test("naive js copy", &day17::naive_js_copy_part2_test)
+            .part2_real("naive js copy", &day17::naive_js_copy_part2_real)
             .print();
     }
 }
