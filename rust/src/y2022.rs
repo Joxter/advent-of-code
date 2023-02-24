@@ -1,6 +1,5 @@
 use crate::answer::AoCDay;
 use std::collections::HashSet;
-use std::io;
 
 mod day01;
 mod day02;
@@ -19,6 +18,7 @@ mod day14;
 mod day15;
 mod day16;
 mod day17;
+mod day18;
 
 pub fn run_2022(days: &HashSet<i32>) {
     if days.contains(&1) || days.is_empty() {
@@ -128,6 +128,12 @@ pub fn run_2022(days: &HashSet<i32>) {
             .part1("naive js copy", &day17::naive_js_copy_part1)
             .part2_test("naive js copy", &day17::naive_js_copy_part2_test)
             .part2_real("naive js copy", &day17::naive_js_copy_part2_real)
+            .print();
+    }
+    if days.contains(&18) || days.is_empty() {
+        AoCDay::new(2022, 18)
+            .part1("naive js copy", &day18::naive_js_copy_part1)
+            .part2("naive js copy", &day18::naive_js_copy_part2)
             .print();
     }
 }

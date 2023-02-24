@@ -1,15 +1,16 @@
 import fs from 'fs';
+import { runSolution } from '../../utils.js';
 
 // https://adventofcode.com/2022/day/18
 
 let testInput = fs.readFileSync('./testData.txt').toString();
 let inputData = fs.readFileSync('./input.txt').toString();
 
-console.log('test OK: ', part1(testInput) === 64);
-console.log('answer: ', part1(inputData), [4580]);
+runSolution('test  ', () => part1(testInput), 64)
+runSolution('part_1', () => part1(inputData), 4580)
 
-console.log('test2 OK:', part2(testInput) === 58);
-console.log('answer2:', part2(inputData), [2610]);
+runSolution('test  ', () => part2(testInput), 58)
+runSolution('part_2', () => part2(inputData), 2610)
 
 function part1(inp) {
   let cubes = {};
@@ -43,20 +44,10 @@ function part2(inp) {
 
   let water = fillInWithWater(max, cubes);
 
-  let result = 0;
-  Object.keys(cubes).forEach((position) => {
+  return Object.keys(cubes).map((position) => {
     let [x, y, z] = position.split(',').map(it => +it);
-
-    if (water[[x + 1, y, z].join(',')]) result++;
-    if (water[[x, y + 1, z].join(',')]) result++;
-    if (water[[x, y, z + 1].join(',')]) result++;
-
-    if (water[[x - 1, y, z].join(',')]) result++;
-    if (water[[x, y - 1, z].join(',')]) result++;
-    if (water[[x, y, z - 1].join(',')]) result++;
-  });
-
-  return result;
+    return getCubesAround(water, [x, y, z]);
+  }).reduce((sum, it) => sum + it, 0);
 }
 
 function fillInWithWater(max, cubes) {
