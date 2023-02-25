@@ -20,10 +20,13 @@ struct Part {
 
 struct Solution {
     label: String,
-    test_answer: String,
-    real_answer: String,
-    test_time: Duration,
-    real_time: Duration,
+    test_result: Answer,
+    real_result: Answer,
+}
+
+enum Answer {
+    Res(String, Duration),
+    Skipped,
 }
 
 impl Part {
@@ -36,11 +39,45 @@ impl Part {
 }
 
 impl Solution {
-    fn get_time_sec(&self) -> (f64, f64) {
-        (
-            self.test_time.as_millis() as f64 / 1000.0,
-            self.real_time.as_millis() as f64 / 1000.0,
-        )
+    fn answer_to_strings(
+        &self,
+        ans: &Answer,
+        correct_result: &Option<String>,
+    ) -> (String, Vec<String>) {
+        let label_line = match ans {
+            Answer::Res(v, time) => {
+                let time_sec = time.as_millis() as f64 / 1000.0;
+                match correct_result {
+                    Some(correct) => {
+                        if *v == *correct {
+                            format!("✅ [sec {:.3}]", time_sec)
+                        } else {
+                            format!("❌ [sec {:.3}]", time_sec)
+                        }
+                    }
+                    None => format!("🛠️[sec {:.3}]", time_sec),
+                }
+            }
+            Answer::Skipped => {
+                "🪨--SKIPPED--".to_string()
+            }
+        };
+
+        let mut result_lines = vec![];
+        match (correct_result, ans) {
+            (Some(v), Answer::Res(r, _)) => {
+                if *v != *r {
+                    result_lines.push(format!("expected: {}", v));
+                    result_lines.push(format!("actual:   {}", r));
+                }
+            }
+            (None, Answer::Res(r, _)) => {
+                result_lines.push(format!("result: {} (no correct answer)", r));
+            }
+            (_, Answer::Skipped) => (),
+        }
+
+        (label_line, result_lines)
     }
 
     fn render_to_lines(
@@ -50,60 +87,16 @@ impl Solution {
     ) -> Vec<String> {
         let mut res = vec![];
 
-        let (test_time, real_time) = self.get_time_sec();
-        let description = &self.label;
+        let (test_label, test_results) = self.answer_to_strings(&self.test_result, correct_test);
+        let (real_label, real_results) = self.answer_to_strings(&self.real_result, correct_real);
 
-        let is_test_ok = match correct_test {
-            Some(v) => *v == self.test_answer,
-            None => false,
-        };
-        let is_real_ok = match correct_real {
-            Some(v) => *v == self.real_answer,
-            None => false,
-        };
-        match (is_test_ok, is_real_ok) {
-            (true, true) => res.push(format!(
-                "✅ [sec {:.3}] ✅ [sec {:.3}] {description}",
-                test_time, real_time
-            )),
-            (true, false) => {
-                res.push(format!(
-                    "✅ [sec {:.3}] ❌ ----------- {description}",
-                    test_time
-                ));
-            }
-            (false, true) => {
-                res.push(format!(
-                    "❌ ----------- ✅ [sec {:.3}] {description}",
-                    real_time
-                ));
-            }
-            (false, false) => {
-                res.push(format!("❌ ----------- ❌ ----------- {description}"));
-            }
-        };
-        if !is_test_ok {
-            if let Some(a) = correct_test {
-                res.push(format!("expected: {}", optional_ln(a)));
-            }
-            res.push(format!("actual:   {}", optional_ln(&self.test_answer)));
-        }
-        if !is_real_ok {
-            res.push(format!(
-                "              expected: {}",
-                optional_ln(&self.real_answer)
-            ));
-            if let Some(a) = correct_real {
-                res.push(format!("              actual:   {}", optional_ln(a)));
-            }
-        }
+        res.push(format!("{} {} {}", test_label, real_label, self.label));
 
-        fn optional_ln(s: &str) -> String {
-            if s.contains('\n') {
-                format!("\n{s}")
-            } else {
-                s.to_string()
-            }
+        for l in test_results {
+            res.push(l);
+        }
+        for l in real_results {
+            res.push(format!("              {}", l));
         }
 
         res
@@ -257,10 +250,8 @@ impl AoCDay {
 
                 Ok(Solution {
                     label: description.to_string(),
-                    test_answer: test_answer.to_string(),
-                    real_answer: real_answer.to_string(),
-                    test_time,
-                    real_time,
+                    test_result: Answer::Res(test_answer.to_string(), test_time),
+                    real_result: Answer::Res(real_answer.to_string(), real_time),
                 })
             }
             (Err(err), _) => Err(format!(
@@ -288,10 +279,8 @@ impl AoCDay {
 
                 Ok(Solution {
                     label: description.to_string(),
-                    test_answer: test_answer.to_string(),
-                    real_answer: "".to_string(), // todo fix
-                    test_time,
-                    real_time: Duration::from_secs(1), // todo fix
+                    test_result: Answer::Res(test_answer.to_string(), test_time),
+                    real_result: Answer::Skipped,
                 })
             }
             Err(err) => Err(format!(
@@ -315,10 +304,8 @@ impl AoCDay {
 
                 Ok(Solution {
                     label: description.to_string(),
-                    test_answer: "".to_string(), // todo fix
-                    real_answer: real_answer.to_string(),
-                    test_time: Duration::from_secs(1), // todo fix
-                    real_time,
+                    test_result: Answer::Skipped,
+                    real_result: Answer::Res(real_answer.to_string(), real_time),
                 })
             }
             Err(err) => Err(format!(

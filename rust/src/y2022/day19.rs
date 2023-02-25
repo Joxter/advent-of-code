@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
+#[allow(clippy::let_and_return)]
 pub fn naive_js_copy_part1(input: &str) -> i32 {
     let blueprints = parse(input);
 
@@ -13,6 +14,7 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
         .sum()
 }
 
+#[allow(clippy::let_and_return)]
 pub fn naive_js_copy_part2(input: &str) -> i32 {
     let blueprints = parse(input);
 
