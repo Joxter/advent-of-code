@@ -22,6 +22,8 @@ mod day18;
 mod day19;
 mod day20;
 mod day21;
+mod day22_todo;
+mod day23;
 
 pub fn run_2022(days: &HashSet<i32>) {
     /*
@@ -168,6 +170,18 @@ pub fn run_2022(days: &HashSet<i32>) {
             .part2("naive js copy", &day21::naive_1::part2)
             .part1("naive js copy (compact Node)", &day21::naive_2::part1)
             .part2("naive js copy (compact Node)", &day21::naive_2::part2)
+            .print();
+    }
+    if days.contains(&22) || days.is_empty() {
+        AoCDay::new(2022, 22)  // todo
+            .part1("naive js copy", &day22_todo::naive_js_copy_part1)
+            .part2("naive js copy", &day22_todo::naive_js_copy_part2)
+            .print();
+    }
+    if days.contains(&23) || days.is_empty() {
+        AoCDay::new(2022, 23) // todo
+            .part1("naive js copy", &day23::naive_js_copy_part1)
+            .part2("naive js copy", &day23::naive_js_copy_part2)
             .print();
     }
 }
