@@ -58,9 +58,7 @@ impl Solution {
                     None => format!("🛠️[sec {:.3}]", time_sec),
                 }
             }
-            Answer::Skipped => {
-                "🪨--SKIPPED--".to_string()
-            }
+            Answer::Skipped => "🪨--SKIPPED--".to_string(),
         };
 
         let mut result_lines = vec![];
