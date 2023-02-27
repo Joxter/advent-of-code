@@ -58,7 +58,66 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
 }
 
 pub fn naive_js_copy_part2(input: &str) -> i32 {
-    1
+    let mut elfes = parse(input);
+
+    let mut prop_array = vec!['n', 's', 'w', 'e'];
+
+    let mut round = 0;
+    loop {
+        round += 1;
+
+        let mut proposals: HashMap<Coords, Vec<Coords>> = HashMap::new();
+        let mut free_elf = 0;
+
+        elfes.el.iter().for_each(|coords| {
+            let (x, y) = *coords;
+
+            if elfes.no_elfes(vec![
+                (x - 1, y - 1),
+                (x, y - 1),
+                (x + 1, y - 1),
+                //
+                (x - 1, y),
+                (x + 1, y),
+                //
+                (x - 1, y + 1),
+                (x, y + 1),
+                (x + 1, y + 1),
+            ]) {
+                free_elf += 1;
+                return;
+            }
+
+            for prop in &prop_array {
+                let moved = match *prop {
+                    'n' => elfes.propose_n((x, y), &mut proposals),
+                    's' => elfes.propose_s((x, y), &mut proposals),
+                    'w' => elfes.propose_w((x, y), &mut proposals),
+                    'e' => elfes.propose_e((x, y), &mut proposals),
+                    _ => unreachable!(),
+                };
+
+                if moved {
+                    break;
+                }
+            }
+        });
+        if elfes.el.len() == free_elf {
+            break;
+        }
+
+        let first = prop_array.remove(0);
+        prop_array.push(first);
+
+        proposals.iter().for_each(|(coords, els)| {
+            if els.len() == 1 {
+                elfes.el.remove(&els[0]);
+                elfes.el.insert(*coords);
+            }
+        });
+    }
+
+    round
 }
 
 type Coords = (i32, i32);

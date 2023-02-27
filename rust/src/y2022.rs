@@ -181,7 +181,7 @@ pub fn run_2022(days: &HashSet<i32>) {
     if days.contains(&23) || days.is_empty() {
         AoCDay::new(2022, 23)
             .part1("naive js copy", &day23::naive_js_copy_part1)
-            // .part2("naive js copy", &day23::naive_js_copy_part2)
+            .part2("naive js copy", &day23::naive_js_copy_part2)
             .print();
     }
 }
