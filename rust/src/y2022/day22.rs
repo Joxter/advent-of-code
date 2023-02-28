@@ -1,9 +1,87 @@
 use std::collections::HashMap;
 
 pub fn naive_js_copy_part1(input: &str) -> i32 {
-    let (map, cur_pos, route) = parse(input);
+    let (map, mut cur_pos, route) = parse(input);
 
-    1
+    let dir_delta = HashMap::from([('>', (0, 1)), ('<', (0, -1)), ('^', (-1, 0)), ('v', (1, 0))]);
+    let clock_dir = vec!['>', 'v', '<', '^'];
+
+    let mut curr_direction = 100_000 - 1;
+    let mut direction_arrow = clock_dir[curr_direction % 4];
+
+    let get_step_coords = |(row, col): Coords, direction_arrow: char| -> Coords {
+        let delta = dir_delta[&direction_arrow];
+
+        if let Some(next_char) = map
+            .get((row + delta.0) as usize)
+            .and_then(|r| r.get((col + delta.1) as usize))
+        {
+            if *next_char == '.' {
+                return (row + delta.0, col + delta.1);
+            }
+            if *next_char == '#' {
+                return (row, col);
+            }
+
+            let mut curr = (row, col);
+            while let Some(n) = map
+                .get((curr.0 - delta.0) as usize)
+                .and_then(|r| r.get((curr.1 - delta.1) as usize))
+            {
+                if *n == '.' || *n == '#' {
+                    curr = (curr.0 - delta.0, curr.1 - delta.1);
+                } else {
+                    break;
+                }
+            }
+
+            if map[curr.0 as usize][curr.1 as usize] == '#' {
+                return (row, col);
+            }
+            return curr;
+        } else {
+            let mut curr = (row, col);
+            while let Some(n) = map
+                .get((curr.0 - delta.0) as usize)
+                .and_then(|r| r.get((curr.1 - delta.1) as usize))
+            {
+                if *n == '.' || *n == '#' {
+                    curr = (curr.0 - delta.0, curr.1 - delta.1);
+                } else {
+                    break;
+                }
+            }
+
+            if map[curr.0 as usize][curr.1 as usize] == '#' {
+                return (row, col);
+            }
+            return curr;
+        }
+    };
+
+    route.iter().for_each(|(direction, steps)| {
+        if *direction == 'R' {
+            curr_direction += 1;
+        } else {
+            curr_direction -= 1;
+        }
+
+        direction_arrow = clock_dir[curr_direction % 4];
+
+        for _ in 0..*steps {
+            cur_pos = get_step_coords(cur_pos, direction_arrow);
+        }
+    });
+
+    let arrow_point = match direction_arrow {
+        '>' => 0,
+        'v' => 1,
+        '<' => 2,
+        '^' => 3,
+        _ => unreachable!(),
+    };
+
+    return 1000 * (cur_pos.0 + 1) + 4 * (cur_pos.1 + 1) + arrow_point;
 }
 
 pub fn naive_js_copy_part2(input: &str) -> i32 {
@@ -12,10 +90,11 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
     1
 }
 
+type Coords = (i32, i32);
 type Portals = HashMap<(i32, i32, char), (i32, i32, char)>;
-type PortalParam = ((i32, i32), (i32, i32), char);
+type PortalParam = (Coords, Coords, char);
 
-fn parse(input: &str) -> (Vec<Vec<char>>, (i32, i32), Vec<(char, i32)>) {
+fn parse(input: &str) -> (Vec<Vec<char>>, Coords, Vec<(char, i32)>) {
     let (str_map, str_route) = input.split_once("\n\n").unwrap();
 
     let map = Vec::from_iter(str_map.lines().map(|line| Vec::from_iter(line.chars())));
@@ -48,9 +127,6 @@ fn parse(input: &str) -> (Vec<Vec<char>>, (i32, i32), Vec<(char, i32)>) {
         }
     }
     route.push((mode, n));
-
-    dbg!(&str_route);
-    dbg!(&route);
 
     (map, cur_pos, route)
 }
