@@ -85,9 +85,123 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
 }
 
 pub fn naive_js_copy_part2(input: &str) -> i32 {
-    let (map, cur_pos, route) = parse(input);
+    let (map, mut cur_pos, route) = parse(input);
 
-    1
+    let clock_dir = vec!['>', 'v', '<', '^'];
+
+    let mut curr_direction = 100_000 - 1;
+    let mut portals: Portals = HashMap::new();
+
+    add_portals(
+        &mut portals,
+        ((50, 100), (50, 149), 'v'),
+        ((50, 100), (99, 100), '>'),
+    );
+    add_portals(
+        &mut portals,
+        ((0, 150), (49, 150), '>'),
+        ((149, 100), (100, 100), '>'),
+    );
+    add_portals(
+        &mut portals,
+        ((150, 50), (150, 99), 'v'),
+        ((150, 50), (199, 50), '>'),
+    );
+    add_portals(
+        &mut portals,
+        ((-1, 100), (-1, 149), '^'),
+        ((200, 0), (200, 49), 'v'),
+    );
+    add_portals(
+        &mut portals,
+        ((0, 49), (49, 49), '<'),
+        ((149, -1), (100, -1), '<'),
+    );
+    add_portals(
+        &mut portals,
+        ((-1, 50), (-1, 99), '^'),
+        ((150, -1), (199, -1), '<'),
+    );
+    add_portals(
+        &mut portals,
+        ((50, 49), (99, 49), '<'),
+        ((99, 0), (99, 49), '^'),
+    );
+
+    let get_step_coords = |(row, col): Coords, direction_arrow: char| -> (Coords, usize) {
+        let dir_delta =
+            HashMap::from([('>', (0, 1)), ('<', (0, -1)), ('^', (-1, 0)), ('v', (1, 0))]);
+
+        let arrow_to_number = HashMap::from([
+            ('>', 100_000),
+            ('v', 100_001),
+            ('<', 100_002),
+            ('^', 100_003),
+        ]);
+
+        let delta = dir_delta[&direction_arrow];
+        let new_row = row + delta.0;
+        let new_col = col + delta.1;
+
+        if let Some(next_char) = map
+            .get(new_row as usize)
+            .and_then(|r| r.get(new_col as usize))
+        {
+            if *next_char == '.' {
+                return ((new_row, new_col), arrow_to_number[&direction_arrow]);
+            }
+            if *next_char == '#' {
+                return ((row, col), arrow_to_number[&direction_arrow]);
+            }
+
+            let (m_coords, dir) = go_portal(&portals, (new_row, new_col), direction_arrow);
+
+            if let Some(n) = map
+                .get(m_coords.0 as usize)
+                .and_then(|r| r.get(m_coords.1 as usize))
+            {
+                if *n == '#' {
+                    return ((row, col), arrow_to_number[&direction_arrow]);
+                }
+            }
+            return (m_coords, dir as usize);
+        }
+
+        let (m_coords, dir) = go_portal(&portals, (new_row, new_col), direction_arrow);
+
+        if let Some(n) = map
+            .get(m_coords.0 as usize)
+            .and_then(|r| r.get(m_coords.1 as usize))
+        {
+            if *n == '#' {
+                return ((row, col), arrow_to_number[&direction_arrow]);
+            }
+        }
+
+        (m_coords, dir as usize)
+    };
+
+    route.iter().for_each(|(direction, steps)| {
+        if *direction == 'R' {
+            curr_direction += 1;
+        } else {
+            curr_direction -= 1;
+        }
+
+        for _ in 0..*steps {
+            (cur_pos, curr_direction) = get_step_coords(cur_pos, clock_dir[curr_direction % 4]);
+        }
+    });
+
+    let arrow_point = match clock_dir[curr_direction % 4] {
+        '>' => 0,
+        'v' => 1,
+        '<' => 2,
+        '^' => 3,
+        _ => unreachable!(),
+    };
+
+    return 1000 * (cur_pos.0 + 1) + 4 * (cur_pos.1 + 1) + arrow_point;
 }
 
 type Coords = (i32, i32);
@@ -129,6 +243,22 @@ fn parse(input: &str) -> (Vec<Vec<char>>, Coords, Vec<(char, i32)>) {
     route.push((mode, n));
 
     (map, cur_pos, route)
+}
+
+fn go_portal(portals: &Portals, (row, col): Coords, arrow: char) -> (Coords, usize) {
+    if let Some(portal) = portals.get(&(row, col, arrow)) {
+        let (res_row, res_col, res_arr) = *portal;
+        let ar = HashMap::from([
+            ('>', 100_000),
+            ('v', 100_001),
+            ('<', 100_002),
+            ('^', 100_003),
+        ]);
+
+        return ((res_row, res_col), ar[&res_arr]);
+    }
+
+    unreachable!();
 }
 
 fn add_portals(portals: &mut Portals, from: PortalParam, to: PortalParam) {
