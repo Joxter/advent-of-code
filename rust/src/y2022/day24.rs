@@ -9,9 +9,7 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
     q_set.insert((start, 0));
     let mut queue = VecDeque::from([(start, 0)]);
 
-    let mut iters = 0;
     while !queue.is_empty() {
-        iters += 1;
         let (position, minute) = queue.pop_front().unwrap();
         q_set.remove(&(position, minute));
 
@@ -47,7 +45,57 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
 }
 
 pub fn naive_js_copy_part2(input: &str) -> i32 {
-    1
+    let (map, winds_cash, start) = parse(input);
+
+    let mov = HashMap::from([('^', (-1, 0)), ('v', (1, 0)), ('<', (0, -1)), ('>', (0, 1))]);
+
+    let mut q_set = HashSet::new();
+    q_set.insert((start, 0, "finish"));
+    let mut queue = VecDeque::from([(start, 0, "finish")]);
+
+    while !queue.is_empty() {
+        let (position, minute, goal) = queue.pop_front().unwrap();
+        q_set.remove(&(position, minute, "finish"));
+
+        let min_winds = &winds_cash[minute + 1];
+
+        for (delta_row, delta_col) in mov.values() {
+            let new_row = (position.0 as i32 + delta_row) as usize;
+            let new_col = (position.1 as i32 + delta_col) as usize;
+
+            if let Some(char) = map.get(new_row).and_then(|r| r.get(new_col)) {
+                if *char == '.' {
+                    if !min_winds.contains_key(&(new_row, new_col)) {
+                        if !q_set.contains(&((new_row, new_col), minute + 1, goal)) {
+                            queue.push_back(((new_row, new_col), minute + 1, goal));
+                            q_set.insert(((new_row, new_col), minute + 1, goal));
+                        }
+
+                        if goal == "finish" && new_row == map.len() - 1 {
+                            queue.clear();
+                            queue.push_back(((new_row, new_col), minute + 1, "snacks"));
+                            q_set.clear();
+                            q_set.insert(((new_row, new_col), minute + 1, "snacks"));
+                        } else if goal == "snacks" && new_row == 0 {
+                            queue.clear();
+                            queue.push_back(((0, 1), minute + 1, "finish2"));
+                            q_set.clear();
+                            q_set.insert(((0, 1), minute + 1, "finish2"));
+                        } else if goal == "finish2" && new_row == map.len() - 1 {
+                            return minute as i32 + 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        if !min_winds.contains_key(&position) {
+            queue.push_back((position, minute + 1, goal));
+            q_set.insert((position, minute + 1, goal));
+        }
+    }
+
+    unreachable!();
 }
 
 type Coords = (usize, usize);

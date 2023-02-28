@@ -32,7 +32,7 @@ function part1(inp) {
   });
 
   let queue = [
-    [[...start], 0, [[...start]]]
+    [[...start], 0]
   ];
 
   let exit = 1_000_000_000;
@@ -45,7 +45,7 @@ function part1(inp) {
   let windsCash = [winds];
 
   for (let i = 1; i < 1000; i++) {
-    windsCash.push(getWinds(windsCash[i - 1]));
+    windsCash.push(getWinds(windsCash[i - 1], map));
   }
 
   let iters = 0;
@@ -54,7 +54,7 @@ function part1(inp) {
 
   while (exit-- && queue.length > 0) {
     iters++;
-    let [position, minute, path] = queue.shift();
+    let [position, minute] = queue.shift();
     qSet.delete(`${position[0]},${position[1]},${minute}`);
 
     let minWinds = windsCash[minute + 1];
@@ -67,7 +67,7 @@ function part1(inp) {
       if (map[newRow] && map[newRow][newCol] === '.') {
         if (!minWinds[`${newRow},${newCol}`]) {
           if (!qSet.has(`${newRow},${newCol},${minute + 1}`)) {
-            queue.push([[newRow, newCol], minute + 1, [...path, [newRow, newCol]]]);
+            queue.push([[newRow, newCol], minute + 1]);
             qSet.add(`${newRow},${newCol},${minute + 1}`);
           }
 
@@ -79,35 +79,42 @@ function part1(inp) {
     }
 
     if (!minWinds[`${position[0]},${position[1]}`]) {
-      queue.push([position, minute + 1, [...path, position]]);
+      queue.push([position, minute + 1]);
       qSet.add(`${position[0]},${position[1]},${minute + 1}`);
     }
   }
+}
 
-  function getWinds(winds) {
-    let newWinds = {};
-    Object.entries(winds).forEach(([coords, ws]) => {
-      let [row, col] = coords.split(',');
+function getWinds(winds, map) {
+  let mov = {
+    '^': [-1, 0],
+    'v': [1, 0],
+    '<': [0, -1],
+    '>': [0, 1],
+  };
 
-      ws.forEach((w) => {
-        let newRow = +row + mov[w][0];
-        let newCol = +col + mov[w][1];
-        if (map[newRow][newCol] === '#') {
-          if (w === '^') newRow = map.length - 2;
-          if (w === 'v') newRow = 1;
-          if (w === '<') newCol = map[0].length - 2;
-          if (w === '>') newCol = 1;
-        }
-        let key = `${newRow},${newCol}`;
-        if (!newWinds[key]) {
-          newWinds[key] = [];
-        }
-        newWinds[key].push(w);
-      });
+  let newWinds = {};
+  Object.entries(winds).forEach(([coords, ws]) => {
+    let [row, col] = coords.split(',');
+
+    ws.forEach((w) => {
+      let newRow = +row + mov[w][0];
+      let newCol = +col + mov[w][1];
+      if (map[newRow][newCol] === '#') {
+        if (w === '^') newRow = map.length - 2;
+        if (w === 'v') newRow = 1;
+        if (w === '<') newCol = map[0].length - 2;
+        if (w === '>') newCol = 1;
+      }
+      let key = `${newRow},${newCol}`;
+      if (!newWinds[key]) {
+        newWinds[key] = [];
+      }
+      newWinds[key].push(w);
     });
+  });
 
-    return newWinds;
-  }
+  return newWinds;
 }
 
 function part2(inp) {
@@ -138,7 +145,7 @@ function part2(inp) {
   let windsCash = [winds];
 
   for (let i = 1; i < 1000; i++) {
-    windsCash.push(getWinds(windsCash[i - 1]));
+    windsCash.push(getWinds(windsCash[i - 1], map));
   }
   let iters = 0;
 
@@ -193,32 +200,6 @@ function part2(inp) {
       qSet.add(`${position[0]},${position[1]},${minute + 1},${goal}`);
     }
   }
-
-  function getWinds(winds) {
-    let newWinds = {};
-    Object.entries(winds).forEach(([coords, ws]) => {
-      let [row, col] = coords.split(',');
-
-      ws.forEach((w) => {
-        let newRow = +row + mov[w][0];
-        let newCol = +col + mov[w][1];
-        if (map[newRow][newCol] === '#') {
-          if (w === '^') newRow = map.length - 2;
-          if (w === 'v') newRow = 1;
-          if (w === '<') newCol = map[0].length - 2;
-          if (w === '>') newCol = 1;
-        }
-        let key = `${newRow},${newCol}`;
-        if (!newWinds[key]) {
-          newWinds[key] = [];
-        }
-        newWinds[key].push(w);
-      });
-    });
-    return newWinds;
-  }
-
-  console.log({ exit });
 }
 
 function render(map, winds, pos = [0, 0]) {
