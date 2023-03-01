@@ -38,7 +38,7 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
             if map[curr.0 as usize][curr.1 as usize] == '#' {
                 return (row, col);
             }
-            return curr;
+            curr
         } else {
             let mut curr = (row, col);
             while let Some(n) = map
@@ -55,7 +55,7 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
             if map[curr.0 as usize][curr.1 as usize] == '#' {
                 return (row, col);
             }
-            return curr;
+            curr
         }
     };
 
@@ -81,7 +81,7 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
         _ => unreachable!(),
     };
 
-    return 1000 * (cur_pos.0 + 1) + 4 * (cur_pos.1 + 1) + arrow_point;
+    1000 * (cur_pos.0 + 1) + 4 * (cur_pos.1 + 1) + arrow_point
 }
 
 pub fn naive_js_copy_part2(input: &str) -> i32 {
@@ -164,7 +164,7 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
                     return ((row, col), arrow_to_number[&direction_arrow]);
                 }
             }
-            return (m_coords, dir as usize);
+            return (m_coords, dir);
         }
 
         let (m_coords, dir) = go_portal(&portals, (new_row, new_col), direction_arrow);
@@ -178,7 +178,7 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
             }
         }
 
-        (m_coords, dir as usize)
+        (m_coords, dir)
     };
 
     route.iter().for_each(|(direction, steps)| {
@@ -201,7 +201,7 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
         _ => unreachable!(),
     };
 
-    return 1000 * (cur_pos.0 + 1) + 4 * (cur_pos.1 + 1) + arrow_point;
+    1000 * (cur_pos.0 + 1) + 4 * (cur_pos.1 + 1) + arrow_point
 }
 
 type Coords = (i32, i32);

@@ -20,16 +20,14 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
             let new_col = (position.1 as i32 + delta_col) as usize;
 
             if let Some(char) = map.get(new_row).and_then(|r| r.get(new_col)) {
-                if *char == '.' {
-                    if !min_winds.contains_key(&(new_row, new_col)) {
-                        if !q_set.contains(&((new_row, new_col), minute + 1)) {
-                            queue.push_back(((new_row, new_col), minute + 1));
-                            q_set.insert(((new_row, new_col), minute + 1));
-                        }
+                if *char == '.' && !min_winds.contains_key(&(new_row, new_col)) {
+                    if !q_set.contains(&((new_row, new_col), minute + 1)) {
+                        queue.push_back(((new_row, new_col), minute + 1));
+                        q_set.insert(((new_row, new_col), minute + 1));
+                    }
 
-                        if new_row == map.len() - 1 {
-                            return minute as i32 + 1;
-                        }
+                    if new_row == map.len() - 1 {
+                        return minute as i32 + 1;
                     }
                 }
             }
@@ -64,26 +62,26 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
             let new_col = (position.1 as i32 + delta_col) as usize;
 
             if let Some(char) = map.get(new_row).and_then(|r| r.get(new_col)) {
-                if *char == '.' {
-                    if !min_winds.contains_key(&(new_row, new_col)) {
-                        if !q_set.contains(&((new_row, new_col), minute + 1, goal)) {
-                            queue.push_back(((new_row, new_col), minute + 1, goal));
-                            q_set.insert(((new_row, new_col), minute + 1, goal));
-                        }
+                if *char == '.' && !min_winds.contains_key(&(new_row, new_col)) {
+                    if !q_set.contains(&((new_row, new_col), minute + 1, goal)) {
+                        queue.push_back(((new_row, new_col), minute + 1, goal));
+                        q_set.insert(((new_row, new_col), minute + 1, goal));
+                    }
 
-                        if goal == "finish" && new_row == map.len() - 1 {
-                            queue.clear();
-                            queue.push_back(((new_row, new_col), minute + 1, "snacks"));
-                            q_set.clear();
-                            q_set.insert(((new_row, new_col), minute + 1, "snacks"));
-                        } else if goal == "snacks" && new_row == 0 {
-                            queue.clear();
-                            queue.push_back(((0, 1), minute + 1, "finish2"));
-                            q_set.clear();
-                            q_set.insert(((0, 1), minute + 1, "finish2"));
-                        } else if goal == "finish2" && new_row == map.len() - 1 {
-                            return minute as i32 + 1;
-                        }
+                    if goal == "finish" && new_row == map.len() - 1 {
+                        queue.clear();
+                        queue.push_back(((new_row, new_col), minute + 1, "snacks"));
+                        q_set.clear();
+                        q_set.insert(((new_row, new_col), minute + 1, "snacks"));
+                        break;
+                    } else if goal == "snacks" && new_row == 0 {
+                        queue.clear();
+                        queue.push_back(((0, 1), minute + 1, "finish2"));
+                        q_set.clear();
+                        q_set.insert(((0, 1), minute + 1, "finish2"));
+                        break;
+                    } else if goal == "finish2" && new_row == map.len() - 1 {
+                        return minute as i32 + 1;
                     }
                 }
             }
