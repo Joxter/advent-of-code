@@ -39,6 +39,9 @@ pub fn run_2022(days: &HashSet<i32>) {
         .print()
 
     */
+
+    AoCDay::clear_result_file(); // ugly, I know
+
     if days.contains(&1) || days.is_empty() {
         AoCDay::new(2022, 1)
             .part1("naive js copy", &day01::naive_js_copy_part1)

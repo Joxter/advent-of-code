@@ -1,5 +1,5 @@
 use std::fmt::{Debug, Display, Formatter};
-use std::io::BufRead;
+use std::io::Write;
 use std::time::{Duration, SystemTime};
 use std::{fs, io};
 
@@ -228,8 +228,30 @@ impl AoCDay {
         self
     }
 
+    // todo refactor
     pub fn print(&self) {
-        println!("{}", self);
+        let out = format!("{}", self);
+        println!("{out}");
+        AoCDay::append_to_file(&out);
+    }
+
+    pub fn clear_result_file() {
+        if let Err(e) = fs::remove_file("results.md") {
+            eprintln!("Couldn't remove results file: {}", e);
+        }
+    }
+
+    fn append_to_file(str: &str) {
+        let mut file = fs::OpenOptions::new()
+            .write(true)
+            .append(true)
+            .create(true)
+            .open("results.md")
+            .unwrap();
+
+        if let Err(e) = writeln!(file, "```text\n{}```", str) {
+            eprintln!("Couldn't write to file: {}", e);
+        }
     }
 
     fn run_part<R: Display>(
