@@ -27,6 +27,7 @@ struct Solution {
 enum Answer {
     Res(String, Duration),
     Skipped,
+    // InProgress(some_timestamp), // todo when we run solutions asynchronously
 }
 
 impl Part {
