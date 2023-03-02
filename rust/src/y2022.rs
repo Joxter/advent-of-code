@@ -28,8 +28,11 @@ mod day24;
 mod day25;
 
 pub fn run_2022(days: &HashSet<i32>) {
-    /*
     // todo implement something like this:
+    //    + repeat X times
+    //    + add time limit
+    //    + proper writing results to a file
+    /*
     AoCDay::new(2022, days)
         .day(1, p1, "naive js copy", &day01::naive_js_copy_part1)
         .day(1, p2, "naive js copy", &day01::naive_js_copy_part1)
