@@ -41,9 +41,31 @@ pub fn run_2022(days: &HashSet<i32>) {
         .day(2, p2, "naive js copy", &day02::naive_js_copy_part1)
         .print()
 
+    //////////////////////// or:
+
+    struct Day1Naive;
+    impl Solution for Day1Naive {
+        pub part1(inp: &input, _is_real: boolean) -> Solution::Ans {
+            my_solution(inp)
+        }
+        pub part2(inp: &input, is_real: boolean) -> Solution::Ans {
+            if { my_solution(inp, 12) } else { my_solution(inp, 12) }
+        }
+    }
+    struct Day1Alter;
+    impl Solution for Day1Alter {
+        pub part2(inp: &input, is_real: boolean) -> Solution::Ans {
+            if { my_alter_solution(inp, 12) } else { my_alter_solution(inp, 22) }
+        }
+    }
+
+    AoCDay::new(2022, days, [
+        (1, "naive js copy", Day1Naive), (1, "alter", Day1Alter)
+    ])
+
     */
 
-    AoCDay::clear_result_file(); // ugly, I know
+    AoCDay::clear_result_file(); // todo make it better
 
     if days.contains(&1) || days.is_empty() {
         AoCDay::new(2022, 1)
