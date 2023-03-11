@@ -1,4 +1,4 @@
-use crate::answer::AoCDay;
+use crate::aoc_day::AoCDay;
 use std::collections::HashSet;
 
 mod day01;
@@ -45,6 +45,9 @@ pub fn run_2022(days: &HashSet<i32>) {
 
     struct Day1Naive;
     impl Solution for Day1Naive {
+        pub init() -> (i32, &str) {
+            1, "naive js copy"
+        }
         pub part1(inp: &input, _is_real: boolean) -> Solution::Ans {
             my_solution(inp)
         }
@@ -60,7 +63,8 @@ pub fn run_2022(days: &HashSet<i32>) {
     }
 
     AoCDay::new(2022, days, [
-        (1, "naive js copy", Day1Naive), (1, "alter", Day1Alter)
+        Day1Naive,
+        Day1Alter
     ])
 
     */

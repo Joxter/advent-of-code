@@ -5,7 +5,7 @@ use crate::y2022::run_2022;
 use std::collections::HashSet;
 use std::{env, io};
 
-mod answer;
+mod aoc_day;
 mod y2022;
 
 fn main() {
