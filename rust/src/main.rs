@@ -6,6 +6,7 @@ use std::collections::HashSet;
 use std::{env, io};
 
 mod aoc_day;
+mod aoc_year;
 mod y2022;
 
 fn main() {

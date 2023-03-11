@@ -1,4 +1,5 @@
 use crate::aoc_day::AoCDay;
+use crate::aoc_year::AoCYear;
 use std::collections::HashSet;
 
 mod day01;
@@ -32,42 +33,9 @@ pub fn run_2022(days: &HashSet<i32>) {
     //    + repeat X times
     //    + add time limit
     //    + proper writing results to a file
-    /*
-    AoCDay::new(2022, days)
-        .day(1, p1, "naive js copy", &day01::naive_js_copy_part1)
-        .day(1, p2, "naive js copy", &day01::naive_js_copy_part1)
-        .day_test(2, p1, "naive js copy", |inp| &day02::naive_js_copy_part1(inp, 1))
-        .day_real(2, p1, "naive js copy", |inp| &day02::naive_js_copy_part1(inp, 2))
-        .day(2, p2, "naive js copy", &day02::naive_js_copy_part1)
-        .print()
 
-    //////////////////////// or:
-
-    struct Day1Naive;
-    impl Solution for Day1Naive {
-        pub init() -> (i32, &str) {
-            1, "naive js copy"
-        }
-        pub part1(inp: &input, _is_real: boolean) -> Solution::Ans {
-            my_solution(inp)
-        }
-        pub part2(inp: &input, is_real: boolean) -> Solution::Ans {
-            if { my_solution(inp, 12) } else { my_solution(inp, 12) }
-        }
-    }
-    struct Day1Alter;
-    impl Solution for Day1Alter {
-        pub part2(inp: &input, is_real: boolean) -> Solution::Ans {
-            if { my_alter_solution(inp, 12) } else { my_alter_solution(inp, 22) }
-        }
-    }
-
-    AoCDay::new(2022, days, [
-        Day1Naive,
-        Day1Alter
-    ])
-
-    */
+    let aoc_2022 = AoCYear::new(2022, days.clone());
+    aoc_2022.run(&[day01::Day1Naive]);
 
     AoCDay::clear_result_file(); // todo make it better
 
