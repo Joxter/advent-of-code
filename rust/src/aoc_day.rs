@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fmt::{Debug, Display, Formatter};
 use std::io::Write;
 use std::time::{Duration, SystemTime};
@@ -10,6 +11,9 @@ pub struct AoCDay {
     real_input: io::Result<String>,
     part1: Part,
     part2: Part,
+    last_printed_day: String,
+    last_printed_part: String,
+    do_not_run: bool,
 }
 
 struct Part {
@@ -34,7 +38,7 @@ impl Part {
     fn render_to_lines(&self) -> Vec<String> {
         self.solutions
             .iter()
-            .flat_map(|solution| solution.render_to_lines(&self.test_answer, &self.real_answer))
+            .flat_map(|solution| solution.render_to_lines(&self))
             .collect()
     }
 }
@@ -79,15 +83,13 @@ impl Solution {
         (label_line, result_lines)
     }
 
-    fn render_to_lines(
-        &self,
-        correct_test: &Option<String>,
-        correct_real: &Option<String>,
-    ) -> Vec<String> {
+    fn render_to_lines(&self, part: &Part) -> Vec<String> {
         let mut res = vec![];
 
-        let (test_label, test_results) = self.answer_to_strings(&self.test_result, correct_test);
-        let (real_label, real_results) = self.answer_to_strings(&self.real_result, correct_real);
+        let (test_label, test_results) =
+            self.answer_to_strings(&self.test_result, &part.test_answer);
+        let (real_label, real_results) =
+            self.answer_to_strings(&self.real_result, &part.real_answer);
 
         res.push(format!("{} {} {}", test_label, real_label, self.label));
 
@@ -103,7 +105,7 @@ impl Solution {
 }
 
 impl AoCDay {
-    pub fn new(year: u32, day: u32) -> Self {
+    pub fn new(year: u32, day: u32, flag_days: &HashSet<i32>) -> Self {
         let input_folder = format!("../{}/inputs/d{:02}", year, day);
         let (test_input, real_input) = AoCDay::parse_inputs(&input_folder);
         let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
@@ -115,6 +117,9 @@ impl AoCDay {
             real_input,
             part1,
             part2,
+            last_printed_day: "".to_string(),
+            last_printed_part: "".to_string(),
+            do_not_run: !(flag_days.contains(&(day as i32)) || flag_days.is_empty()),
         }
     }
 
@@ -180,59 +185,90 @@ impl AoCDay {
         (part1, part2)
     }
 
+    fn get_day_prefix(&mut self) -> String {
+        let a = format!("{}/{:02}:", self.year, self.day);
+        if self.last_printed_day == a {
+            " ".repeat(a.len())
+        } else {
+            self.last_printed_day = a.clone();
+            a
+        }
+    }
+
+    fn get_part_prefix(&mut self, part: &str) -> String {
+        if self.last_printed_part == part {
+            " ".repeat(part.len())
+        } else {
+            self.last_printed_part = part.to_string();
+            part.to_string()
+        }
+    }
+
+    fn print_solution(&mut self, solution: &Solution, part_name: &str) {
+        let part = if part_name == "part1" {
+            &self.part1
+        } else {
+            &self.part2
+        };
+
+        solution.render_to_lines(part).iter().for_each(|l| {
+            println!(
+                "{} {} {}",
+                self.get_day_prefix(),
+                self.get_part_prefix(part_name),
+                l
+            );
+        })
+    }
+
     pub fn part1<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        match self.run_part(label, solution) {
-            Ok(solution) => self.part1.solutions.push(solution),
-            Err(err) => println!("{err}"),
+        if !self.do_not_run {
+            match self.run_part(label, solution, solution) {
+                Ok(solution) => self.print_solution(&solution, "part1"),
+                Err(err) => println!("{err}"),
+            }
         }
         self
     }
 
-    pub fn part1_test<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        match self.run_test(label, solution) {
-            Ok(solution) => self.part1.solutions.push(solution),
-            Err(err) => println!("{err}"),
-        }
-        self
-    }
-
-    pub fn part1_real<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        match self.run_real(label, solution) {
-            Ok(solution) => self.part1.solutions.push(solution),
-            Err(err) => println!("{err}"),
-        }
-        self
-    }
-
-    pub fn part2_test<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        match self.run_test(label, solution) {
-            Ok(solution) => self.part2.solutions.push(solution),
-            Err(err) => println!("{err}"),
-        }
-        self
-    }
-
-    pub fn part2_real<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        match self.run_real(label, solution) {
-            Ok(solution) => self.part2.solutions.push(solution),
-            Err(err) => println!("{err}"),
+    pub fn part1_ver<R: Display>(
+        mut self,
+        label: &str,
+        solution_test: &dyn Fn(&str) -> R,
+        solution_real: &dyn Fn(&str) -> R,
+    ) -> Self {
+        if !self.do_not_run {
+            match self.run_part(label, solution_test, solution_real) {
+                Ok(solution) => self.print_solution(&solution, "part1"),
+                Err(err) => println!("{err}"),
+            }
         }
         self
     }
 
     pub fn part2<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-        match self.run_part(label, solution) {
-            Ok(solution) => self.part2.solutions.push(solution),
-            Err(err) => println!("{err}"),
+        if !self.do_not_run {
+            match self.run_part(label, solution, solution) {
+                Ok(solution) => self.print_solution(&solution, "part2"),
+                Err(err) => println!("{err}"),
+            }
         }
         self
     }
 
-    // todo refactor
-    pub fn print(&self) {
-        let out = format!("{}", self);
-        println!("{out}");
-        AoCDay::append_to_file(&out);
+    pub fn part2_ver<R: Display>(
+        mut self,
+        label: &str,
+        solution_test: &dyn Fn(&str) -> R,
+        solution_real: &dyn Fn(&str) -> R,
+    ) -> Self {
+        if !self.do_not_run {
+            match self.run_part(label, solution_test, solution_real) {
+                Ok(solution) => self.print_solution(&solution, "part2"),
+                Err(err) => println!("{err}"),
+            }
+        }
+        self
     }
 
     pub fn clear_result_file() {
@@ -242,6 +278,10 @@ impl AoCDay {
     }
 
     fn append_to_file(str: &str) {
+        /*        let out = format!("{}", self);
+                println!("{out}");
+                AoCDay::append_to_file(&out);
+        */
         let mut file = fs::OpenOptions::new()
             .write(true)
             .append(true)
@@ -257,16 +297,17 @@ impl AoCDay {
     fn run_part<R: Display>(
         &self,
         description: &str,
-        solution: &dyn Fn(&str) -> R,
+        solution_test: &dyn Fn(&str) -> R,
+        solution_real: &dyn Fn(&str) -> R,
     ) -> Result<Solution, String> {
         match (&self.test_input, &self.real_input) {
             (Ok(test_input), Ok(real_input)) => {
                 let sys_time = SystemTime::now();
-                let test_answer = solution(test_input);
+                let test_answer = solution_test(test_input);
                 let test_time = sys_time.elapsed().unwrap();
 
                 let sys_time = SystemTime::now();
-                let real_answer = solution(real_input);
+                let real_answer = solution_real(real_input);
                 let real_time = sys_time.elapsed().unwrap();
 
                 Ok(Solution {
@@ -284,87 +325,5 @@ impl AoCDay {
                 self.day, err
             )),
         }
-    }
-
-    // todo WIP
-    fn run_test<R: Display>(
-        &self,
-        description: &str,
-        solution: &dyn Fn(&str) -> R,
-    ) -> Result<Solution, String> {
-        match &self.test_input {
-            Ok(test_input) => {
-                let sys_time = SystemTime::now();
-                let test_answer = solution(test_input);
-                let test_time = sys_time.elapsed().unwrap();
-
-                Ok(Solution {
-                    label: description.to_string(),
-                    test_result: Answer::Res(test_answer.to_string(), test_time),
-                    real_result: Answer::Skipped,
-                })
-            }
-            Err(err) => Err(format!(
-                "Day {} test input file is invalid\n{}",
-                self.day, err
-            )),
-        }
-    }
-
-    // todo WIP
-    fn run_real<R: Display>(
-        &self,
-        description: &str,
-        solution: &dyn Fn(&str) -> R,
-    ) -> Result<Solution, String> {
-        match &self.real_input {
-            Ok(real_input) => {
-                let sys_time = SystemTime::now();
-                let real_answer = solution(real_input);
-                let real_time = sys_time.elapsed().unwrap();
-
-                Ok(Solution {
-                    label: description.to_string(),
-                    test_result: Answer::Skipped,
-                    real_result: Answer::Res(real_answer.to_string(), real_time),
-                })
-            }
-            Err(err) => Err(format!(
-                "Day {} real input file is invalid\n{}",
-                self.day, err
-            )),
-        }
-    }
-}
-
-impl Display for AoCDay {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let mut res = vec![];
-        let day_prefix = format!("{}/{:02}:", self.year, self.day);
-
-        // todo idea ???
-        //    store offset of strings separately to reduce intermediate string concatenations
-        let part1_lines = self.part1.render_to_lines();
-        if !part1_lines.is_empty() {
-            res.push(format!("{day_prefix} part 1 {}", part1_lines[0]));
-            for l in &part1_lines[1..] {
-                res.push(format!("{}{}", " ".repeat(16), l));
-            }
-        }
-
-        let part2_lines = self.part2.render_to_lines();
-        if !part2_lines.is_empty() {
-            if part1_lines.is_empty() {
-                res.push(format!("{day_prefix} part 2 {}", part2_lines[0]));
-            } else {
-                res.push(format!("{} part 2 {}", " ".repeat(8), part2_lines[0]));
-            }
-
-            for l in &part2_lines[1..] {
-                res.push(format!("{}{}", " ".repeat(16), l));
-            }
-        }
-
-        write!(f, "{}", res.join("\n") + "\n")
     }
 }
