@@ -4,14 +4,14 @@ use std::fmt::Display;
 use std::time::{Duration, SystemTime};
 use std::{fs, io};
 
-type SolutionFnType = dyn Fn(&str) -> String; // todo replace String to generic
+type SolutionFnType<T: Display> = dyn Fn(&str) -> T; // todo replace String to generic
 
-pub struct AoCYear<'a> {
+pub struct AoCYear<'a, T: Display> {
     year: i32,
     day_flags: &'a HashSet<i32>,
     days: HashMap<i32, AoCYearDay>,
     curr_day: Option<i32>,
-    solutions: HashMap<(i32, bool), Vec<SolutionFn<'a>>>, // (day, is_part2)
+    solutions: HashMap<(i32, bool), Vec<SolutionFn<'a, T>>>, // (day, is_part2)
 }
 
 pub struct AoCYearDay {
@@ -38,10 +38,10 @@ struct SolutionResult {
     real_result: Answer,
 }
 
-pub enum SolutionFn<'a> {
-    Sim(&'a SolutionFnType, &'a str),
-    Ver(&'a SolutionFnType, &'a SolutionFnType, &'a str), // (test_fn, real_fn, label)
-                                                          // todo add for "test only" and "real only"
+pub enum SolutionFn<'a, T: Display> {
+    Sim(&'a SolutionFnType<T>, &'a str),
+    Ver(&'a SolutionFnType<T>, &'a SolutionFnType<T>, &'a str), // (test_fn, real_fn, label)
+                                                                // todo add for "test only" and "real only"
 }
 
 enum Answer {
@@ -51,7 +51,7 @@ enum Answer {
     // InProgress(start_time), // todo ??
 }
 
-impl<'a> SolutionFn<'a> {
+impl<'a, T: Display> SolutionFn<'a, T> {
     fn get_label(&self) -> &str {
         match self {
             SolutionFn::Sim(_, lab) => lab,
@@ -59,26 +59,26 @@ impl<'a> SolutionFn<'a> {
         }
     }
 
-    fn get_test_fn(&self) -> &'a SolutionFnType {
+    fn get_test_fn(&self) -> &'a SolutionFnType<T> {
         match self {
             SolutionFn::Sim(t, _) => *t,
             SolutionFn::Ver(t, _, _) => *t,
         }
     }
 
-    fn get_real_fn(&self) -> &'a SolutionFnType {
+    fn get_real_fn(&self) -> &'a SolutionFnType<T> {
         match self {
             SolutionFn::Sim(r, _) => *r,
             SolutionFn::Ver(_, r, _) => *r,
         }
     }
 
-    fn run_and_measure(sol_fn: &SolutionFnType, input: &str) -> Answer {
+    fn run_and_measure(sol_fn: &SolutionFnType<T>, input: &str) -> Answer {
         let sys_time = SystemTime::now();
         let test_answer = sol_fn(input);
         let test_time = sys_time.elapsed().unwrap();
 
-        Answer::Res(test_answer, test_time)
+        Answer::Res(test_answer.to_string(), test_time)
     }
 
     fn run_day(&self, day_data: &AoCYearDay) -> SolutionResult {
@@ -159,7 +159,7 @@ impl SolutionResult {
     }
 }
 
-impl<'a> AoCYear<'a> {
+impl<'a, T: Display> AoCYear<'a, T> {
     /*
     AoCYear::new(2022, flags)
         .day(3)
@@ -188,7 +188,8 @@ impl<'a> AoCYear<'a> {
         for day in 1..=25 {
             let input_folder = format!("../{}/inputs/d{:02}", year, day);
             let (test_input, real_input) = Self::parse_inputs(&input_folder);
-            let (part1, part2) = AoCYear::parse_answers(&format!("{}/answer.txt", input_folder));
+            let (part1, part2) =
+                AoCYear::<T>::parse_answers(&format!("{}/answer.txt", input_folder));
 
             days.insert(
                 day,
@@ -275,15 +276,33 @@ impl<'a> AoCYear<'a> {
         self
     }
 
-    pub fn part1(self, solution: SolutionFn<'a>) -> Self {
-        self.add_solution(false, solution)
+    pub fn part1(self, cb: &'a SolutionFnType<T>, label: &'a str) -> Self {
+        self.add_solution(false, SolutionFn::Sim(cb, label))
     }
 
-    pub fn part2(self, solution: SolutionFn<'a>) -> Self {
-        self.add_solution(true, solution)
+    pub fn part1_ver(
+        self,
+        cb_test: &'a SolutionFnType<T>,
+        cb_real: &'a SolutionFnType<T>,
+        label: &'a str,
+    ) -> Self {
+        self.add_solution(false, SolutionFn::Ver(cb_test, cb_real, label))
     }
 
-    pub fn add_solution(mut self, is_part_2: bool, solution: SolutionFn<'a>) -> Self {
+    pub fn part2(self, cb: &'a SolutionFnType<T>, label: &'a str) -> Self {
+        self.add_solution(true, SolutionFn::Sim(cb, label))
+    }
+
+    pub fn part2_ver(
+        self,
+        cb_test: &'a SolutionFnType<T>,
+        cb_real: &'a SolutionFnType<T>,
+        label: &'a str,
+    ) -> Self {
+        self.add_solution(true, SolutionFn::Ver(cb_test, cb_real, label))
+    }
+
+    pub fn add_solution(mut self, is_part_2: bool, solution: SolutionFn<'a, T>) -> Self {
         if let Some(day) = self.curr_day {
             let en = self.solutions.entry((day, is_part_2)).or_default();
             en.push(solution);

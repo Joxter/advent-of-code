@@ -1,5 +1,5 @@
 use crate::aoc_day::AoCDay;
-use crate::aoc_year::{AoCYear, SolutionFn};
+use crate::aoc_year::{AoCYear};
 use std::collections::HashSet;
 
 mod day01;
@@ -37,28 +37,14 @@ pub fn run_2022(days: &HashSet<i32>) {
     let a = AoCYear::new_2(2022, days);
 
     a.day(1)
-        .part1(SolutionFn::Sim(
-            &|inp| day01::naive_js_copy_part1(inp).to_string(),
-            "naive js copy",
-        ))
-        .part1(SolutionFn::Sim(
-            &|inp| day01::naive_js_copy_part1(inp).to_string(),
-            "naive js copy 2",
-        ))
-        .part2(SolutionFn::Sim(
-            &|inp| day01::naive_js_copy_part2(inp).to_string(),
-            "naive js copy part 2",
-        ))
-        .part2(SolutionFn::Sim(
-            &|inp| day01::naive_js_copy_part2_alter(inp).to_string(),
-            "alster part 2 (alter, wrong)",
-        ))
+        .part1(&day01::naive_js_copy_part1, "naive js copy")
+        .part2(&day01::naive_js_copy_part2, "naive js copy part 2")
         .day(3)
-        .part1(SolutionFn::Ver(
-            &|inp| day03::naive_js_copy_part1(inp).to_string(),
-            &|inp| day03::naive_js_copy_part1(inp).to_string(),
+        .part1_ver(
+            &day03::naive_js_copy_part1,
+            &day03::naive_js_copy_part1,
             "naive js copy (verbose)",
-        ))
+        )
         .run();
 
     return;
