@@ -41,6 +41,10 @@ pub fn run_2022(days: &HashSet<i32>) {
             &|inp| day01::naive_js_copy_part1(inp).to_string(),
             "naive js copy",
         ))
+        .part1(SolutionFn::Sim(
+            &|inp| day01::naive_js_copy_part1(inp).to_string(),
+            "naive js copy 2",
+        ))
         .part2(SolutionFn::Sim(
             &|inp| day01::naive_js_copy_part2(inp).to_string(),
             "naive js copy part 2",
@@ -48,6 +52,12 @@ pub fn run_2022(days: &HashSet<i32>) {
         .part2(SolutionFn::Sim(
             &|inp| day01::naive_js_copy_part2_alter(inp).to_string(),
             "alster part 2 (alter, wrong)",
+        ))
+        .day(3)
+        .part1(SolutionFn::Ver(
+            &|inp| day03::naive_js_copy_part1(inp).to_string(),
+            &|inp| day03::naive_js_copy_part1(inp).to_string(),
+            "naive js copy (verbose)",
         ))
         .run();
 

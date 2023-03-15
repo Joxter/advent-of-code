@@ -40,8 +40,8 @@ struct SolutionResult {
 
 pub enum SolutionFn<'a> {
     Sim(&'a SolutionFnType, &'a str),
-    Ver(&'a SolutionFnType, &'a SolutionFnType, &'a str),
-    // todo add for "test only" and "real only"
+    Ver(&'a SolutionFnType, &'a SolutionFnType, &'a str), // (test_fn, real_fn, label)
+                                                          // todo add for "test only" and "real only"
 }
 
 enum Answer {
@@ -58,40 +58,41 @@ impl<'a> SolutionFn<'a> {
             SolutionFn::Ver(_, _, lab) => lab,
         }
     }
-}
 
-impl AoCYearDay {
-    fn run_solution(
-        &self,
-        test_fn: Option<&SolutionFnType>,
-        real_fn: Option<&SolutionFnType>,
-    ) -> SolutionResult {
+    fn get_test_fn(&self) -> &'a SolutionFnType {
+        match self {
+            SolutionFn::Sim(t, _) => *t,
+            SolutionFn::Ver(t, _, _) => *t,
+        }
+    }
+
+    fn get_real_fn(&self) -> &'a SolutionFnType {
+        match self {
+            SolutionFn::Sim(r, _) => *r,
+            SolutionFn::Ver(_, r, _) => *r,
+        }
+    }
+
+    fn run_and_measure(sol_fn: &SolutionFnType, input: &str) -> Answer {
+        let sys_time = SystemTime::now();
+        let test_answer = sol_fn(input);
+        let test_time = sys_time.elapsed().unwrap();
+
+        Answer::Res(test_answer, test_time)
+    }
+
+    fn run_day(&self, day_data: &AoCYearDay) -> SolutionResult {
         let mut res = SolutionResult {
             test_result: Answer::Skipped,
             real_result: Answer::Skipped,
         };
 
-        match (test_fn, &self.test_input) {
-            (Some(cb), Some(input)) => {
-                let sys_time = SystemTime::now();
-                let answer = cb(input);
-                let time = sys_time.elapsed().unwrap();
-
-                res.test_result = Answer::Res(answer.to_string(), time)
-            }
-            _ => {}
-        };
-
-        match (real_fn, &self.real_input) {
-            (Some(cb), Some(input)) => {
-                let sys_time = SystemTime::now();
-                let answer = cb(input);
-                let time = sys_time.elapsed().unwrap();
-
-                res.real_result = Answer::Res(answer.to_string(), time)
-            }
-            _ => {}
-        };
+        if let Some(inp) = &day_data.test_input {
+            res.test_result = SolutionFn::run_and_measure(self.get_test_fn(), inp);
+        }
+        if let Some(inp) = &day_data.real_input {
+            res.real_result = SolutionFn::run_and_measure(self.get_real_fn(), inp);
+        }
 
         res
     }
@@ -137,34 +138,29 @@ impl SolutionResult {
         (label_line, result_lines)
     }
 
-    // todo WIP
-    fn print(&self, prefix: &str, correct_answers: &PartAnswers, label: &str) {
+    fn print_to_strings(&self, correct_answers: &PartAnswers, label: &str) -> Vec<String> {
         let (test_label, test_results) =
             self.answer_to_strings(&self.test_result, &correct_answers.test_answer);
         let (real_label, real_results) =
             self.answer_to_strings(&self.real_result, &correct_answers.real_answer);
 
-        println!("{} {} {} {}", prefix, test_label, real_label, label);
-        let prefix_blank = " ".repeat(prefix.len());
+        let mut res = vec![];
+
+        res.push(format!("{} {} {}", test_label, real_label, label));
 
         for l in test_results {
-            println!("{prefix_blank}{}", l);
+            res.push(format!("{}", l));
         }
         for l in real_results {
-            println!("{prefix_blank}              {}", l);
+            res.push(format!("              {}", l));
         }
+
+        res
     }
 }
 
 impl<'a> AoCYear<'a> {
     /*
-    AoCYear::new(2022, flags, &[
-        ("d1_p1", &day14::naive_js_copy_part1, "naive js copy")
-        ("d1_p2_test", &day14::naive_js_copy_part1, "naive js copy")
-        ("d2_p2_real", &|inp| day15::naive_js_copy_part2(inp, 4_000_000), "naive js copy")
-        ("!d2_p2_real", &|inp| day15::naive_js_copy_part2(inp, 4_000_000), "naive js copy") // ??? if we can to call only this function
-      ]);
-
     AoCYear::new(2022, flags)
         .day(3)
         .part1(&day14::naive_js_copy_part1, "naive js copy")
@@ -216,104 +212,51 @@ impl<'a> AoCYear<'a> {
     }
 
     pub fn run(&self) {
-        // go ony by one
         for day in 1..=25 {
             if self.day_flags.contains(&day) || self.day_flags.is_empty() {
-                dbg!(&day);
+                let day_prefix = format!("{}/{:02}:", self.year, day);
+                let day_prefix_empty = " ".repeat(day_prefix.len());
+                let mut day_prefix_printed = false;
+
                 if let Some(day_data) = self.days.get(&day) {
                     if let Some(sol_vec) = self.solutions.get(&(day, false)) {
-                        // part 1
-                        // dbg!(sol_vec.len());
-                        for (i, sol) in sol_vec.into_iter().enumerate() {
-                            let mut res = SolutionResult {
-                                test_result: Answer::Skipped,
-                                real_result: Answer::Skipped,
-                            };
+                        for (i, sol) in sol_vec.iter().enumerate() {
+                            let res = sol.run_day(day_data);
 
-                            match (sol, &day_data.test_input) {
-                                (SolutionFn::Sim(sol_fn, label), Some(inp)) => {
-                                    let sys_time = SystemTime::now();
-                                    let test_answer = sol_fn(&inp);
-                                    let test_time = sys_time.elapsed().unwrap();
-
-                                    res.test_result = Answer::Res(test_answer, test_time);
+                            let a = res.print_to_strings(&day_data.part1, sol.get_label());
+                            a.iter().for_each(|l| {
+                                let prev = if day_prefix_printed {
+                                    &day_prefix_empty
+                                } else {
+                                    &day_prefix
+                                };
+                                day_prefix_printed = true;
+                                if i == 0 {
+                                    println!("{prev} part1 {l}");
+                                } else {
+                                    println!("{prev}       {l}");
                                 }
-                                (SolutionFn::Ver(sol_fn_test, sol_fn_real, label), Some(inp)) => {
-                                    // todo
-                                }
-                                _ => {
-                                    // nothing
-                                }
-                            };
-
-                            match (sol, &day_data.real_input) {
-                                (SolutionFn::Sim(sol_fn, label), Some(inp)) => {
-                                    let sys_time = SystemTime::now();
-                                    let real_answer = sol_fn(&inp);
-                                    let real_time = sys_time.elapsed().unwrap();
-
-                                    res.real_result = Answer::Res(real_answer, real_time);
-                                }
-                                (SolutionFn::Ver(sol_fn_test, sol_fn_real, label), Some(inp)) => {
-                                    // todo
-                                }
-                                _ => {
-                                    // nothing
-                                }
-                            };
-                            let a = res.print(
-                                if i == 0 { "part 1" } else { "      " },
-                                &day_data.part1,
-                                sol.get_label(),
-                            );
-                            // dbg!(&a);
+                            })
                         }
                     }
                     if let Some(sol_vec) = self.solutions.get(&(day, true)) {
-                        // dbg!(sol_vec.len());
-                        for (i, sol) in sol_vec.into_iter().enumerate() {
-                            let mut res = SolutionResult {
-                                test_result: Answer::Skipped,
-                                real_result: Answer::Skipped,
-                            };
+                        for (i, sol) in sol_vec.iter().enumerate() {
+                            let res = sol.run_day(day_data);
 
-                            match (sol, &day_data.test_input) {
-                                (SolutionFn::Sim(sol_fn, label), Some(inp)) => {
-                                    let sys_time = SystemTime::now();
-                                    let test_answer = sol_fn(&inp);
-                                    let test_time = sys_time.elapsed().unwrap();
-
-                                    res.test_result = Answer::Res(test_answer, test_time);
+                            let a = res.print_to_strings(&day_data.part2, sol.get_label());
+                            a.iter().for_each(|l| {
+                                let prev = if day_prefix_printed {
+                                    &day_prefix_empty
+                                } else {
+                                    &day_prefix
+                                };
+                                day_prefix_printed = true;
+                                if i == 0 {
+                                    println!("{prev} part2 {l}");
+                                } else {
+                                    println!("{prev}       {l}");
                                 }
-                                (SolutionFn::Ver(sol_fn_test, sol_fn_real, label), Some(inp)) => {
-                                    // todo
-                                }
-                                _ => {
-                                    // nothing
-                                }
-                            };
-
-                            match (sol, &day_data.real_input) {
-                                (SolutionFn::Sim(sol_fn, label), Some(inp)) => {
-                                    let sys_time = SystemTime::now();
-                                    let real_answer = sol_fn(&inp);
-                                    let real_time = sys_time.elapsed().unwrap();
-
-                                    res.real_result = Answer::Res(real_answer, real_time);
-                                }
-                                (SolutionFn::Ver(sol_fn_test, sol_fn_real, label), Some(inp)) => {
-                                    // todo
-                                }
-                                _ => {
-                                    // nothing
-                                }
-                            };
-                            let a = res.print(
-                                if i == 0 { "part 2" } else { "      " },
-                                &day_data.part2,
-                                sol.get_label(),
-                            );
-                            // dbg!(&a);
+                            })
                         }
                     }
                 }
@@ -342,7 +285,7 @@ impl<'a> AoCYear<'a> {
 
     pub fn add_solution(mut self, is_part_2: bool, solution: SolutionFn<'a>) -> Self {
         if let Some(day) = self.curr_day {
-            let mut en = self.solutions.entry((day, is_part_2)).or_insert(vec![]);
+            let en = self.solutions.entry((day, is_part_2)).or_default();
             en.push(solution);
         };
 
