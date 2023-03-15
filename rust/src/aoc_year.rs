@@ -1,35 +1,103 @@
+use crate::aoc_year::Answer::Skipped;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 use std::time::{Duration, SystemTime};
 use std::{fs, io};
 
-pub struct AoCYear {
+type SolutionFnType = dyn Fn(&str) -> String; // todo replace String to generic
+
+pub struct AoCYear<'a> {
     year: i32,
-    day_flags: HashSet<i32>,
+    day_flags: &'a HashSet<i32>,
     days: HashMap<i32, AoCYearDay>,
+    curr_day: Option<i32>,
+    solutions: HashMap<(i32, bool), Vec<SolutionFn<'a>>>, // (day, is_part2)
 }
 
 pub struct AoCYearDay {
     day: i32,
-    test_input: io::Result<String>,
-    real_input: io::Result<String>,
-    part1: Part,
-    part2: Part,
+    test_input: Option<String>,
+    real_input: Option<String>,
+    part1: PartAnswers,
+    part2: PartAnswers,
 }
 
-struct Part {
+struct PartAnswers {
     test_answer: Option<String>, // the correct answer from the adventofcode.com
     real_answer: Option<String>, // the correct answer from the adventofcode.com
-
-                                 // solutions: Vec<Solution>,
 }
 
-struct Solution {
+struct Solution<'a> {
+    name: &'a str,
+    part1: SolutionResult,
+    part2: SolutionResult,
+}
+
+struct SolutionResult {
     test_result: Answer,
     real_result: Answer,
 }
 
-impl Solution {
+pub enum SolutionFn<'a> {
+    Sim(&'a SolutionFnType, &'a str),
+    Ver(&'a SolutionFnType, &'a SolutionFnType, &'a str),
+    // todo add for "test only" and "real only"
+}
+
+enum Answer {
+    Res(String, Duration),
+    Skipped,
+    // Idle, // todo ??
+    // InProgress(start_time), // todo ??
+}
+
+impl<'a> SolutionFn<'a> {
+    fn get_label(&self) -> &str {
+        match self {
+            SolutionFn::Sim(_, lab) => lab,
+            SolutionFn::Ver(_, _, lab) => lab,
+        }
+    }
+}
+
+impl AoCYearDay {
+    fn run_solution(
+        &self,
+        test_fn: Option<&SolutionFnType>,
+        real_fn: Option<&SolutionFnType>,
+    ) -> SolutionResult {
+        let mut res = SolutionResult {
+            test_result: Answer::Skipped,
+            real_result: Answer::Skipped,
+        };
+
+        match (test_fn, &self.test_input) {
+            (Some(cb), Some(input)) => {
+                let sys_time = SystemTime::now();
+                let answer = cb(input);
+                let time = sys_time.elapsed().unwrap();
+
+                res.test_result = Answer::Res(answer.to_string(), time)
+            }
+            _ => {}
+        };
+
+        match (real_fn, &self.real_input) {
+            (Some(cb), Some(input)) => {
+                let sys_time = SystemTime::now();
+                let answer = cb(input);
+                let time = sys_time.elapsed().unwrap();
+
+                res.real_result = Answer::Res(answer.to_string(), time)
+            }
+            _ => {}
+        };
+
+        res
+    }
+}
+
+impl SolutionResult {
     fn answer_to_strings(
         &self,
         ans: &Answer,
@@ -70,40 +138,60 @@ impl Solution {
     }
 
     // todo WIP
-    fn print(&self, correct_test: &Option<String>, correct_real: &Option<String>, label: &str) {
-        let (test_label, test_results) = self.answer_to_strings(&self.test_result, correct_test);
-        let (real_label, real_results) = self.answer_to_strings(&self.real_result, correct_real);
+    fn print(&self, prefix: &str, correct_answers: &PartAnswers, label: &str) {
+        let (test_label, test_results) =
+            self.answer_to_strings(&self.test_result, &correct_answers.test_answer);
+        let (real_label, real_results) =
+            self.answer_to_strings(&self.real_result, &correct_answers.real_answer);
 
-        println!("{} {} {}", test_label, real_label, label);
+        println!("{} {} {} {}", prefix, test_label, real_label, label);
+        let prefix_blank = " ".repeat(prefix.len());
 
         for l in test_results {
-            println!("{}", l);
+            println!("{prefix_blank}{}", l);
         }
         for l in real_results {
-            println!("              {}", l);
+            println!("{prefix_blank}              {}", l);
         }
     }
 }
 
-enum Answer {
-    Res(String, Duration),
-    Skipped,
-    // InProgress(some_timestamp), // todo when we run solutions asynchronously
-}
+impl<'a> AoCYear<'a> {
+    /*
+    AoCYear::new(2022, flags, &[
+        ("d1_p1", &day14::naive_js_copy_part1, "naive js copy")
+        ("d1_p2_test", &day14::naive_js_copy_part1, "naive js copy")
+        ("d2_p2_real", &|inp| day15::naive_js_copy_part2(inp, 4_000_000), "naive js copy")
+        ("!d2_p2_real", &|inp| day15::naive_js_copy_part2(inp, 4_000_000), "naive js copy") // ??? if we can to call only this function
+      ]);
 
-pub trait MySolution<T: Display> {
-    fn init(&self) -> (i32, &'static str); // (day, label)
-    fn part1(&self, input: &str, is_real: bool) -> T;
-    fn part2(&self, input: &str, is_real: bool) -> T;
-}
+    AoCYear::new(2022, flags)
+        .day(3)
+        .part1(&day14::naive_js_copy_part1, "naive js copy")
+        .part2_ver(&|inp| day15::naive_js_copy_part2(inp, 4_000_000), &|inp| day15::naive_js_copy_part2(inp, 4_000_000), "naive js copy")
 
-impl AoCYear {
-    pub fn new(year: i32, day_flags: HashSet<i32>) -> Self {
+        .part1(
+            Solution::Both(&day14::naive_js_copy_part1, "naive js copy")
+        )
+        .part2(
+            Solution::Ver(
+                &|inp| day15::naive_js_copy_part2(inp, 4_000_000),
+                &|inp| day15::naive_js_copy_part2(inp, 4_000_000),
+                "naive js copy"
+            )
+        )
+        .part2_ver(
+            Solution::Test(&day14::naive_js_copy_part1, "naive js copy")
+        )
+        .calc();
+    */
+
+    pub fn new_2(year: i32, day_flags: &'a HashSet<i32>) -> Self {
         let mut days = HashMap::new();
 
         for day in 1..=25 {
             let input_folder = format!("../{}/inputs/d{:02}", year, day);
-            let (test_input, real_input) = AoCYear::parse_inputs(&input_folder);
+            let (test_input, real_input) = Self::parse_inputs(&input_folder);
             let (part1, part2) = AoCYear::parse_answers(&format!("{}/answer.txt", input_folder));
 
             days.insert(
@@ -118,21 +206,157 @@ impl AoCYear {
             );
         }
 
-        AoCYear {
+        Self {
             year,
             day_flags,
             days,
+            curr_day: None,
+            solutions: HashMap::new(),
         }
     }
 
-    fn parse_inputs(input_folder: &str) -> (io::Result<String>, io::Result<String>) {
-        let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder));
-        let input = fs::read_to_string(format!("{}/input.txt", input_folder));
+    pub fn run(&self) {
+        // go ony by one
+        for day in 1..=25 {
+            if self.day_flags.contains(&day) || self.day_flags.is_empty() {
+                dbg!(&day);
+                if let Some(day_data) = self.days.get(&day) {
+                    if let Some(sol_vec) = self.solutions.get(&(day, false)) {
+                        // part 1
+                        // dbg!(sol_vec.len());
+                        for (i, sol) in sol_vec.into_iter().enumerate() {
+                            let mut res = SolutionResult {
+                                test_result: Answer::Skipped,
+                                real_result: Answer::Skipped,
+                            };
+
+                            match (sol, &day_data.test_input) {
+                                (SolutionFn::Sim(sol_fn, label), Some(inp)) => {
+                                    let sys_time = SystemTime::now();
+                                    let test_answer = sol_fn(&inp);
+                                    let test_time = sys_time.elapsed().unwrap();
+
+                                    res.test_result = Answer::Res(test_answer, test_time);
+                                }
+                                (SolutionFn::Ver(sol_fn_test, sol_fn_real, label), Some(inp)) => {
+                                    // todo
+                                }
+                                _ => {
+                                    // nothing
+                                }
+                            };
+
+                            match (sol, &day_data.real_input) {
+                                (SolutionFn::Sim(sol_fn, label), Some(inp)) => {
+                                    let sys_time = SystemTime::now();
+                                    let real_answer = sol_fn(&inp);
+                                    let real_time = sys_time.elapsed().unwrap();
+
+                                    res.real_result = Answer::Res(real_answer, real_time);
+                                }
+                                (SolutionFn::Ver(sol_fn_test, sol_fn_real, label), Some(inp)) => {
+                                    // todo
+                                }
+                                _ => {
+                                    // nothing
+                                }
+                            };
+                            let a = res.print(
+                                if i == 0 { "part 1" } else { "      " },
+                                &day_data.part1,
+                                sol.get_label(),
+                            );
+                            // dbg!(&a);
+                        }
+                    }
+                    if let Some(sol_vec) = self.solutions.get(&(day, true)) {
+                        // dbg!(sol_vec.len());
+                        for (i, sol) in sol_vec.into_iter().enumerate() {
+                            let mut res = SolutionResult {
+                                test_result: Answer::Skipped,
+                                real_result: Answer::Skipped,
+                            };
+
+                            match (sol, &day_data.test_input) {
+                                (SolutionFn::Sim(sol_fn, label), Some(inp)) => {
+                                    let sys_time = SystemTime::now();
+                                    let test_answer = sol_fn(&inp);
+                                    let test_time = sys_time.elapsed().unwrap();
+
+                                    res.test_result = Answer::Res(test_answer, test_time);
+                                }
+                                (SolutionFn::Ver(sol_fn_test, sol_fn_real, label), Some(inp)) => {
+                                    // todo
+                                }
+                                _ => {
+                                    // nothing
+                                }
+                            };
+
+                            match (sol, &day_data.real_input) {
+                                (SolutionFn::Sim(sol_fn, label), Some(inp)) => {
+                                    let sys_time = SystemTime::now();
+                                    let real_answer = sol_fn(&inp);
+                                    let real_time = sys_time.elapsed().unwrap();
+
+                                    res.real_result = Answer::Res(real_answer, real_time);
+                                }
+                                (SolutionFn::Ver(sol_fn_test, sol_fn_real, label), Some(inp)) => {
+                                    // todo
+                                }
+                                _ => {
+                                    // nothing
+                                }
+                            };
+                            let a = res.print(
+                                if i == 0 { "part 2" } else { "      " },
+                                &day_data.part2,
+                                sol.get_label(),
+                            );
+                            // dbg!(&a);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn day(mut self, d: i32) -> Self {
+        if d >= 1 && d <= 25 {
+            self.curr_day = Some(d);
+        } else {
+            self.curr_day = None;
+            println!("Day should be 1-25");
+        }
+
+        self
+    }
+
+    pub fn part1(self, solution: SolutionFn<'a>) -> Self {
+        self.add_solution(false, solution)
+    }
+
+    pub fn part2(self, solution: SolutionFn<'a>) -> Self {
+        self.add_solution(true, solution)
+    }
+
+    pub fn add_solution(mut self, is_part_2: bool, solution: SolutionFn<'a>) -> Self {
+        if let Some(day) = self.curr_day {
+            let mut en = self.solutions.entry((day, is_part_2)).or_insert(vec![]);
+            en.push(solution);
+        };
+
+        self
+    }
+
+    fn parse_inputs(input_folder: &str) -> (Option<String>, Option<String>) {
+        let test_inp = fs::read_to_string(format!("{}/test.txt", input_folder)).ok();
+        let input = fs::read_to_string(format!("{}/input.txt", input_folder)).ok();
 
         (test_inp, input)
     }
 
-    fn parse_answers(path: &str) -> (Part, Part) {
+    fn parse_answers(path: &str) -> (PartAnswers, PartAnswers) {
         let mut part1_test_parts: Vec<String> = vec![];
         let mut part1_real_parts: Vec<String> = vec![];
         let mut part2_test_parts: Vec<String> = vec![];
@@ -173,86 +397,15 @@ impl AoCYear {
             }
         }
 
-        let part1 = Part {
+        let part1 = PartAnswers {
             test_answer: to_option_string(part1_test_parts),
             real_answer: to_option_string(part1_real_parts),
         };
-        let part2 = Part {
+        let part2 = PartAnswers {
             test_answer: to_option_string(part2_test_parts),
             real_answer: to_option_string(part2_real_parts),
         };
 
         (part1, part2)
-    }
-
-    pub fn run<T: Display>(&self, solutions: &[impl MySolution<T>]) {
-        for solution in solutions {
-            let (day, label) = solution.init();
-            let day_prefix = format!("{}/{:02}:", self.year, day);
-
-            if let Some(day_data) = self.days.get(&day) {
-                match AoCYear::run_part(day_data, &|a, b| solution.part1(a, b)) {
-                    Ok(s) => {
-                        println!("{day_prefix} part 1");
-                        s.print(
-                            &day_data.part1.test_answer,
-                            &day_data.part1.real_answer,
-                            label,
-                        );
-                    }
-                    Err(err) => println!("{err}"),
-                };
-                match AoCYear::run_part(day_data, &|a, b| solution.part2(a, b)) {
-                    Ok(s) => {
-                        println!("{day_prefix} part 2");
-                        s.print(
-                            &day_data.part2.test_answer,
-                            &day_data.part2.real_answer,
-                            label,
-                        );
-                    }
-                    Err(err) => println!("{err}"),
-                };
-            };
-        }
-    }
-
-    /*    pub fn part1<R: Display>(mut self, label: &str, solution: &dyn Fn(&str) -> R) -> Self {
-            match self.run_part(label, solution) {
-                Ok(solution) => self.part1.solutions.push(solution),
-                Err(err) => println!("{err}"),
-            }
-            self
-        }
-    */
-
-    fn run_part<T: Display>(
-        day: &AoCYearDay,
-        solution: &dyn Fn(&str, bool) -> T,
-    ) -> Result<Solution, String> {
-        match (&day.test_input, &day.real_input) {
-            (Ok(test_input), Ok(real_input)) => {
-                let sys_time = SystemTime::now();
-                let test_answer = solution(test_input, false);
-                let test_time = sys_time.elapsed().unwrap();
-
-                let sys_time = SystemTime::now();
-                let real_answer = solution(real_input, true);
-                let real_time = sys_time.elapsed().unwrap();
-
-                Ok(Solution {
-                    test_result: Answer::Res(test_answer.to_string(), test_time),
-                    real_result: Answer::Res(real_answer.to_string(), real_time),
-                })
-            }
-            (Err(err), _) => Err(format!(
-                "Day {} test input file is invalid\n{}",
-                day.day, err
-            )),
-            (_, Err(err)) => Err(format!(
-                "Day {} real input file is invalid\n{}",
-                day.day, err
-            )),
-        }
     }
 }

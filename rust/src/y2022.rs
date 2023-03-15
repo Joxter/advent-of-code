@@ -1,5 +1,5 @@
 use crate::aoc_day::AoCDay;
-use crate::aoc_year::AoCYear;
+use crate::aoc_year::{AoCYear, SolutionFn};
 use std::collections::HashSet;
 
 mod day01;
@@ -34,8 +34,24 @@ pub fn run_2022(days: &HashSet<i32>) {
     //    + add time limit
     //    + proper writing results to a file
 
-    let aoc_2022 = AoCYear::new(2022, days.clone());
-    aoc_2022.run(&[day01::Day1Naive]);
+    let a = AoCYear::new_2(2022, days);
+
+    a.day(1)
+        .part1(SolutionFn::Sim(
+            &|inp| day01::naive_js_copy_part1(inp).to_string(),
+            "naive js copy",
+        ))
+        .part2(SolutionFn::Sim(
+            &|inp| day01::naive_js_copy_part2(inp).to_string(),
+            "naive js copy part 2",
+        ))
+        .part2(SolutionFn::Sim(
+            &|inp| day01::naive_js_copy_part2_alter(inp).to_string(),
+            "alster part 2 (alter, wrong)",
+        ))
+        .run();
+
+    return;
 
     AoCDay::clear_result_file(); // todo make it better
 
