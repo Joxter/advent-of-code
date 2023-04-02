@@ -34,15 +34,6 @@ enum Answer {
     // InProgress(some_timestamp), // todo when we run solutions asynchronously
 }
 
-impl Part {
-    fn render_to_lines(&self) -> Vec<String> {
-        self.solutions
-            .iter()
-            .flat_map(|solution| solution.render_to_lines(&self))
-            .collect()
-    }
-}
-
 impl Solution {
     fn answer_to_strings(
         &self,
