@@ -17,8 +17,8 @@ pub struct AoCDay {
 }
 
 struct Part {
-    test_answer: Option<String>,
-    real_answer: Option<String>,
+    test_answer: Option<String>, // correct answer
+    real_answer: Option<String>, // correct answer
     solutions: Vec<Solution>,
 }
 
@@ -111,6 +111,18 @@ impl AoCDay {
             last_printed_day: "".to_string(),
             last_printed_part: "".to_string(),
             do_not_run: !(flag_days.contains(&(day as i32)) || flag_days.is_empty()),
+        }
+    }
+
+    pub fn get_test_data(year: u32, day: u32, part: u32) -> (String, String) {
+        let input_folder = format!("../{}/inputs/d{:02}", year, day);
+        let (test_input, _) = AoCDay::parse_inputs(&input_folder);
+        let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
+
+        if part == 1 {
+            (test_input.ok().unwrap(), part1.test_answer.unwrap())
+        } else {
+            (test_input.ok().unwrap(), part2.test_answer.unwrap())
         }
     }
 

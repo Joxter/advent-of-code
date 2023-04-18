@@ -29,6 +29,7 @@ mod day25;
 
 pub fn run_2022(days: &HashSet<i32>) {
     // todo implement something like this:
+    //    + remove testing stuff from AoCDay, use `#[cfg(test)]` instead
     //    + repeat X times
     //    + add time limit
     //    + proper writing results to a file
