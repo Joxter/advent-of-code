@@ -2,8 +2,8 @@ import math
 
 # https://adventofcode.com/2021/day/17
 
-input = open('../inputs/d01/input.txt', 'r').read()
-testInp = open('../inputs/d01/test.txt', 'r').read()
+input = open('../inputs/d17/input.txt', 'r').read()
+testInp = open('../inputs/d17/test.txt', 'r').read()
 
 def hits(xRange, yRange, vect):
     gridObj = {}
