@@ -1,8 +1,8 @@
 
 # https://adventofcode.com/2021/day/___
 
-input = open('./input.txt', 'r').read()
-testInp = open('./test.txt', 'r').read()
+input = open('../inputs/d__/input.txt', 'r').read()
+testInp = open('../inputs/d__/test.txt', 'r').read()
 
 def part1(inp):
     return 3
