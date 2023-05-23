@@ -42,7 +42,6 @@ diceCnt = [(3,1), (4,3), (5,6), (6,7), (7,6), (8,3), (9,1)]
 win1 = 0
 win2 = 0
 winScore = 21
-# winScore = 10
 
 def dfs(p1Score, p2Score, p1Position, p2Position, isP1, move, cnt):
     global win1
@@ -68,13 +67,13 @@ def dfs(p1Score, p2Score, p1Position, p2Position, isP1, move, cnt):
 def part2(inp):
     global win1
     global win2
+    win1 = 0
+    win2 = 0
 
     [p1Position, p2Position] = [int(p.split(' ')[-1]) - 1 for p in inp.splitlines()]
 
     for (move, cnt) in diceCnt:
         dfs(0, 0, p1Position, p2Position, True, move, cnt)
-
-    print(win1, win2)
 
     return max([win1, win2])
 
@@ -82,6 +81,4 @@ print('test', part1(testInp) == 739785, [739785])
 print('part1', part1(input) == 742257, [742257])
 
 print('test', part2(testInp) == 444356092776315, [444356092776315])
-print('part2', part2(input), []) # :( wrong
-# 538082508981494 too high
-# 391911048970304 too high
+print('part2', part2(input) == 93726416205179, [93726416205179])
