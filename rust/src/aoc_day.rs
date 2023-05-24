@@ -27,7 +27,6 @@ struct Solution {
 
 enum Answer {
     Res(String, Duration),
-    Skipped,
     // InProgress(some_timestamp), // todo when we run solutions asynchronously
 }
 
@@ -39,19 +38,22 @@ impl Solution {
     ) -> (String, Vec<String>) {
         let label_line = match ans {
             Answer::Res(v, time) => {
-                let time_sec = time.as_millis() as f64 / 1000.0;
+                let sec = time.as_secs();
+                let mils = time.subsec_millis();
+                let micr = time.subsec_micros() %  1000;
+                let time_sec = format!("{:2}:{:03}.{:03}", sec, mils, micr);
+
                 match correct_result {
                     Some(correct) => {
                         if *v == *correct {
-                            format!("✅ [sec {:.3}]", time_sec)
+                            format!("✅ [sec {}]", time_sec)
                         } else {
-                            format!("❌ [sec {:.3}]", time_sec)
+                            format!("❌ [sec {}]", time_sec)
                         }
                     }
-                    None => format!("🛠️[sec {:.3}]", time_sec),
+                    None => format!("🛠️[sec {}]", time_sec),
                 }
             }
-            Answer::Skipped => "🪨--SKIPPED--".to_string(),
         };
 
         let mut result_lines = vec![];
@@ -65,7 +67,6 @@ impl Solution {
             (None, Answer::Res(r, _)) => {
                 result_lines.push(format!("result: {} (no correct answer)", r));
             }
-            (_, Answer::Skipped) => (),
         }
 
         (label_line, result_lines)
