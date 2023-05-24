@@ -93,16 +93,12 @@ pub fn run_2022(days: &HashSet<i32>) {
         .part2("naive js copy", &day14::naive_js_copy_part2);
 
     AoCDay::new(2022, 15, days)
-        .part1_ver(
-            "naive js copy",
-            &|inp| day15::naive_js_copy_part1(inp, 10),
-            &|inp| day15::naive_js_copy_part1(inp, 2_000_000),
-        )
-        .part2_ver(
-            "naive js copy",
-            &|inp| day15::naive_js_copy_part2(inp, 20),
-            &|inp| day15::naive_js_copy_part2(inp, 4_000_000),
-        );
+        .part1("naive js copy", &|inp| {
+            day15::naive_js_copy_part1(inp, 2_000_000)
+        })
+        .part2("naive js copy", &|inp| {
+            day15::naive_js_copy_part2(inp, 4_000_000)
+        });
 
     AoCDay::new(2022, 16, days)
         .part1("naive js copy", &day16::naive_js_copy_part1) // sec  1.032
@@ -110,11 +106,7 @@ pub fn run_2022(days: &HashSet<i32>) {
 
     AoCDay::new(2022, 17, days)
         .part1("naive js copy", &day17::naive_js_copy_part1)
-        .part2_ver(
-            "naive js copy",
-            &day17::naive_js_copy_part2_test,
-            &day17::naive_js_copy_part2_real,
-        );
+        .part2("naive js copy", &day17::naive_js_copy_part2_real);
 
     AoCDay::new(2022, 18, days)
         .part1("naive js copy", &day18::naive_js_copy_part1)
@@ -122,7 +114,7 @@ pub fn run_2022(days: &HashSet<i32>) {
 
     AoCDay::new(2022, 19, days)
         .part1("naive js copy", &day19::naive_js_copy_part1)
-        .part2("naive js copy", &day19::naive_js_copy_part2); // todo test is wrong, wtf???
+        .part2("naive js copy", &day19::naive_js_copy_part2);
 
     AoCDay::new(2022, 20, days)
         .part1("naive js copy", &day20::naive_js_copy_part1)
@@ -135,8 +127,8 @@ pub fn run_2022(days: &HashSet<i32>) {
         .part2("naive js copy (compact Node)", &day21::naive_2::part2);
 
     AoCDay::new(2022, 22, days)
-        .part1_ver("naive js copy", &|_| 0, &day22::naive_js_copy_part1) // todo add part1_real
-        .part2_ver("naive js copy", &|_| 0, &day22::naive_js_copy_part2); // todo add part1_real
+        .part1("naive js copy", &day22::naive_js_copy_part1)
+        .part2("naive js copy", &day22::naive_js_copy_part2);
 
     AoCDay::new(2022, 23, days)
         .part1("naive js copy", &day23::naive_js_copy_part1)

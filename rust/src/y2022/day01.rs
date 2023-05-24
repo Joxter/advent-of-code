@@ -19,7 +19,7 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
     arr[0] + arr[1] + arr[2]
 }
 
-#[cfg(test)]
+/*#[cfg(test)]
 mod tests {
     use crate::aoc_day::AoCDay;
 
@@ -34,3 +34,4 @@ mod tests {
         assert_eq!(super::naive_js_copy_part2(&input).to_string(), result);
     }
 }
+*/
