@@ -40,7 +40,7 @@ impl Solution {
             Answer::Res(v, time) => {
                 let sec = time.as_secs();
                 let mils = time.subsec_millis();
-                let micr = time.subsec_micros() %  1000;
+                let micr = time.subsec_micros() % 1000;
                 let time_sec = format!("{:2}:{:03}.{:03}", sec, mils, micr);
 
                 match correct_result {

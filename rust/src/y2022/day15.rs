@@ -118,3 +118,117 @@ fn parse_line_64(line: &str) -> (Coords64, Coords64) {
 
     ((sensor_x, sensor_y), (beacon_x, beacon_y))
 }
+
+pub mod better {
+    use super::*;
+    use std::collections::{HashMap, HashSet};
+
+    pub fn part1_general(input: &str, row: i32) -> i32 {
+        // covers more general case
+        // when sensors and beacons covers not one solid line for given row
+
+        let mut not_val: HashSet<i32> = HashSet::new();
+
+        let arr = input
+            .lines()
+            .map(|line| {
+                let ((sensor_x, sensor_y), (beacon_x, beacon_y)) = parse_line(line);
+
+                if sensor_y == row {
+                    not_val.insert(sensor_x);
+                }
+                if beacon_y == row {
+                    not_val.insert(beacon_x);
+                }
+
+                get_interval((sensor_x, sensor_y), (beacon_x, beacon_y), row)
+            })
+            .filter(|(l, r)| l < r)
+            .collect::<Vec<(i32, i32)>>();
+
+        let not_val = not_val.into_iter().collect::<Vec<i32>>();
+        let merged_intervals = merge_intervals(arr);
+
+        let res = merged_intervals.iter().fold(1, |mut total, (l, r)| {
+            not_val.iter().for_each(|&val| {
+                if val >= *l && val <= *r {
+                    total -= 1
+                }
+            });
+
+            total + (r - l)
+        });
+
+        return res;
+
+        fn get_interval(sensor: Coords, beacon: Coords, row: i32) -> (i32, i32) {
+            let size = get_distance(sensor, beacon);
+            let row_size = size - (sensor.1 - row).abs();
+
+            let from = sensor.0 - row_size;
+            let to = sensor.0 + row_size;
+
+            (from, to)
+        }
+    }
+
+    fn merge_intervals(mut intervals: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
+        intervals.sort_unstable_by(|x, y| x.0.cmp(&y.0));
+
+        let (mut start, mut end) = intervals[0];
+        let mut res = Vec::new();
+
+        for (curr_start, curr_end) in intervals.into_iter().skip(1) {
+            if curr_start > end {
+                res.push((start, end));
+                start = curr_start;
+                end = curr_end;
+            } else if curr_end > end {
+                end = curr_end;
+            }
+        }
+
+        res.push((start, end));
+        res
+    }
+
+    pub fn part1(input: &str, row: i32) -> i32 {
+        let mut not_val: HashSet<i32> = HashSet::new();
+        let mut left = i32::MAX;
+        let mut right = i32::MIN;
+
+        input.lines().for_each(|line| {
+            let ((sensor_x, sensor_y), (beacon_x, beacon_y)) = parse_line(line);
+
+            if sensor_y == row {
+                not_val.insert(sensor_x);
+            }
+            if beacon_y == row {
+                not_val.insert(beacon_x);
+            }
+
+            let (l, r) = get_interval((sensor_x, sensor_y), (beacon_x, beacon_y), row);
+            left = left.min(l);
+            right = right.max(r);
+        });
+
+        let mut remove_place = 0;
+        not_val.iter().for_each(|&a| {
+            if a >= left && a <= right {
+                remove_place += 1;
+            }
+        });
+
+        return right - left - remove_place + 1;
+
+        fn get_interval(sensor: Coords, beacon: Coords, row: i32) -> (i32, i32) {
+            let size = get_distance(sensor, beacon);
+            let row_size = size - (sensor.1 - row).abs();
+
+            let from = sensor.0 - row_size;
+            let to = sensor.0 + row_size;
+
+            (from, to)
+        }
+    }
+}
