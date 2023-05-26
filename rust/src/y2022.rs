@@ -93,12 +93,10 @@ pub fn run_2022(days: &HashSet<i32>) {
         .part2("naive js copy", &day14::naive_js_copy_part2);
 
     AoCDay::new(2022, 15, days)
-        .part1("better, no rush (general)", &|inp| {
-            day15::better::part1_general(inp, 2_000_000)
+        .part1("optimised (general)", &|inp| {
+            day15::optimised::part1_general(inp, 2_000_000)
         })
-        .part1("better, no rush", &|inp| {
-            day15::better::part1(inp, 2_000_000)
-        })
+        .part1("optimised", &|inp| day15::optimised::part1(inp, 2_000_000))
         .part1("naive js copy", &|inp| {
             day15::naive_js_copy_part1(inp, 2_000_000)
         })

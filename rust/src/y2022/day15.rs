@@ -119,7 +119,7 @@ fn parse_line_64(line: &str) -> (Coords64, Coords64) {
     ((sensor_x, sensor_y), (beacon_x, beacon_y))
 }
 
-pub mod better {
+pub mod optimised {
     use super::*;
     use std::collections::{HashMap, HashSet};
 
@@ -127,7 +127,7 @@ pub mod better {
         // covers more general case
         // when sensors and beacons covers not one solid line for given row
 
-        let mut not_val: HashSet<i32> = HashSet::new();
+        let mut exclude: HashSet<i32> = HashSet::new();
 
         let arr = input
             .lines()
@@ -135,10 +135,10 @@ pub mod better {
                 let ((sensor_x, sensor_y), (beacon_x, beacon_y)) = parse_line(line);
 
                 if sensor_y == row {
-                    not_val.insert(sensor_x);
+                    exclude.insert(sensor_x);
                 }
                 if beacon_y == row {
-                    not_val.insert(beacon_x);
+                    exclude.insert(beacon_x);
                 }
 
                 get_interval((sensor_x, sensor_y), (beacon_x, beacon_y), row)
@@ -146,37 +146,47 @@ pub mod better {
             .filter(|(l, r)| l < r)
             .collect::<Vec<(i32, i32)>>();
 
-        let merged_intervals = merge_intervals(arr);
+        let res = sum_intervals(arr);
 
-        let res = merged_intervals.iter().fold(0, |mut total, (l, r)| {
-            if (*l..=*r).contains(&0) { // todo fix, it is a bug actually
-                total += 1;
-            }
-            total + (r - l)
-        });
+        return res - exclude.len() as i32;
+    }
 
-        return res - not_val.len() as i32;
+    fn get_interval(sensor: Coords, beacon: Coords, row: i32) -> (i32, i32) {
+        let size = get_distance(sensor, beacon);
+        let row_size = size - (sensor.1 - row).abs();
 
-        fn get_interval(sensor: Coords, beacon: Coords, row: i32) -> (i32, i32) {
-            let size = get_distance(sensor, beacon);
-            let row_size = size - (sensor.1 - row).abs();
+        let from = sensor.0 - row_size;
+        let to = sensor.0 + row_size + 1;
 
-            let from = sensor.0 - row_size;
-            let to = sensor.0 + row_size;
+        (from, to)
+    }
 
-            (from, to) // "to + 1" ???
+    #[cfg(test)]
+    mod test_get_interval {
+        use super::*;
+
+        #[test]
+        fn works() {
+            //    2 1 0 1 2 3 4 5 6 7
+            // 2  # # # # # # # # # .
+            // 1  # # # # S # # # # #
+            // 0  # # # # # # # # # .
+            //-1  . B # # # # # # . .
+            //-2  . . # # # # # . . .
+            let result = get_interval((2, 3), (-1, -1), -1);
+            assert_eq!(result, (-1, 6));
         }
     }
 
-    fn merge_intervals(mut intervals: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
+    fn sum_intervals(mut intervals: Vec<(i32, i32)>) -> i32 {
         intervals.sort_unstable_by(|x, y| x.0.cmp(&y.0));
 
         let (mut start, mut end) = intervals[0];
-        let mut res = Vec::new();
+        let mut total = 0;
 
         for (curr_start, curr_end) in intervals.into_iter().skip(1) {
             if curr_start > end {
-                res.push((start, end));
+                total += end - start;
                 start = curr_start;
                 end = curr_end;
             } else if curr_end > end {
@@ -184,12 +194,12 @@ pub mod better {
             }
         }
 
-        res.push((start, end));
-        res
+        total += end - start;
+        total
     }
 
     pub fn part1(input: &str, row: i32) -> i32 {
-        let mut not_val: HashSet<i32> = HashSet::new();
+        let mut exclude: HashSet<i32> = HashSet::new();
         let mut left = i32::MAX;
         let mut right = i32::MIN;
 
@@ -197,10 +207,10 @@ pub mod better {
             let ((sensor_x, sensor_y), (beacon_x, beacon_y)) = parse_line(line);
 
             if sensor_y == row {
-                not_val.insert(sensor_x);
+                exclude.insert(sensor_x);
             }
             if beacon_y == row {
-                not_val.insert(beacon_x);
+                exclude.insert(beacon_x);
             }
 
             let (l, r) = get_interval((sensor_x, sensor_y), (beacon_x, beacon_y), row);
@@ -208,19 +218,6 @@ pub mod better {
             right = right.max(r);
         });
 
-        let remove_place = not_val.len() as i32;
-        let zero = i32::from((left..=right).contains(&0));
-
-        return right - left - remove_place + zero;
-
-        fn get_interval(sensor: Coords, beacon: Coords, row: i32) -> (i32, i32) {
-            let size = get_distance(sensor, beacon);
-            let row_size = size - (sensor.1 - row).abs();
-
-            let from = sensor.0 - row_size;
-            let to = sensor.0 + row_size;
-
-            (from, to)
-        }
+        return right - left - exclude.len() as i32;
     }
 }
