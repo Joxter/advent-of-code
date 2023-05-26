@@ -146,20 +146,16 @@ pub mod better {
             .filter(|(l, r)| l < r)
             .collect::<Vec<(i32, i32)>>();
 
-        let not_val = not_val.into_iter().collect::<Vec<i32>>();
         let merged_intervals = merge_intervals(arr);
 
-        let res = merged_intervals.iter().fold(1, |mut total, (l, r)| {
-            not_val.iter().for_each(|&val| {
-                if val >= *l && val <= *r {
-                    total -= 1
-                }
-            });
-
+        let res = merged_intervals.iter().fold(0, |mut total, (l, r)| {
+            if (*l..=*r).contains(&0) {
+                total += 1;
+            }
             total + (r - l)
         });
 
-        return res;
+        return res - not_val.len() as i32;
 
         fn get_interval(sensor: Coords, beacon: Coords, row: i32) -> (i32, i32) {
             let size = get_distance(sensor, beacon);
@@ -212,14 +208,10 @@ pub mod better {
             right = right.max(r);
         });
 
-        let mut remove_place = 0;
-        not_val.iter().for_each(|&a| {
-            if a >= left && a <= right {
-                remove_place += 1;
-            }
-        });
+        let remove_place = not_val.len() as i32;
+        let zero = i32::from((left..=right).contains(&0));
 
-        return right - left - remove_place + 1;
+        return right - left - remove_place + zero;
 
         fn get_interval(sensor: Coords, beacon: Coords, row: i32) -> (i32, i32) {
             let size = get_distance(sensor, beacon);
