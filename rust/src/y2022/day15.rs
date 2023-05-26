@@ -149,7 +149,7 @@ pub mod better {
         let merged_intervals = merge_intervals(arr);
 
         let res = merged_intervals.iter().fold(0, |mut total, (l, r)| {
-            if (*l..=*r).contains(&0) {
+            if (*l..=*r).contains(&0) { // todo fix, it is a bug actually
                 total += 1;
             }
             total + (r - l)
@@ -164,7 +164,7 @@ pub mod better {
             let from = sensor.0 - row_size;
             let to = sensor.0 + row_size;
 
-            (from, to)
+            (from, to) // "to + 1" ???
         }
     }
 
