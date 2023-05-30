@@ -3,6 +3,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::io::Write;
 use std::time::{Duration, SystemTime};
 use std::{fs, io};
+use std::hint::black_box;
 
 pub struct AoCDay {
     year: u32,
@@ -246,7 +247,7 @@ impl AoCDay {
         match &self.input {
             Ok(real_input) => {
                 let sys_time = SystemTime::now();
-                let real_answer = solution_real(real_input);
+                let real_answer = black_box(solution_real(black_box(real_input)));
                 let real_time = sys_time.elapsed().unwrap();
 
                 Ok(Solution {
