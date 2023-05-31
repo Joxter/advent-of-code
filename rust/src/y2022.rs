@@ -61,9 +61,14 @@ pub fn run_2022(days: &HashSet<i32>) {
         .part1("copilot version", day06::optimised::part1_copilot)
         .part1("bitmask version", day06::optimised::part1_bitmask)
         .part1("from right version", day06::optimised::part1_from_right)
+        .part1("SkiFire13 variant", day06::not_my_ski_fire13::part1)
+        .part1("smith61 variant", day06::not_my_smith61::part1)
         .part2("naive js copy", day06::naive_js_copy_part2)
         .part2("bitmask version", day06::optimised::part2_bitmask)
-        .part2("from right version", day06::optimised::part2_from_right);
+        .part2("from right version", day06::optimised::part2_from_right)
+        .part2("SkiFire13 variant", day06::not_my_ski_fire13::part2)
+        .part2("smith61 variant", day06::not_my_smith61::part2)
+        .part2("ThePrimeagen variant", day06::not_my_the_primeagen::part2);
 
     AoCDay::new(2022, 7, days)
         .part1("naive js copy", day07::naive_js_copy_part1)
