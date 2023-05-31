@@ -148,7 +148,7 @@ pub mod optimised {
 
         let res = sum_intervals(arr);
 
-        return res - exclude.len() as i32;
+        res - exclude.len() as i32
     }
 
     fn get_interval(sensor: Coords, beacon: Coords, row: i32) -> (i32, i32) {
@@ -218,6 +218,6 @@ pub mod optimised {
             right = right.max(r);
         });
 
-        return right - left - exclude.len() as i32;
+        right - left - exclude.len() as i32
     }
 }

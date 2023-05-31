@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 use std::fmt::{Debug, Display, Formatter};
+use std::hint::black_box;
 use std::io::Write;
 use std::time::{Duration, SystemTime};
 use std::{fs, io};
-use std::hint::black_box;
 
 pub struct AoCDay {
     year: u32,
@@ -76,11 +76,11 @@ impl Solution {
     fn render_to_lines(&self, part: &Part) -> Vec<String> {
         let mut res = vec![];
 
-        let (real_label, real_results) = self.answer_to_strings(&self.answer, &part.correct_answer);
+        let (label, results) = self.answer_to_strings(&self.answer, &part.correct_answer);
 
-        res.push(format!("{} {}", real_label, self.label));
+        res.push(format!("{} {}", label, self.label));
 
-        for l in real_results {
+        for l in results {
             res.push(l);
         }
 
@@ -196,7 +196,7 @@ impl AoCDay {
         })
     }
 
-    pub fn part1<R: Display>(mut self, label: &str, solution_fn: &dyn Fn(&str) -> R) -> Self {
+    pub fn part1<R: Display>(mut self, label: &str, solution_fn: impl Fn(&str) -> R) -> Self {
         if !self.do_not_run {
             match self.run_part(label, solution_fn) {
                 Ok(solution) => self.print_solution(&solution, "part1"),
@@ -206,7 +206,7 @@ impl AoCDay {
         self
     }
 
-    pub fn part2<R: Display>(mut self, label: &str, solution_fn: &dyn Fn(&str) -> R) -> Self {
+    pub fn part2<R: Display>(mut self, label: &str, solution_fn: impl Fn(&str) -> R) -> Self {
         if !self.do_not_run {
             match self.run_part(label, solution_fn) {
                 Ok(solution) => self.print_solution(&solution, "part2"),
@@ -242,23 +242,20 @@ impl AoCDay {
     fn run_part<R: Display>(
         &self,
         description: &str,
-        solution_real: &dyn Fn(&str) -> R,
+        solution_fn: impl Fn(&str) -> R,
     ) -> Result<Solution, String> {
         match &self.input {
-            Ok(real_input) => {
+            Ok(input) => {
                 let sys_time = SystemTime::now();
-                let real_answer = black_box(solution_real(black_box(real_input)));
-                let real_time = sys_time.elapsed().unwrap();
+                let answer = black_box(solution_fn(black_box(input)));
+                let time = sys_time.elapsed().unwrap();
 
                 Ok(Solution {
                     label: description.to_string(),
-                    answer: Answer::Res(real_answer.to_string(), real_time),
+                    answer: Answer::Res(answer.to_string(), time),
                 })
             }
-            Err(err) => Err(format!(
-                "Day {} real input file is invalid\n{}",
-                self.day, err
-            )),
+            Err(err) => Err(format!("Day {} input file is invalid\n{}", self.day, err)),
         }
     }
 }
