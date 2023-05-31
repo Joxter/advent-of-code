@@ -58,7 +58,12 @@ pub fn run_2022(days: &HashSet<i32>) {
 
     AoCDay::new(2022, 6, days)
         .part1("naive js copy", day06::naive_js_copy_part1)
-        .part2("naive js copy", day06::naive_js_copy_part2);
+        .part1("copilot version", day06::optimised::part1_copilot)
+        .part1("bitmask version", day06::optimised::part1_bitmask)
+        .part1("from right version", day06::optimised::part1_from_right)
+        .part2("naive js copy", day06::naive_js_copy_part2)
+        .part2("bitmask version", day06::optimised::part2_bitmask)
+        .part2("from right version", day06::optimised::part2_from_right);
 
     AoCDay::new(2022, 7, days)
         .part1("naive js copy", day07::naive_js_copy_part1)
