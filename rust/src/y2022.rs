@@ -42,7 +42,13 @@ pub fn run_2022(days: &HashSet<i32>) {
 
     AoCDay::new(2022, 2, days)
         .part1("naive js copy", day02::naive_js_copy_part1)
-        .part2("naive js copy", day02::naive_js_copy_part2);
+        .part1("optimised", day02::optimised::part1)
+        .part1("smith61 version", day02::not_my_smith61::part1)
+        .part1("SkiFire13 version", day02::not_my_ski_fire13::part1)
+        .part2("naive js copy", day02::naive_js_copy_part2)
+        .part2("optimised", day02::optimised::part2)
+        .part2("smith61 version", day02::not_my_smith61::part2)
+        .part2("SkiFire13 version", day02::not_my_ski_fire13::part2);
 
     AoCDay::new(2022, 3, days)
         .part1("naive js copy", day03::naive_js_copy_part1)
