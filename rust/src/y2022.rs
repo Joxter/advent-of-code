@@ -1,5 +1,6 @@
 use crate::aoc_day::AoCDay;
 use std::collections::HashSet;
+use std::fmt::Display;
 
 mod day01;
 mod day02;
@@ -27,136 +28,147 @@ mod day23;
 mod day24;
 mod day25;
 
+macro_rules! t {
+    ($func:expr) => {
+        &|input| {
+            let sys_time = std::time::SystemTime::now();
+            let answer = std::hint::black_box($func(std::hint::black_box(input)));
+            (sys_time.elapsed().unwrap(), answer.to_string())
+        }
+    };
+}
+
 pub fn run_2022(days: &HashSet<i32>) {
     // todo implement something like this:
-    //    + remove testing stuff from AoCDay, use `#[cfg(test)]` instead
-    //    + repeat X times
-    //    + add time limit
-    //    + proper writing results to a file
+    //    - proper writing results to a file
 
     // AoCDay::clear_result_file(); // todo make it better
 
-    AoCDay::new(2022, 1, days)
-        .part1("naive js copy", day01::naive_js_copy_part1)
-        .part2("naive js copy", day01::naive_js_copy_part2);
-
-    AoCDay::new(2022, 2, days)
-        .part1("naive js copy", day02::naive_js_copy_part1)
-        .part1("optimised", day02::optimised::part1)
-        .part1("smith61 version", day02::not_my_smith61::part1)
-        .part1("SkiFire13 version", day02::not_my_ski_fire13::part1)
-        .part2("naive js copy", day02::naive_js_copy_part2)
-        .part2("optimised", day02::optimised::part2)
-        .part2("smith61 version", day02::not_my_smith61::part2)
-        .part2("SkiFire13 version", day02::not_my_ski_fire13::part2);
-
-    AoCDay::new(2022, 3, days)
-        .part1("naive js copy", day03::naive_js_copy_part1)
-        .part2("naive js copy", day03::naive_js_copy_part2);
-
-    AoCDay::new(2022, 4, days)
-        .part1("naive js copy", day04::naive_js_copy_part1)
-        .part2("naive js copy", day04::naive_js_copy_part2);
-
-    AoCDay::new(2022, 5, days)
-        .part1("naive js copy", day05::naive_js_copy_part1)
-        .part2("naive js copy", day05::naive_js_copy_part2);
-
-    AoCDay::new(2022, 6, days)
-        .part1("naive js copy", day06::naive_js_copy_part1)
-        .part1("copilot version", day06::optimised::part1_copilot)
-        .part1("bitmask version", day06::optimised::part1_bitmask)
-        .part1("from right version", day06::optimised::part1_from_right)
-        .part1("SkiFire13 variant", day06::not_my_ski_fire13::part1)
-        .part1("smith61 variant", day06::not_my_smith61::part1)
-        .part2("naive js copy", day06::naive_js_copy_part2)
-        .part2("bitmask version", day06::optimised::part2_bitmask)
-        .part2("from right version", day06::optimised::part2_from_right)
-        .part2("SkiFire13 variant", day06::not_my_ski_fire13::part2)
-        .part2("smith61 variant", day06::not_my_smith61::part2)
-        .part2("ThePrimeagen variant", day06::not_my_the_primeagen::part2);
-
-    AoCDay::new(2022, 7, days)
-        .part1("naive js copy", day07::naive_js_copy_part1)
-        .part2("naive js copy", day07::naive_js_copy_part2);
-
-    AoCDay::new(2022, 8, days)
-        .part1("naive js copy", day08::naive_js_copy_part1)
-        .part2("naive js copy", day08::naive_js_copy_part2);
-
-    AoCDay::new(2022, 9, days)
-        .part1("naive js copy", day09::naive_js_copy_part1)
-        .part2("naive js copy", day09::naive_js_copy_part2);
-
-    AoCDay::new(2022, 10, days)
-        .part1("naive js copy", day10::naive_js_copy_part1)
-        .part2("naive js copy", day10::naive_js_copy_part2);
-
-    AoCDay::new(2022, 11, days)
-        .part1("naive js copy", day11::naive_js_copy_part1)
-        .part2("naive js copy", day11::naive_js_copy_part2);
-
-    AoCDay::new(2022, 12, days)
-        .part1("naive js copy", day12::naive_js_copy_part1)
-        .part2("naive js copy", day12::naive_js_copy_part2);
-
-    AoCDay::new(2022, 13, days)
-        .part1("naive js copy", day13::naive_js_copy_part1)
-        .part2("naive js copy", day13::naive_js_copy_part2);
-
-    AoCDay::new(2022, 14, days)
-        .part1("naive js copy", day14::naive_js_copy_part1)
-        .part2("naive js copy", day14::naive_js_copy_part2);
-
-    AoCDay::new(2022, 15, days)
-        .part1("optimised (general)", |inp| {
-            day15::optimised::part1_general(inp, 2_000_000)
-        })
-        .part1("optimised", |inp| day15::optimised::part1(inp, 2_000_000))
-        .part1("naive js copy", |inp| {
-            day15::naive_js_copy_part1(inp, 2_000_000)
-        })
-        .part2("naive js copy", |inp| {
-            day15::naive_js_copy_part2(inp, 4_000_000)
-        });
-
-    AoCDay::new(2022, 16, days)
-        .part1("naive js copy", day16::naive_js_copy_part1) // sec  1.032
-        .part2("naive js copy", day16::naive_js_copy_part2); // sec 86.641
-
-    AoCDay::new(2022, 17, days)
-        .part1("naive js copy", day17::naive_js_copy_part1)
-        .part2("naive js copy", day17::naive_js_copy_part2_real);
-
-    AoCDay::new(2022, 18, days)
-        .part1("naive js copy", day18::naive_js_copy_part1)
-        .part2("naive js copy", day18::naive_js_copy_part2);
-
-    AoCDay::new(2022, 19, days)
-        .part1("naive js copy", day19::naive_js_copy_part1)
-        .part2("naive js copy", day19::naive_js_copy_part2);
-
-    AoCDay::new(2022, 20, days)
-        .part1("naive js copy", day20::naive_js_copy_part1)
-        .part2("naive js copy", day20::naive_js_copy_part2);
-
-    AoCDay::new(2022, 21, days)
-        .part1("naive js copy", day21::naive_1::part1)
-        .part1("naive js copy (compact Node)", day21::naive_2::part1)
-        .part2("naive js copy", day21::naive_1::part2)
-        .part2("naive js copy (compact Node)", day21::naive_2::part2);
-
-    AoCDay::new(2022, 22, days)
-        .part1("naive js copy", day22::naive_js_copy_part1)
-        .part2("naive js copy", day22::naive_js_copy_part2);
-
-    AoCDay::new(2022, 23, days)
-        .part1("naive js copy", day23::naive_js_copy_part1)
-        .part2("naive js copy", day23::naive_js_copy_part2);
-
-    AoCDay::new(2022, 24, days)
-        .part1("naive js copy", day24::naive_js_copy_part1)
-        .part2("naive js copy", day24::naive_js_copy_part2);
-
-    AoCDay::new(2022, 25, days).part1("naive js copy", day25::naive_js_copy_part1);
+    AoCDay::new(2022, days)
+        .run_day::<1>(&[
+            (1, "naive js copy", t!(day01::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day01::naive_js_copy_part2)),
+        ])
+        .run_day::<2>(&[
+            (1, "naive js copy", t!(day02::naive_js_copy_part1)),
+            (1, "optimised", t!(day02::optimised::part1)),
+            (1, "smith61 version", t!(day02::not_my_smith61::part1)),
+            (1, "SkiFire13 version", t!(day02::not_my_ski_fire13::part1)),
+            (2, "naive js copy", t!(day02::naive_js_copy_part2)),
+            (2, "optimised", t!(day02::optimised::part2)),
+            (2, "smith61 version", t!(day02::not_my_smith61::part2)),
+            (2, "SkiFire13 version", t!(day02::not_my_ski_fire13::part2)),
+        ])
+        .run_day::<3>(&[
+            (1, "naive js copy", t!(day03::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day03::naive_js_copy_part2)),
+        ])
+        .run_day::<4>(&[
+            (1, "naive js copy", t!(day04::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day04::naive_js_copy_part2)),
+        ])
+        .run_day::<5>(&[
+            (1, "naive js copy", t!(day05::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day05::naive_js_copy_part2)),
+        ])
+        .run_day::<6>(&[
+            (1, "naive js copy", t!(day06::naive_js_copy_part1)),
+            (1, "copilot version", t!(day06::optimised::part1_copilot)),
+            (1, "bitmask version", t!(day06::optimised::part1_bitmask)),
+            (
+                1,
+                "from right version",
+                t!(day06::optimised::part1_from_right),
+            ),
+            (1, "SkiFire13 variant", t!(day06::not_my_ski_fire13::part1)),
+            (1, "smith61 variant", t!(day06::not_my_smith61::part1)),
+            (2, "naive js copy", t!(day06::naive_js_copy_part2)),
+            (2, "bitmask version", t!(day06::optimised::part2_bitmask)),
+            (
+                2,
+                "from right version",
+                t!(day06::optimised::part2_from_right),
+            ),
+        ])
+        .run_day::<7>(&[
+            (1, "naive js copy", t!(day07::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day07::naive_js_copy_part2)),
+        ])
+        .run_day::<8>(&[
+            (1, "naive js copy", t!(day08::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day08::naive_js_copy_part2)),
+        ])
+        .run_day::<9>(&[
+            (1, "naive js copy", t!(day09::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day09::naive_js_copy_part2)),
+        ])
+        .run_day::<10>(&[
+            (1, "naive js copy", t!(day10::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day10::naive_js_copy_part2)),
+        ])
+        .run_day::<11>(&[
+            (1, "naive js copy", t!(day11::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day11::naive_js_copy_part2)),
+        ])
+        .run_day::<12>(&[
+            (1, "naive js copy", t!(day12::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day12::naive_js_copy_part2)),
+        ])
+        .run_day::<13>(&[
+            (1, "naive js copy", t!(day13::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day13::naive_js_copy_part2)),
+        ])
+        .run_day::<14>(&[
+            (1, "naive js copy", t!(day14::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day14::naive_js_copy_part2)),
+        ])
+        .run_day::<15>(&[
+            (
+                1,
+                "optimised (general)",
+                t!(day15::optimised::part1_general),
+            ),
+            (1, "optimised", t!(day15::optimised::part1)),
+            (1, "naive js copy", t!(day15::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day15::naive_js_copy_part2)),
+        ])
+        .run_day::<16>(&[
+            (1, "naive js copy", t!(day16::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day16::naive_js_copy_part2)),
+        ])
+        .run_day::<17>(&[
+            (1, "naive js copy", t!(day17::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day17::naive_js_copy_part2_real)),
+        ])
+        .run_day::<18>(&[
+            (1, "naive js copy", t!(day18::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day18::naive_js_copy_part2)),
+        ])
+        .run_day::<19>(&[
+            (1, "naive js copy", t!(day19::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day19::naive_js_copy_part2)),
+        ])
+        .run_day::<20>(&[
+            (1, "naive js copy", t!(day20::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day20::naive_js_copy_part2)),
+        ])
+        .run_day::<21>(&[
+            (1, "naive js copy", t!(day21::naive_1::part1)),
+            (1, "naive js copy (compact Node)", t!(day21::naive_2::part1)),
+            (2, "naive js copy", t!(day21::naive_1::part2)),
+            (2, "naive js copy (compact Node)", t!(day21::naive_2::part2)),
+        ])
+        .run_day::<22>(&[
+            (1, "naive js copy", t!(day22::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day22::naive_js_copy_part2)),
+        ])
+        .run_day::<23>(&[
+            (1, "naive js copy", t!(day23::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day23::naive_js_copy_part2)),
+        ])
+        .run_day::<24>(&[
+            (1, "naive js copy", t!(day24::naive_js_copy_part1)),
+            (2, "naive js copy", t!(day24::naive_js_copy_part2)),
+        ])
+        .run_day::<25>(&[(1, "naive js copy", t!(day25::naive_js_copy_part1))]);
 }

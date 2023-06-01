@@ -3,9 +3,10 @@ use std::collections::HashMap;
 type Coords = (i32, i32);
 type Coords64 = (i64, i64);
 
-pub fn naive_js_copy_part1(input: &str, row: i32) -> i32 {
+pub fn naive_js_copy_part1(input: &str) -> i32 {
     let mut map: HashMap<i32, char> = HashMap::new();
     let mut res = 0;
+    let row = 2_000_000;
 
     input.lines().for_each(|line| {
         let ((sensor_x, sensor_y), (beacon_x, beacon_y)) = parse_line(line);
@@ -38,9 +39,10 @@ pub fn naive_js_copy_part1(input: &str, row: i32) -> i32 {
     }
 }
 
-pub fn naive_js_copy_part2(input: &str, row: i64) -> i64 {
+pub fn naive_js_copy_part2(input: &str) -> i64 {
     let mut signals = vec![];
     let mut beacons = vec![];
+    let row = 4_000_000;
 
     input.lines().for_each(|line| {
         let ((sensor_x, sensor_y), (beacon_x, beacon_y)) = parse_line_64(line);
@@ -123,10 +125,11 @@ pub mod optimised {
     use super::*;
     use std::collections::{HashMap, HashSet};
 
-    pub fn part1_general(input: &str, row: i32) -> i32 {
+    pub fn part1_general(input: &str) -> i32 {
         // covers more general case
         // when sensors and beacons covers not one solid line for given row
 
+        let row = 2_000_000;
         let mut exclude: HashSet<i32> = HashSet::new();
 
         let arr = input
@@ -198,7 +201,8 @@ pub mod optimised {
         total
     }
 
-    pub fn part1(input: &str, row: i32) -> i32 {
+    pub fn part1(input: &str) -> i32 {
+        let row = 2_000_000;
         let mut exclude: HashSet<i32> = HashSet::new();
         let mut left = i32::MAX;
         let mut right = i32::MIN;

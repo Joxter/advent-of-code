@@ -7,13 +7,10 @@ use std::{fs, io};
 
 pub struct AoCDay {
     year: u32,
-    day: u32,
-    input: io::Result<String>,
     part1: Part,
     part2: Part,
-    last_printed_day: String,
     last_printed_part: String,
-    do_not_run: bool,
+    flag_days: HashSet<i32>,
 }
 
 struct Part {
@@ -23,52 +20,55 @@ struct Part {
 
 struct Solution {
     label: String,
-    answer: Answer,
-}
-
-enum Answer {
-    Res(String, Duration),
-    // InProgress(some_timestamp), // todo when we run solutions asynchronously
+    answer: String,
+    times: Vec<Duration>,
 }
 
 impl Solution {
-    fn answer_to_strings(
-        &self,
-        ans: &Answer,
-        correct_result: &Option<String>,
-    ) -> (String, Vec<String>) {
-        let label_line = match ans {
-            Answer::Res(v, time) => {
-                let sec = time.as_secs();
-                let mils = time.subsec_millis();
-                let micr = time.subsec_micros() % 1000;
-                let time_sec = format!("{:2}:{:03}.{:03}", sec, mils, micr);
+    fn format_duration(&self, time: Duration) -> String {
+        let sec = time.as_secs();
+        let mils = time.subsec_millis();
+        let micr = time.subsec_micros() % 1000;
+        format!("{:2}:{:03}.{:03}", sec, mils, micr)
+    }
 
-                match correct_result {
-                    Some(correct) => {
-                        if *v == *correct {
-                            format!("✅ [sec {}]", time_sec)
-                        } else {
-                            format!("❌ [sec {}]", time_sec)
-                        }
-                    }
-                    None => format!("🛠️[sec {}]", time_sec),
+    fn answer_to_strings(&self, correct_result: &Option<String>) -> (String, Vec<String>) {
+        let average_time = self.times.iter().sum::<Duration>() / self.times.len() as u32;
+        let fastest_time = self.times.iter().min().unwrap();
+        let total_time = self.times.iter().sum::<Duration>();
+
+        let icon = match correct_result {
+            Some(correct) => {
+                if *self.answer == *correct {
+                    "✅"
+                } else {
+                    "❌"
                 }
             }
+            None => "🛠",
         };
 
         let mut result_lines = vec![];
-        match (correct_result, ans) {
-            (Some(v), Answer::Res(r, _)) => {
-                if *v != *r {
+        match (correct_result, &self.answer) {
+            (Some(v), actual) => {
+                if *v != *actual {
                     result_lines.push(format!("expected: {}", v));
-                    result_lines.push(format!("actual:   {}", r));
+                    result_lines.push(format!("actual:   {}", actual));
                 }
             }
-            (None, Answer::Res(r, _)) => {
+            (None, r) => {
                 result_lines.push(format!("result: {} (no correct answer)", r));
             }
         }
+
+        let label_line = format!(
+            "{icon} {}  {}  {}    {:3} | {}",
+            self.format_duration(average_time),
+            self.format_duration(*fastest_time),
+            self.format_duration(total_time),
+            self.times.len(),
+            self.label,
+        );
 
         (label_line, result_lines)
     }
@@ -76,9 +76,9 @@ impl Solution {
     fn render_to_lines(&self, part: &Part) -> Vec<String> {
         let mut res = vec![];
 
-        let (label, results) = self.answer_to_strings(&self.answer, &part.correct_answer);
+        let (label, results) = self.answer_to_strings(&part.correct_answer);
 
-        res.push(format!("{} {}", label, self.label));
+        res.push(label);
 
         for l in results {
             res.push(l);
@@ -89,20 +89,21 @@ impl Solution {
 }
 
 impl AoCDay {
-    pub fn new(year: u32, day: u32, flag_days: &HashSet<i32>) -> Self {
-        let input_folder = format!("../{}/inputs/d{:02}", year, day);
-        let input = AoCDay::parse_inputs(&input_folder);
-        let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
-
+    pub fn new(year: u32, flag_days: &HashSet<i32>) -> Self {
         AoCDay {
             year,
-            day,
-            input,
-            part1,
-            part2,
-            last_printed_day: "".to_string(),
+            part1: Part {
+                // todo
+                correct_answer: None,
+                solutions: vec![],
+            },
+            part2: Part {
+                // todo
+                correct_answer: None,
+                solutions: vec![],
+            },
             last_printed_part: "".to_string(),
-            do_not_run: !(flag_days.contains(&(day as i32)) || flag_days.is_empty()),
+            flag_days: flag_days.clone(),
         }
     }
 
@@ -160,16 +161,6 @@ impl AoCDay {
         (part1, part2)
     }
 
-    fn get_day_prefix(&mut self) -> String {
-        let a = format!("{}/{:02}:", self.year, self.day);
-        if self.last_printed_day == a {
-            " ".repeat(a.len())
-        } else {
-            self.last_printed_day = a.clone();
-            a
-        }
-    }
-
     fn get_part_prefix(&mut self, part: &str) -> String {
         if self.last_printed_part == part {
             " ".repeat(part.len())
@@ -189,28 +180,34 @@ impl AoCDay {
         solution.render_to_lines(part).iter().for_each(|l| {
             println!(
                 "{} {} {}",
-                self.get_day_prefix(),
+                " ".repeat(7),
                 self.get_part_prefix(part_name),
                 l
             );
         })
     }
 
-    pub fn part1<R: Display>(mut self, label: &str, solution_fn: impl Fn(&str) -> R) -> Self {
-        if !self.do_not_run {
-            match self.run_part(label, solution_fn) {
-                Ok(solution) => self.print_solution(&solution, "part1"),
-                Err(err) => println!("{err}"),
-            }
-        }
-        self
-    }
+    pub fn run_day<const DAY: i32>(
+        mut self,
+        measurement_fns: &[(i32, &str, &dyn Fn(&str) -> (Duration, String))],
+    ) -> Self {
+        if self.flag_days.is_empty() || self.flag_days.contains(&DAY) {
+            println!(
+                "  🎄{}/{:02}        average     fastest       total  iters |",
+                self.year, DAY
+            );
 
-    pub fn part2<R: Display>(mut self, label: &str, solution_fn: impl Fn(&str) -> R) -> Self {
-        if !self.do_not_run {
-            match self.run_part(label, solution_fn) {
-                Ok(solution) => self.print_solution(&solution, "part2"),
-                Err(err) => println!("{err}"),
+            for (part, label, measurement_fn) in measurement_fns {
+                match self.run_part_measurement(DAY, label, measurement_fn) {
+                    Ok(solution) => {
+                        if *part == 1 {
+                            self.print_solution(&solution, "part1")
+                        } else {
+                            self.print_solution(&solution, "part2")
+                        }
+                    }
+                    Err(err) => println!("{err}"),
+                }
             }
         }
         self
@@ -239,23 +236,58 @@ impl AoCDay {
         }
     }
 
-    fn run_part<R: Display>(
-        &self,
+    fn run_part_measurement(
+        &mut self, // todo remove mut
+        day: i32,
         description: &str,
-        solution_fn: impl Fn(&str) -> R,
+        measurement_fn: impl Fn(&str) -> (Duration, String),
     ) -> Result<Solution, String> {
-        match &self.input {
+        let input_folder = format!("../{}/inputs/d{:02}", self.year, day);
+        let input = AoCDay::parse_inputs(&input_folder);
+        let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
+
+        self.part1 = part1; // todo remove
+        self.part2 = part2;
+
+        match &input {
             Ok(input) => {
-                let sys_time = SystemTime::now();
-                let answer = black_box(solution_fn(black_box(input)));
-                let time = sys_time.elapsed().unwrap();
+                let mut times = vec![];
+
+                let (time, answer) = measurement_fn(input);
+                times.push(time);
+
+                let iters = if times[0].as_millis() <= 10 {
+                    100
+                } else if times[0].as_millis() <= 100 {
+                    10
+                } else {
+                    1
+                };
+
+                for _ in 1..iters {
+                    let (time, _) = measurement_fn(input);
+                    times.push(time);
+                }
 
                 Ok(Solution {
                     label: description.to_string(),
-                    answer: Answer::Res(answer.to_string(), time),
+                    answer: answer.to_string(),
+                    times,
                 })
             }
-            Err(err) => Err(format!("Day {} input file is invalid\n{}", self.day, err)),
+            Err(err) => Err(format!("Day {} input file is invalid\n{}", day, err)),
         }
     }
 }
+
+/*
+
+fn run<R: Display>(solutions: &[&dyn Fn(&str) -> R])
+
+fn solution_1 (input: &str) -> i32
+fn solution_2 (input: &str) -> usize
+
+run(&[&solution_1, &solution_2])
+
+
+*/
