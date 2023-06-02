@@ -52,7 +52,7 @@ pub mod optimised {
             .map(|line| {
                 let mut chars = line.bytes();
                 let x = chars.next().unwrap() - b'A';
-                let y = chars.skip(1).next().unwrap() - b'X';
+                let y = chars.nth(1).unwrap() - b'X';
 
                 if x == y {
                     y as u32 + 1 + 3
@@ -70,7 +70,7 @@ pub mod optimised {
             .map(|line| {
                 let mut chars = line.bytes();
                 let x = chars.next().unwrap() - b'A';
-                let y = chars.skip(1).next().unwrap() as char;
+                let y = chars.nth(1).unwrap() as char;
 
                 if y == 'Z' {
                     let win_pos = (x + 1) % 3;
@@ -87,6 +87,7 @@ pub mod optimised {
     }
 }
 
+#[allow(clippy::all)]
 pub mod not_my_smith61 {
     // https://github.com/smith61/advent_of_code/blob/main/src/year_2022/day_02.rs
 

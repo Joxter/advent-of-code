@@ -99,7 +99,7 @@ pub mod optimised {
 
             let mut j = 0;
             while j < size {
-                let bit_pos = 1 << input[i - (j + 1)] % 32;
+                let bit_pos = 1 << (input[i - (j + 1)] % 32);
                 if uniq & bit_pos == 0 {
                     uniq |= bit_pos
                 } else {
@@ -221,6 +221,7 @@ pub mod not_my_ski_fire13 {
     }
 }
 
+#[allow(clippy::all)]
 pub mod not_my_smith61 {
     // https://github.com/smith61/advent_of_code/blob/main/src/year_2022/day_06.rs
     fn solve<const COUNT: usize>(input: &str) -> u64 {

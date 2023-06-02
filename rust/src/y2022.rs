@@ -41,6 +41,7 @@ macro_rules! t {
 pub fn run_2022(days: &HashSet<i32>) {
     // todo implement something like this:
     //    - proper writing results to a file
+    //    - move printing results to a different thing
 
     // AoCDay::clear_result_file(); // todo make it better
 
