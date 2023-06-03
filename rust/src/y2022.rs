@@ -90,6 +90,9 @@ pub fn run_2022(days: &HashSet<i32>) {
                 "from right version",
                 t!(day06::optimised::part2_from_right),
             ),
+            (2, "SkiFire13 variant", t!(day06::not_my_ski_fire13::part2)),
+            (2, "smith61 variant", t!(day06::not_my_smith61::part2)),
+            (2, "ThePrimeagen variant", t!(day06::not_my_the_primeagen::part2)),
         ])
         .run_day::<7>(&[
             (1, "naive js copy", t!(day07::naive_js_copy_part1)),
