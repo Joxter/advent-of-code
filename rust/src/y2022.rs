@@ -141,10 +141,10 @@ pub fn run_2022(days: &HashMap<i32, (bool, bool)>) {
             (2, "naive js copy", t!(day15::naive_js_copy_part2)),
         ])
         .run_day::<16>(&[
-            (1, "better", t!(day16::optimised::better_part1)),
-            (2, "better", t!(day16::optimised::better_part2)),
             // (1, "naive js copy", t!(day16::naive_js_copy_part1)),
+            (1, "better", t!(day16::optimised::better_part1)),
             // (2, "naive js copy", t!(day16::naive_js_copy_part2)),
+            (2, "better", t!(day16::optimised::better_part2)),
         ])
         .run_day::<17>(&[
             (1, "naive js copy", t!(day17::naive_js_copy_part1)),

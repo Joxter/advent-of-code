@@ -399,9 +399,7 @@ pub mod optimised {
         (new_map, all_opened, heads)
     }
 
-    fn transform_map<'a, 'b>(
-        map: &HashMap<&'a str, Valve<'b>>,
-    ) -> HashMap<&'b str, Valve2<'b>> {
+    fn transform_map<'a, 'b>(map: &HashMap<&'a str, Valve<'b>>) -> HashMap<&'b str, Valve2<'b>> {
         let mut val_heads_names = vec!["AA"];
 
         val_heads_names.extend(map.iter().filter(|(_, v)| v.rate > 0).map(|(_, v)| v.name));
@@ -430,80 +428,58 @@ pub mod optimised {
     }
 
     fn find_path(map: &HashMap<&str, Valve>, start: &str, finish: &str) -> i32 {
-        let mut min = i32::MAX;
+        // Dijkstra’s algorithm :)
 
-        dfs(&mut min, vec![start], 0, finish, map);
+        let mut heap = BinaryHeap::new();
+        let mut dist: HashMap<&str, i32> = map.iter().map(|(k, _)| (*k, i32::MAX)).collect();
+        let mut max_len = 0;
 
-        return min;
+        #[derive(Copy, Clone, Eq, PartialEq)]
+        struct State<'a> {
+            cost: i32,
+            name: &'a str,
+        }
 
-        fn dfs(
-            results: &mut i32,
-            path: Vec<&str>,
-            score: i32,
-            finish: &str,
-            map: &HashMap<&str, Valve>,
-        ) {
-            let last = path.last().unwrap();
-            if *last == finish {
-                *results = i32::min(*results, score);
-                return;
+        impl<'a> Ord for State<'a> {
+            fn cmp(&self, other: &Self) -> Ordering {
+                other.cost.cmp(&self.cost)
             }
-            if score > *results {
-                return;
+        }
+        impl<'a> PartialOrd for State<'a> {
+            fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+                Some(self.cmp(other))
+            }
+        }
+
+        heap.push(State {
+            cost: 0,
+            name: start,
+        });
+        dist.entry(start).and_modify(|e| *e = 0);
+
+        while let Some(State { name, cost }) = heap.pop() {
+            max_len = usize::max(max_len, heap.len());
+
+            if name == finish {
+                return cost;
+            }
+            if cost > *dist.get(&name).unwrap() {
+                continue;
             }
 
-            for node_name in &map.get(last).unwrap().next {
-                if !path.contains(node_name) {
-                    let mut new_path = path.clone();
-                    new_path.push(node_name);
-                    dfs(results, new_path, score + 1, finish, map);
+            for next_node_name in &map.get(name).unwrap().next {
+                let next_state = State {
+                    cost: cost + 1,
+                    name: next_node_name,
+                };
+
+                if next_state.cost < *dist.get(next_state.name).unwrap() {
+                    heap.push(next_state);
+                    dist.entry(next_state.name).and_modify(|e| *e = cost + 1);
                 }
             }
         }
 
-        /*        let mut heap = BinaryHeap::new(); // 2.840701s
-                let mut max_len = 0;
-
-                #[derive(Copy, Clone, Eq, PartialEq)]
-                struct State<'a> {
-                    cost: i32,
-                    name: &'a str,
-                }
-
-                impl<'a> Ord for State<'a> {
-                    fn cmp(&self, other: &Self) -> Ordering {
-                        other.cost.cmp(&self.cost)
-                    }
-                }
-                impl<'a> PartialOrd for State<'a> {
-                    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-                        Some(self.cmp(other))
-                    }
-                }
-
-                heap.push(State {
-                    cost: 0,
-                    name: start,
-                });
-
-                while let Some(State { name, cost }) = heap.pop() {
-                    max_len = usize::max(max_len, heap.len());
-
-                    if name == finish {
-                        // println!("max_len: {}", max_len);
-                        return cost;
-                    }
-
-                    for next_node_name in &map.get(name).unwrap().next {
-                        // heap.push((next_node_name, score + 1));
-                        heap.push(State {
-                            cost: cost + 1,
-                            name: next_node_name,
-                        });
-                    }
-                }
-
-                unreachable!();
-        */
+        unreachable!();
     }
 }
