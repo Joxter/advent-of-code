@@ -1,5 +1,5 @@
 use crate::aoc_day::AoCDay;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 
 mod day01;
@@ -38,7 +38,7 @@ macro_rules! t {
     };
 }
 
-pub fn run_2022(days: &HashSet<i32>) {
+pub fn run_2022(days: &HashMap<i32, (bool, bool)>) {
     // todo implement something like this:
     //    - proper writing results to a file
     //    - move printing results to a different thing
@@ -92,7 +92,11 @@ pub fn run_2022(days: &HashSet<i32>) {
             ),
             (2, "SkiFire13 variant", t!(day06::not_my_ski_fire13::part2)),
             (2, "smith61 variant", t!(day06::not_my_smith61::part2)),
-            (2, "ThePrimeagen variant", t!(day06::not_my_the_primeagen::part2)),
+            (
+                2,
+                "ThePrimeagen variant",
+                t!(day06::not_my_the_primeagen::part2),
+            ),
         ])
         .run_day::<7>(&[
             (1, "naive js copy", t!(day07::naive_js_copy_part1)),

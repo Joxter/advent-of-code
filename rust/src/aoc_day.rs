@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap};
 use std::fmt::{Debug, Display, Formatter};
 use std::hint::black_box;
 use std::io::Write;
@@ -8,7 +8,7 @@ use std::{fs, io};
 pub struct AoCDay {
     year: u32,
     last_printed_part: String,
-    flag_days: HashSet<i32>,
+    flag_days: HashMap<i32, (bool, bool)>,
 }
 
 struct Part {
@@ -89,7 +89,7 @@ impl Solution {
 }
 
 impl AoCDay {
-    pub fn new(year: u32, flag_days: &HashSet<i32>) -> Self {
+    pub fn new(year: u32, flag_days: &HashMap<i32, (bool, bool)>) -> Self {
         println!("      Advent of Code  🎄{}🎄", year);
 
         AoCDay {
@@ -171,15 +171,20 @@ impl AoCDay {
     }
 
     pub fn run_day<const DAY: i32>(mut self, measurement_fns: &[(i32, &str, &SolutionFn)]) -> Self {
-        if self.flag_days.is_empty() || self.flag_days.contains(&DAY) {
-            println!(
-                "  ❄️{}/{:02}        average     fastest       total  iters |",
-                self.year, DAY
-            );
-            let input_folder = format!("../{}/inputs/d{:02}", self.year, DAY);
-            let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
+        if !self.flag_days.is_empty() && !self.flag_days.contains_key(&DAY) {
+            return self;
+        }
 
-            for (part, label, measurement_fn) in measurement_fns {
+        println!(
+            "  ❄️{}/{:02}        average     fastest       total  iters |",
+            self.year, DAY
+        );
+        let input_folder = format!("../{}/inputs/d{:02}", self.year, DAY);
+        let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
+        let (p1_allowed, p2_allowed) = *self.flag_days.get(&DAY).unwrap_or(&(true, true));
+
+        for (part, label, measurement_fn) in measurement_fns {
+            if (part == &1 && p1_allowed) || (part == &2 && p2_allowed) {
                 match self.run_part_measurement(DAY, label, measurement_fn) {
                     Ok(solution) => {
                         if *part == 1 {
