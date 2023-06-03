@@ -1,4 +1,4 @@
-use std::collections::{HashMap};
+use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::hint::black_box;
 use std::io::Write;
