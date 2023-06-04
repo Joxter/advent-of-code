@@ -228,34 +228,35 @@ pub mod optimised {
     use std::collections::{BinaryHeap, HashMap, VecDeque};
     use std::usize;
 
+    // ideas
+    //   - sort "new_map.get(node_name).unwrap().next" to go closest Valves first
+    //   - need to reduce run_out_of_time, filter out paths that are too long
+
     pub fn better_part1(input: &str) -> i32 {
         let (new_map, all_opened, heads) = parse(input);
+        let mut run_out_of_time = 0;
 
-        return dfs(&new_map, "AA", 0, 0, 1, all_opened, &heads);
+        // (node_name, released, opened, minutes)
+        let mut stack = vec![("AA", 0, 0, 1)];
+        let max_mins = 30;
 
-        fn dfs(
-            new_map: &HashMap<&str, Valve2>,
-            node_name: &str,
-            released: i32,
-            opened: i32,
-            minutes: i32,
-            all_opened: i32,
-            heads: &HashMap<&str, i32>,
-        ) -> i32 {
-            let max_mins = 30;
+        let mut max_released = 0;
+
+        while let Some((node_name, released, opened, minutes)) = stack.pop() {
+            if minutes > max_mins && opened != all_opened {
+                run_out_of_time += 1;
+                continue
+            }
             if opened == all_opened || minutes > max_mins {
-                return released;
+                if released > max_released {
+                    max_released = released;
+                    // println!("-- {}", max_released)
+                }
+                continue;
             }
 
-            new_map
-                .get(node_name)
-                .unwrap()
-                .next
-                .iter()
-                .filter(|nod_name| {
-                    return nod_name.0 == "AA" || (opened & heads.get(nod_name.0).unwrap()) == 0;
-                })
-                .map(|(nod_name, cost)| {
+            for (nod_name, cost) in &new_map.get(node_name).unwrap().next {
+                if *nod_name == "AA" || (opened & heads.get(nod_name).unwrap()) == 0 {
                     let rate = new_map.get(nod_name).unwrap().rate;
                     let left_mins = max_mins - (minutes + cost);
 
@@ -265,19 +266,18 @@ pub mod optimised {
                         heads.get(nod_name).unwrap() | opened
                     };
 
-                    dfs(
-                        new_map,
+                    stack.push((
                         nod_name,
                         released + rate * left_mins,
                         new_opened,
                         minutes + cost + 1,
-                        all_opened,
-                        heads,
-                    )
-                })
-                .max()
-                .unwrap()
+                    ));
+                }
+            }
         }
+
+        println!("run_out_of_time: {}", run_out_of_time);
+        return max_released;
     }
 
     pub fn better_part2(input: &str) -> i32 {
@@ -287,13 +287,6 @@ pub mod optimised {
 
         for i in 0..max {
             let opened1 = i;
-
-            // if opened1.count_ones() < 7 {
-            //     continue;
-            // }
-            // if (opened1 ^ all_opened).count_ones() < 7 {
-            //     continue;
-            // }
 
             let res1 = dfs(&new_map, "AA", 0, opened1, 1, all_opened, &heads);
             let res2 = dfs(
