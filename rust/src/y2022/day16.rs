@@ -230,41 +230,55 @@ pub mod optimised {
 
     // ideas
     //   - sort "new_map.get(node_name).unwrap().next" to go closest Valves first
-    //   - need to reduce run_out_of_time, filter out paths that are too long
+    //   - save sum of all rates, like it is a maximum impossible score
 
     pub fn better_part1(input: &str) -> i32 {
-        let (new_map, all_opened, heads) = parse(input);
-        let mut run_out_of_time = 0;
+        let (new_map, all_opened, heads, total_rate) = parse(input);
+
+        // println!("total_rate: {}", total_rate); // 261
+        // println!("heads: {:?}", heads);
+        // println!("new_map: {:?}", new_map);
 
         // (node_name, released, opened, minutes)
-        let mut stack = vec![("AA", 0, 0, 1)];
+        let mut stack: Vec<(&str, i32, i32, i32)> = vec![("AA", 0, 0, 1)];
         let max_mins = 30;
 
-        let mut max_released = 0;
+        let mut max_released = 0; // 2250
+                                  // let mut run_out_of_time = 0; // 4_703_853
+
+        /*
+        new_map: {"UU": Valve2 { rate: 24, next: [("AA", 6), ("CO", 8), ("RU", 11), ("ZM", 7), ("WH", 7), ("UD", 3), ("PL", 5), ("FD", 5), ("DW", 8), ("OZ", 5), ("YJ", 3), ("EW", 6), ("MJ", 8), ("WJ", 8), ("ZI", 2)], name: "UU" }, "UD": Valve2 { rate: 19, next: [("AA", 7), ("CO", 9), ("RU", 8), ("ZM", 10), ("WH", 8), ("PL", 2), ("FD", 8), ("DW", 5), ("OZ", 8), ("YJ", 6), ("EW", 3), ("MJ", 7), ("WJ", 5), ("UU", 3), ("ZI", 5)], name: "UD" }, "WJ": Valve2 { rate: 25, next: [("AA", 10), ("CO", 12), ("RU", 11), ("ZM", 15), ("WH", 11), ("UD", 5), ("PL", 3), ("FD", 13), ("DW", 8), ("OZ", 13), ("YJ", 11), ("EW", 6), ("MJ", 10), ("UU", 8), ("ZI", 10)], name: "WJ" }, "FD": Valve2 { rate: 21, next: [("AA", 6), ("CO", 6), ("RU", 10), ("ZM", 2), ("WH", 4), ("UD", 8), ("PL", 10), ("DW", 7), ("OZ", 2), ("YJ", 5), ("EW", 9), ("MJ", 5), ("WJ", 13), ("UU", 5), ("ZI", 3)], name: "FD" }, "MJ": Valve2 { rate: 6, next: [("AA", 2), ("CO", 2), ("RU", 5), ("ZM", 7), ("WH", 3), ("UD", 7), ("PL", 7), ("FD", 5), ("DW", 2), ("OZ", 3), ("YJ", 5), ("EW", 4), ("WJ", 10), ("UU", 8), ("ZI", 6)], name: "MJ" }, "ZM": Valve2 { rate: 23, next: [("AA", 8), ("CO", 8), ("RU", 12), ("WH", 6), ("UD", 10), ("PL", 12), ("FD", 2), ("DW", 9), ("OZ", 4), ("YJ", 7), ("EW", 11), ("MJ", 7), ("WJ", 15), ("UU", 7), ("ZI", 5)], name: "ZM" }, "PL": Valve2 { rate: 22, next: [("AA", 7), ("CO", 9), ("RU", 8), ("ZM", 12), ("WH", 8), ("UD", 2), ("FD", 10), ("DW", 5), ("OZ", 10), ("YJ", 8), ("EW", 3), ("MJ", 7), ("WJ", 3), ("UU", 5), ("ZI", 7)], name: "PL" }, "YJ": Valve2 { rate: 15, next: [("AA", 3), ("CO", 5), ("RU", 8), ("ZM", 7), ("WH", 5), ("UD", 6), ("PL", 8), ("FD", 5), ("DW", 5), ("OZ", 3), ("EW", 7), ("MJ", 5), ("WJ", 11), ("UU", 3), ("ZI", 5)], name: "YJ" }, "AA": Valve2 { rate: 0, next: [("CO", 2), ("RU", 5), ("ZM", 8), ("WH", 2), ("UD", 7), ("PL", 7), ("FD", 6), ("DW", 2), ("OZ", 4), ("YJ", 3), ("EW", 4), ("MJ", 2), ("WJ", 10), ("UU", 6), ("ZI", 7)], name: "AA" }, "ZI": Valve2 { rate: 20, next: [("AA", 7), ("CO", 7), ("RU", 11), ("ZM", 5), ("WH", 5), ("UD", 5), ("PL", 7), ("FD", 3), ("DW", 8), ("OZ", 3), ("YJ", 5), ("EW", 8), ("MJ", 6), ("WJ", 10), ("UU", 2)], name: "ZI" }, "EW": Valve2 { rate: 16, next: [("AA", 4), ("CO", 6), ("RU", 5), ("ZM", 11), ("WH", 5), ("UD", 3), ("PL", 3), ("FD", 9), ("DW", 2), ("OZ", 7), ("YJ", 7), ("MJ", 4), ("WJ", 6), ("UU", 6), ("ZI", 8)], name: "EW" }, "DW": Valve2 { rate: 10, next: [("AA", 2), ("CO", 4), ("RU", 3), ("ZM", 9), ("WH", 3), ("UD", 5), ("PL", 5), ("FD", 7), ("OZ", 5), ("YJ", 5), ("EW", 2), ("MJ", 2), ("WJ", 8), ("UU", 8), ("ZI", 8)], name: "DW" }, "RU": Valve2 { rate: 14, next: [("AA", 5), ("CO", 7), ("ZM", 12), ("WH", 6), ("UD", 8), ("PL", 8), ("FD", 10), ("DW", 3), ("OZ", 8), ("YJ", 8), ("EW", 5), ("MJ", 5), ("WJ", 11), ("UU", 11), ("ZI", 11)], name: "RU" }, "WH": Valve2 { rate: 11, next: [("AA", 2), ("CO", 2), ("RU", 6), ("ZM", 6), ("UD", 8), ("PL", 8), ("FD", 4), ("DW", 3), ("OZ", 2), ("YJ", 5), ("EW", 5), ("MJ", 3), ("WJ", 11), ("UU", 7), ("ZI", 5)], name: "WH" }, "OZ": Valve2 { rate: 17, next: [("AA", 4), ("CO", 4), ("RU", 8), ("ZM", 4), ("WH", 2), ("UD", 8), ("PL", 10), ("FD", 2), ("DW", 5), ("YJ", 3), ("EW", 7), ("MJ", 3), ("WJ", 13), ("UU", 5), ("ZI", 3)], name: "OZ" }, "CO": Valve2 { rate: 18, next: [("AA", 2), ("RU", 7), ("ZM", 8), ("WH", 2), ("UD", 9), ("PL", 9), ("FD", 6), ("DW", 4), ("OZ", 4), ("YJ", 5), ("EW", 6), ("MJ", 2), ("WJ", 12), ("UU", 8), ("ZI", 7)], name: "CO" }}
+        */
 
         while let Some((node_name, released, opened, minutes)) = stack.pop() {
+            // println!("{} {} {} {}", node_name, released, opened, minutes);
             if minutes > max_mins && opened != all_opened {
-                run_out_of_time += 1;
-                continue;
+                // run_out_of_time += 1;
+                // continue;
             }
-            if opened == all_opened || minutes > max_mins {
+
+            // let opened_AA = path.iter().filter(|n| **n == "AA").count();
+            // if opened_AA > 1 {
+            //     // println!("opened_AA: {}", opened_AA);
+            //     continue;
+            // }
+
+            if minutes > max_mins {
                 if released > max_released {
                     max_released = released;
-                    // println!("-- {}", max_released)
+                    // println!("{} {:b} {}", opened.count_ones(), opened, minutes);
+                    // println!("-- {}", max_released);
                 }
+                // println!("open - {}", released);
                 continue;
             }
 
             for (nod_name, cost) in &new_map.get(node_name).unwrap().next {
-                if *nod_name == "AA" || (opened & heads.get(nod_name).unwrap()) == 0 {
+                if (opened & heads.get(nod_name).unwrap()) == 0 {
                     let rate = new_map.get(nod_name).unwrap().rate;
                     let left_mins = max_mins - (minutes + cost);
 
-                    let new_opened = if *nod_name == "AA" {
-                        opened
-                    } else {
-                        heads.get(nod_name).unwrap() | opened
-                    };
+                    let new_opened = heads.get(nod_name).unwrap() | opened;
 
                     stack.push((
                         nod_name,
@@ -276,12 +290,11 @@ pub mod optimised {
             }
         }
 
-        println!("run_out_of_time: {}", run_out_of_time);
         max_released
     }
 
     pub fn better_part2(input: &str) -> i32 {
-        let (new_map, all_opened, heads) = parse(input);
+        let (new_map, all_opened, heads, _total_rate) = parse(input);
         let mut res = 0;
         let max = all_opened / 2;
 
@@ -323,18 +336,14 @@ pub mod optimised {
                 .unwrap()
                 .next
                 .iter()
-                .filter(|nod_name| {
-                    return nod_name.0 == "AA" || (opened & heads.get(nod_name.0).unwrap()) == 0;
+                .filter(|(nod_name, _)| {
+                    return (opened & heads.get(nod_name).unwrap()) == 0;
                 })
                 .map(|(nod_name, cost)| {
                     let rate = new_map.get(nod_name).unwrap().rate;
                     let left_mins = max_mins - (minutes + cost);
 
-                    let new_opened = if *nod_name == "AA" {
-                        opened
-                    } else {
-                        heads.get(nod_name).unwrap() | opened
-                    };
+                    let new_opened = heads.get(nod_name).unwrap() | opened;
 
                     dfs(
                         new_map,
@@ -365,11 +374,12 @@ pub mod optimised {
         name: &'a str,
     }
 
-    fn parse(input: &str) -> (HashMap<&str, Valve2>, i32, HashMap<&str, i32>) {
+    fn parse(input: &str) -> (HashMap<&str, Valve2>, i32, HashMap<&str, i32>, i32) {
         let mut map: HashMap<&str, Valve> = HashMap::new();
 
         let mut max_valves = 0;
         let mut heads: HashMap<&str, i32> = HashMap::new();
+        let mut total_rate = 0;
 
         input.lines().for_each(|line| {
             let parts = Vec::from_iter(line.split_whitespace());
@@ -381,6 +391,7 @@ pub mod optimised {
             if rate > 0 && name != "AA" {
                 heads.insert(name, 1 << max_valves);
                 max_valves += 1;
+                total_rate += rate;
             }
 
             map.insert(name, Valve { rate, next, name });
@@ -389,7 +400,7 @@ pub mod optimised {
 
         let new_map = transform_map(&map);
 
-        (new_map, all_opened, heads)
+        (new_map, all_opened, heads, total_rate)
     }
 
     fn transform_map<'a, 'b>(map: &HashMap<&'a str, Valve<'b>>) -> HashMap<&'b str, Valve2<'b>> {
@@ -402,7 +413,8 @@ pub mod optimised {
         for from_name in &val_heads_names {
             let mut next = vec![];
             for to_name in &val_heads_names {
-                if from_name != to_name {
+                if from_name != to_name && *to_name != "AA" {
+                    // todo remove hack
                     next.push((*to_name, find_path(map, from_name, to_name)));
                 }
             }
