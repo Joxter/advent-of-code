@@ -274,7 +274,7 @@ pub mod optimised {
             }
 
             for (nod_name, cost) in &new_map.get(node_name).unwrap().next {
-                if (opened & heads.get(nod_name).unwrap()) == 0 {
+                if (opened & heads.get(nod_name).unwrap()) == 0 && *cost < 4 { // WHY???? 4
                     let rate = new_map.get(nod_name).unwrap().rate;
                     let left_mins = max_mins - (minutes + cost);
 
@@ -336,8 +336,8 @@ pub mod optimised {
                 .unwrap()
                 .next
                 .iter()
-                .filter(|(nod_name, _)| {
-                    return (opened & heads.get(nod_name).unwrap()) == 0;
+                .filter(|(nod_name, cost)| {
+                    return *cost < 7 && (opened & heads.get(nod_name).unwrap()) == 0; // todo WHY 7 ???
                 })
                 .map(|(nod_name, cost)| {
                     let rate = new_map.get(nod_name).unwrap().rate;
