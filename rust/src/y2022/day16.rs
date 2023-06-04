@@ -245,7 +245,7 @@ pub mod optimised {
         while let Some((node_name, released, opened, minutes)) = stack.pop() {
             if minutes > max_mins && opened != all_opened {
                 run_out_of_time += 1;
-                continue
+                continue;
             }
             if opened == all_opened || minutes > max_mins {
                 if released > max_released {
@@ -277,7 +277,7 @@ pub mod optimised {
         }
 
         println!("run_out_of_time: {}", run_out_of_time);
-        return max_released;
+        max_released
     }
 
     pub fn better_part2(input: &str) -> i32 {
