@@ -240,8 +240,7 @@ pub mod optimised {
         // println!("new_map: {:?}", new_map);
 
         // (node_name, released, opened, minutes)
-        let mut stack: Vec<(&str, i32, i32, i32)> = vec![("AA", 0, 0, 1)];
-        let max_mins = 30;
+        let mut stack: Vec<(&str, i32, i32, i32)> = vec![("AA", 0, 0, 30)];
 
         let mut max_released = 0; // 2250
 
@@ -266,7 +265,7 @@ pub mod optimised {
                 */
 
         while let Some((node_name, released, opened, minutes)) = stack.pop() {
-            if minutes > max_mins {
+            if minutes < 1 {
                 if released > max_released {
                     max_released = released;
                     // println!("{} {:b} {}", opened.count_ones(), opened, minutes);
@@ -279,7 +278,7 @@ pub mod optimised {
                 // todo cheat "*cost < 4" give a huge advantage  (time 150msec -> 1msec)
                 if (opened & heads.get(nod_name).unwrap()) == 0 {
                     let rate = new_map.get(nod_name).unwrap().rate;
-                    let left_mins = max_mins - (minutes + cost);
+                    let left_mins = minutes - cost - 1;
                     if left_mins < 0 {
                         continue;
                     }
@@ -290,7 +289,7 @@ pub mod optimised {
                         nod_name,
                         released + rate * left_mins,
                         new_opened,
-                        minutes + cost + 1,
+                        left_mins,
                     ));
                 }
             }
@@ -307,13 +306,13 @@ pub mod optimised {
         for i in 0..max {
             let opened1 = i;
 
-            let res1 = dfs(&new_map, "AA", 0, opened1, 1, all_opened, &heads);
+            let res1 = dfs(&new_map, "AA", 0, opened1, 26, all_opened, &heads);
             let res2 = dfs(
                 &new_map,
                 "AA",
                 0,
                 opened1 ^ all_opened,
-                1,
+                26,
                 all_opened,
                 &heads,
             );
@@ -332,8 +331,7 @@ pub mod optimised {
             all_opened: i32,
             heads: &HashMap<&str, i32>,
         ) -> i32 {
-            let max_mins = 26;
-            if opened == all_opened || minutes > max_mins {
+            if opened == all_opened || minutes < 1 {
                 return released;
             }
 
@@ -348,7 +346,7 @@ pub mod optimised {
                 })
                 .map(|(nod_name, cost)| {
                     let rate = new_map.get(nod_name).unwrap().rate;
-                    let left_mins = max_mins - (minutes + cost);
+                    let left_mins = minutes - cost - 1;
                     if left_mins < 0 {
                         return released;
                     }
@@ -360,7 +358,7 @@ pub mod optimised {
                         nod_name,
                         released + rate * left_mins,
                         new_opened,
-                        minutes + cost + 1,
+                        left_mins,
                         all_opened,
                         heads,
                     )
