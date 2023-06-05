@@ -280,6 +280,9 @@ pub mod optimised {
                 if (opened & heads.get(nod_name).unwrap()) == 0 {
                     let rate = new_map.get(nod_name).unwrap().rate;
                     let left_mins = max_mins - (minutes + cost);
+                    if left_mins < 0 {
+                        continue;
+                    }
 
                     let new_opened = heads.get(nod_name).unwrap() | opened;
 
@@ -346,6 +349,9 @@ pub mod optimised {
                 .map(|(nod_name, cost)| {
                     let rate = new_map.get(nod_name).unwrap().rate;
                     let left_mins = max_mins - (minutes + cost);
+                    if left_mins < 0 {
+                        return released;
+                    }
 
                     let new_opened = heads.get(nod_name).unwrap() | opened;
 
