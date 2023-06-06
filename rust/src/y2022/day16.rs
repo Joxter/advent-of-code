@@ -228,11 +228,11 @@ pub mod optimised {
     use std::collections::{BTreeMap, BinaryHeap, HashSet, VecDeque};
     use std::usize;
 
-    // ideas
-    //   - go by closest points + realise I can't get more than I already have !!!
+    // todo
+    //   - realise I can't get more than I already have
 
     pub fn better_part1(input: &str) -> i32 {
-        let (new_map, _all_opened, heads, min_cost) = parse(input);
+        let (new_map, _all_opened, heads_bit_pos, min_cost) = parse(input);
 
         // println!("heads: {:?}", heads);
         // println!("new_map: {:?}", new_map);
@@ -240,24 +240,21 @@ pub mod optimised {
         // (node_name, released, opened, minutes)
         let mut stack: Vec<(usize, i32, i32, i32)> = vec![(0, 0, 0, 30)];
 
-        let mut max_released = 0; // 2250
+        let mut max_released = 0;
 
         while let Some((node_name, released, opened, minutes)) = stack.pop() {
-            for (nod_name, cost) in &new_map.get(&node_name).unwrap().next {
+            for (nod_name, cost) in &new_map[node_name].next {
                 // todo cheat "*cost < 4" give a huge advantage  (time 150msec -> 1msec)
-                if (opened & heads.get(nod_name).unwrap()) == 0 {
-                    let left_mins = minutes - cost - 1;
-                    if left_mins < min_cost + 1 {
+                if (opened & heads_bit_pos[*nod_name]) == 0 {
+                    let left_mins = minutes - cost;
+                    if left_mins < min_cost {
                         if released > max_released {
                             max_released = released;
-                            // println!("{} {:b} {}", opened.count_ones(), opened, minutes);
-                            // println!("-- {}", max_released);
                         }
                     } else {
-                        let rate = new_map.get(nod_name).unwrap().rate;
+                        let rate = new_map[*nod_name].rate;
                         let new_released = released + rate * left_mins;
-                        let new_opened = heads.get(nod_name).unwrap() | opened;
-                        // todo sum release at the beginning ???
+                        let new_opened = heads_bit_pos[*nod_name] | opened;
                         stack.push((*nod_name, new_released, new_opened, left_mins));
                     }
                 }
@@ -270,12 +267,12 @@ pub mod optimised {
     pub fn better_part2_based_on_part1(input: &str) -> i32 {
         let (new_map, _all_opened, heads_bit_pos, min_cost) = parse(input);
 
-        // println!("heads: {:?}", heads);
+        // println!("heads: {:?}", heads_bit_pos);
         // println!("new_map: {:?}", new_map);
 
         /*
                 new_map:
-                {
+                [
                     0: ValveNum { rate: 0, name: "AA", next: [(1, 2), (2, 2), (3, 4), (4, 6), (5, 2), (6, 4), (7, 7), (8, 5), (9, 7), (10, 6), (11, 2), (12, 10), (13, 3), (14, 7), (15, 8)] },
                     1: ValveNum { rate: 18, name: "CO", next: [(2, 4), (3, 6), (4, 6), (5, 2), (6, 4), (7, 9), (8, 7), (9, 9), (10, 8), (11, 2), (12, 12), (13, 5), (14, 7), (15, 8)] },
                     2: ValveNum { rate: 10, name: "DW", next: [(1, 4), (3, 2), (4, 7), (5, 2), (6, 5), (7, 5), (8, 3), (9, 5), (10, 8), (11, 3), (12, 8), (13, 5), (14, 8), (15, 9)] },
@@ -292,10 +289,9 @@ pub mod optimised {
                    13: ValveNum { rate: 15, name: "YJ", next: [(1, 5), (2, 5), (3, 7), (4, 5), (5, 5), (6, 3), (7, 8), (8, 8), (9, 6), (10, 3), (11, 5), (12, 11), (14, 5), (15, 7)] },
                    14: ValveNum { rate: 20, name: "ZI", next: [(1, 7), (2, 8), (3, 8), (4, 3), (5, 6), (6, 3), (7, 7), (8, 11), (9, 5), (10, 2), (11, 5), (12, 10), (13, 5), (15, 5)] },
                    15: ValveNum { rate: 23, name: "ZM", next: [(1, 8), (2, 9), (3, 11), (4, 2), (5, 7), (6, 4), (7, 12), (8, 12), (9, 10), (10, 7), (11, 6), (12, 15), (13, 7), (14, 5)] }
-               }
+               ]
         */
 
-        // TODO make World {released, visited, world_min} and Player {node_name, minutes}
         // p (node_name, minutes), (node_name, minutes), released, visited, world_min
         let mut stack: Vec<((usize, i32), (usize, i32), i32, i32, i32)> =
             vec![((0, 26), (0, 26), 0, 0, 26)];
@@ -305,7 +301,6 @@ pub mod optimised {
 
         // todo
         //   - remove duplicates
-        //   - make new_map a Vec<Vec<i32>>
         while let Some((p1, p2, game_released, game_opened, game_minutes)) = stack.pop() {
             let (p1_node, p1_minutes) = p1;
             let (p2_node, p2_minutes) = p2;
@@ -313,17 +308,16 @@ pub mod optimised {
             let mut p1_variants: Vec<(usize, i32, i32, i32)> = vec![];
 
             if p1_minutes == game_minutes {
-                for (to_node_id, cost) in &new_map.get(&p1_node).unwrap().next {
-                    // todo fix these +-1
-                    let left_mins = game_minutes - cost - 1;
-                    if left_mins >= min_cost + 1
-                        && (game_opened & heads_bit_pos.get(to_node_id).unwrap()) == 0
+                for (to_node_id, cost) in &new_map[p1_node].next {
+                    let left_mins = game_minutes - cost;
+                    if left_mins >= min_cost
+                        && (game_opened & heads_bit_pos[*to_node_id]) == 0
                     {
-                        let rate = new_map.get(to_node_id).unwrap().rate;
+                        let rate = new_map[*to_node_id].rate;
                         let new_released = game_released + rate * left_mins;
-                        let new_opened = heads_bit_pos.get(to_node_id).unwrap() | game_opened;
+                        let new_opened = heads_bit_pos[*to_node_id] | game_opened;
 
-                        p1_variants.push((*to_node_id, new_released, new_opened, left_mins));
+                        p1_variants.push((*to_node_id, new_released, new_opened, left_mins, ));
                     }
                 }
             }
@@ -334,14 +328,14 @@ pub mod optimised {
             let mut variants: Vec<((usize, i32), (usize, i32), i32, i32, i32)> = vec![];
             if p2_minutes == game_minutes {
                 for (p1_node_id, released, opened, p1_minutes) in &p1_variants {
-                    for (to_node_id, cost) in &new_map.get(&p2_node).unwrap().next {
-                        let left_mins = game_minutes - cost - 1;
-                        if left_mins >= min_cost + 1
-                            && (opened & heads_bit_pos.get(to_node_id).unwrap()) == 0
+                    for (to_node_id, cost) in &new_map[p2_node].next {
+                        let left_mins = game_minutes - cost;
+                        if left_mins >= min_cost
+                            && (opened & heads_bit_pos[*to_node_id]) == 0
                         {
-                            let rate = new_map.get(to_node_id).unwrap().rate;
+                            let rate = new_map[*to_node_id].rate;
                             let new_released = released + rate * left_mins;
-                            let new_opened = heads_bit_pos.get(to_node_id).unwrap() | opened;
+                            let new_opened = heads_bit_pos[*to_node_id] | opened;
 
                             let max_min = std::cmp::max(*p1_minutes, left_mins);
                             // p (node_name, minutes), (node_name, minutes), released, visited, world_min
@@ -406,7 +400,7 @@ pub mod optimised {
         next: Vec<(usize, i32)>,
     }
 
-    fn parse(input: &str) -> (BTreeMap<usize, ValveNum>, i32, BTreeMap<usize, i32>, i32) {
+    fn parse(input: &str) -> (Vec<ValveNum>, i32, Vec<i32>, i32) {
         let mut map: BTreeMap<&str, BasicValve> = BTreeMap::new();
 
         let mut max_valves = 0;
@@ -433,10 +427,10 @@ pub mod optimised {
 
     fn transform_map<'a>(
         map: &BTreeMap<&'a str, BasicValve<'a>>,
-    ) -> (BTreeMap<usize, ValveNum<'a>>, i32, BTreeMap<usize, i32>) {
+    ) -> (Vec<ValveNum<'a>>, i32, Vec<i32>) {
         let mut val_heads_names = vec!["AA"];
         let mut min_cost = i32::MAX;
-        let mut heads_bit_pos: BTreeMap<usize, i32> = BTreeMap::new();
+        let mut heads_bit_pos = Vec::new();
 
         val_heads_names.extend(
             map.iter()
@@ -450,24 +444,23 @@ pub mod optimised {
             .map(|(i, n)| (*n, i))
             .collect::<BTreeMap<&str, usize>>();
 
-        let mut new_map: BTreeMap<usize, ValveNum> = BTreeMap::new();
+        let mut new_map = Vec::new();
 
         for (i, from_name) in val_heads_names.iter().enumerate() {
             let mut next = vec![];
 
-            heads_bit_pos.insert(heads_to_num[from_name], 1 << i);
+            heads_bit_pos.push(1 << i);
 
             for to_name in &val_heads_names {
                 // todo remove "AA" and inner array at all (find every path inside find_path function)
                 if from_name != to_name && *to_name != "AA" {
-                    let min_path = find_path(map, from_name, to_name);
-                    min_cost = i32::min(min_cost, min_path);
-                    next.push((heads_to_num[to_name], min_path));
+                    let cost = find_path(map, from_name, to_name) + 1; // +1 to activate time
+                    min_cost = i32::min(min_cost, cost);
+                    next.push((heads_to_num[to_name], cost));
                 }
             }
 
-            new_map.insert(
-                heads_to_num[from_name],
+            new_map.push(
                 ValveNum {
                     rate: map.get(from_name).unwrap().rate,
                     name: from_name,
