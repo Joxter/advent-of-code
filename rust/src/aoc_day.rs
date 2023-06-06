@@ -262,7 +262,7 @@ impl AoCDay {
                     1
                 };
 
-                for _ in 1..iters {
+                for _ in 1..1 {
                     let (time, _) = measurement_fn(input);
                     times.push(time);
                 }
