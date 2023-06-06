@@ -296,58 +296,13 @@ pub mod optimised {
         // p (node_name, minutes), (node_name, minutes), released, visited, world_min
         let mut stack: Vec<((&str, i32), (&str, i32), i32, i32, i32)> =
             vec![(("AA", 26), ("AA", 26), 0, 0, 26)];
-        // vec![(("CO", 23), ("DW", 23), 644, 0b0000110000000000, 23)];
 
         let mut max_released = 0; // 2250
 
-        /*
-        new_map: {
-           "DW": { rate: 10, next: [("CO", 4), ("RU", 3), ("ZM", 9), ("WH", 3), ("UD", 5), ("PL", 5), ("FD", 7), ("OZ", 5), ("YJ", 5), ("EW", 2), ("MJ", 2), ("WJ", 8), ("UU", 8), ("ZI", 8)], name: "DW" },
-           "RU": { rate: 14, next: [("CO", 7), ("ZM", 12), ("WH", 6), ("UD", 8), ("PL", 8), ("FD", 10), ("DW", 3), ("OZ", 8), ("YJ", 8), ("EW", 5), ("MJ", 5), ("WJ", 11), ("UU", 11), ("ZI", 11)], name: "RU" },
-           "YJ": { rate: 15, next: [("CO", 5), ("RU", 8), ("ZM", 7), ("WH", 5), ("UD", 6), ("PL", 8), ("FD", 5), ("DW", 5), ("OZ", 3), ("EW", 7), ("MJ", 5), ("WJ", 11), ("UU", 3), ("ZI", 5)], name: "YJ" },
-           "AA": { rate: 0, next: [("CO", 2), ("RU", 5), ("ZM", 8), ("WH", 2), ("UD", 7), ("PL", 7), ("FD", 6), ("DW", 2), ("OZ", 4), ("YJ", 3), ("EW", 4), ("MJ", 2), ("WJ", 10), ("UU", 6), ("ZI", 7)], name: "AA" },
-           "MJ": { rate: 6, next: [("CO", 2), ("RU", 5), ("ZM", 7), ("WH", 3), ("UD", 7), ("PL", 7), ("FD", 5), ("DW", 2), ("OZ", 3), ("YJ", 5), ("EW", 4), ("WJ", 10), ("UU", 8), ("ZI", 6)], name: "MJ" },
-           "ZM": { rate: 23, next: [("CO", 8), ("RU", 12), ("WH", 6), ("UD", 10), ("PL", 12), ("FD", 2), ("DW", 9), ("OZ", 4), ("YJ", 7), ("EW", 11), ("MJ", 7), ("WJ", 15), ("UU", 7), ("ZI", 5)], name: "ZM" },
-           "WJ": { rate: 25, next: [("CO", 12), ("RU", 11), ("ZM", 15), ("WH", 11), ("UD", 5), ("PL", 3), ("FD", 13), ("DW", 8), ("OZ", 13), ("YJ", 11), ("EW", 6), ("MJ", 10), ("UU", 8), ("ZI", 10)], name: "WJ" },
-          +"UU": { rate: 24, next: [("CO", 8), ("RU", 11), ("ZM", 7), ("WH", 7), ("UD", 3), ("PL", 5), ("FD", 5), ("DW", 8), ("OZ", 5), ("YJ", 3), ("EW", 6), ("MJ", 8), ("WJ", 8), ("ZI", 2)], name: "UU" },
-          +"UD": { rate: 19, next: [("CO", 9), ("RU", 8), ("ZM", 10), ("WH", 8), ("PL", 2), ("FD", 8), ("DW", 5), ("OZ", 8), ("YJ", 6), ("EW", 3), ("MJ", 7), ("WJ", 5), ("UU", 3), ("ZI", 5)], name: "UD" },
-          +"FD": { rate: 21, next: [("CO", 6), ("RU", 10), ("ZM", 2), ("WH", 4), ("UD", 8), ("PL", 10), ("DW", 7), ("OZ", 2), ("YJ", 5), ("EW", 9), ("MJ", 5), ("WJ", 13), ("UU", 5), ("ZI", 3)], name: "FD" },
-          +"PL": { rate: 22, next: [("CO", 9), ("RU", 8), ("ZM", 12), ("WH", 8), ("UD", 2), ("FD", 10), ("DW", 5), ("OZ", 10), ("YJ", 8), ("EW", 3), ("MJ", 7), ("WJ", 3), ("UU", 5), ("ZI", 7)], name: "PL" },
-          +"ZI": { rate: 20, next: [("CO", 7), ("RU", 11), ("ZM", 5), ("WH", 5), ("UD", 5), ("PL", 7), ("FD", 3), ("DW", 8), ("OZ", 3), ("YJ", 5), ("EW", 8), ("MJ", 6), ("WJ", 10), ("UU", 2)], name: "ZI" },
-          +"EW": { rate: 16, next: [("CO", 6), ("RU", 5), ("ZM", 11), ("WH", 5), ("UD", 3), ("PL", 3), ("FD", 9), ("DW", 2), ("OZ", 7), ("YJ", 7), ("MJ", 4), ("WJ", 6), ("UU", 6), ("ZI", 8)], name: "EW" },
-          +"WH": { rate: 11, next: [("CO", 2), ("RU", 6), ("ZM", 6), ("UD", 8), ("PL", 8), ("FD", 4), ("DW", 3), ("OZ", 2), ("YJ", 5), ("EW", 5), ("MJ", 3), ("WJ", 11), ("UU", 7), ("ZI", 5)], name: "WH" },
-          +"OZ": { rate: 17, next: [("CO", 4), ("RU", 8), ("ZM", 4), ("WH", 2), ("UD", 8), ("PL", 10), ("FD", 2), ("DW", 5), ("YJ", 3), ("EW", 7), ("MJ", 3), ("WJ", 13), ("UU", 5), ("ZI", 3)], name: "OZ" },
-          +"CO": { rate: 18, next: [("RU", 7), ("ZM", 8), ("WH", 2), ("UD", 9), ("PL", 9), ("FD", 6), ("DW", 4), ("OZ", 4), ("YJ", 5), ("EW", 6), ("MJ", 2), ("WJ", 12), ("UU", 8), ("ZI", 7)], name: "CO" }}
-        */
-
-        let mut limit = 1_000_000_000;
+        // todo
+        //   - remove duplicates
+        //   - make new_map a Vec<Vec<i32>>
         while let Some((p1, p2, game_released, game_opened, game_minutes)) = stack.pop() {
-            limit -= 1;
-            if limit < 0 {
-                if limit % 10_000 == 0 {
-                    println!("limit: {}, {max_released}", limit);
-                }
-
-                break;
-            }
-            // println!(
-            //     "START) {p1:?} {p2:?} {game_opened:0>16b}; time: {game_minutes}, {game_released} stack.len: {}",
-            //     stack.len()
-            // );
-            // for (name, mask) in &heads {
-            //     if (game_opened & mask) != 0 {
-            //         print!("{} ", name);
-            //     }
-            // }
-            // println!();
-
-            // p1_variants = []
-            // is there any place to go p1? (zero in opened and cost < minutes)
-            //    p1 goes -- p1_variants.push(variant)
-            // is there any other place to go after p1? (zero in opened and cost < minutes)
-            //    p2 goes -- stack.push(p1_variants, p2_variants, ....)
-            //
-
             let (p1_node_name, p1_minutes) = p1;
             let (p2_node_name, p2_minutes) = p2;
 
@@ -356,8 +311,8 @@ pub mod optimised {
             if p1_minutes == game_minutes {
                 for (nod_name, cost) in &new_map.get(p1_node_name).unwrap().next {
                     let left_mins = game_minutes - cost - 1;
-                    if (game_opened & heads.get(nod_name).unwrap()) == 0
-                        && left_mins >= min_cost + 1
+                    if left_mins >= min_cost + 1
+                        && (game_opened & heads.get(nod_name).unwrap()) == 0
                     {
                         let rate = new_map.get(nod_name).unwrap().rate;
                         let new_released = game_released + rate * left_mins;
@@ -366,29 +321,17 @@ pub mod optimised {
                         p1_variants.push((*nod_name, new_released, new_opened, left_mins));
                     }
                 }
-            } else if p1_minutes < 1 {
-                // println!("p1_minutes < 1");
-                max_released = max_released.max(game_released);
-            } else {
-                // p1 is GOING
             }
             if p1_variants.is_empty() {
                 p1_variants.push((p1_node_name, game_released, game_opened, p1_minutes));
             }
-            // println!("p1_variants.len: {}", p1_variants.len());
 
             let mut variants: Vec<((&str, i32), (&str, i32), i32, i32, i32)> = vec![];
             if p2_minutes == game_minutes {
                 for (p1_node_name, released, opened, p1_minutes) in &p1_variants {
                     for (nod_name, cost) in &new_map.get(p2_node_name).unwrap().next {
                         let left_mins = game_minutes - cost - 1;
-                        // println!(
-                        //     "p2 next: {nod_name} opened {:b}, mins {}",
-                        //     opened & heads.get(nod_name).unwrap(),
-                        //     left_mins
-                        // );
-
-                        if (opened & heads.get(nod_name).unwrap()) == 0 && left_mins >= min_cost + 1
+                        if left_mins >= min_cost + 1 && (opened & heads.get(nod_name).unwrap()) == 0
                         {
                             let rate = new_map.get(nod_name).unwrap().rate;
                             let new_released = released + rate * left_mins;
@@ -406,10 +349,6 @@ pub mod optimised {
                         }
                     }
                 }
-            } else if p2_minutes < 1 {
-                // println!("p2_minutes < 1");
-                max_released = max_released.max(game_released);
-            } else {
             }
             if variants.is_empty() {
                 for (p1_node_name, released, opened, p1_minutes) in &p1_variants {
@@ -424,46 +363,12 @@ pub mod optimised {
                 }
             }
 
-            // println!(
-            //     "p1_variants.len(): {}; variants.len: {}",
-            //     p1_variants.len(),
-            //     variants.len()
-            // );
-            // if variants.len() == 11 {
-            //     for (p1, p2, released, opened, min) in &variants {
-            //         println!(
-            //             "stack item: {:?} {:?}, {released} {opened:0>16b}; time: {min}",
-            //             p1, p2
-            //         );
-            //     }
-            // }
-
-            if (variants.len() == 1) {
+            if variants.len() == 1 {
                 let (_, _, rel, _, _) = variants[0];
                 max_released = max_released.max(rel);
-                // let (p1, p2, released, opened, min) = &stack[0];
-                // println!(
-                //     "variants, DONE {:?} {:?}, {released} {opened:0>16b}; time: {min}, stack.len: {}",
-                //     p1, p2, stack.len()
-                // )
             } else {
                 stack.extend(variants);
             }
-            // let uniq_opened = stack
-            //     .iter()
-            //     .map(|(_, _, _, opened, _)| opened)
-            //     .collect::<HashSet<_>>();
-
-            //     for (p1, p2, released, opened, min) in &stack {
-            //         println!(
-            //             "stack item: {:?} {:?}, {released} {opened:0>16b}; time: {min}",
-            //             p1, p2
-            //         );
-            //     }
-
-            // println!("stack size: {}", stack.len());
-            // println!("uniq_opened size: {}", uniq_opened.len()); // todo remove duplicates
-            // return 3;
         }
 
         max_released
