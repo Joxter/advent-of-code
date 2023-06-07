@@ -1,4 +1,4 @@
-use std::collections::{HashMap};
+use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::hint::black_box;
 use std::io::Write;
@@ -7,6 +7,7 @@ use std::{fs, io};
 
 pub struct AoCDay {
     year: u32,
+    filter: String,
     last_printed_part: String,
     flag_days: HashMap<i32, (bool, bool)>,
 }
@@ -89,11 +90,16 @@ impl Solution {
 }
 
 impl AoCDay {
-    pub fn new(year: u32, flag_days: &HashMap<i32, (bool, bool)>) -> Self {
+    pub fn new(year: u32, flag_days: &HashMap<i32, (bool, bool)>, filter: &str) -> Self {
+        println!("flag_days: {:?}", flag_days);
+        println!("filter: `{}`", filter);
+        println!();
+
         println!("      Advent of Code  🎄{}🎄", year);
 
         AoCDay {
             year,
+            filter: filter.to_string(),
             last_printed_part: "".to_string(),
             flag_days: flag_days.clone(),
         }
@@ -174,6 +180,7 @@ impl AoCDay {
         if !self.flag_days.is_empty() && !self.flag_days.contains_key(&DAY) {
             return self;
         }
+        self.last_printed_part = "".to_string();
 
         println!(
             "  ❄️{}/{:02}        average     fastest       total  iters |",
@@ -182,10 +189,14 @@ impl AoCDay {
         let input_folder = format!("../{}/inputs/d{:02}", self.year, DAY);
         let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
         let (p1_allowed, p2_allowed) = *self.flag_days.get(&DAY).unwrap_or(&(true, true));
+        let mut something_runned = false;
 
         for (part, label, measurement_fn) in measurement_fns {
-            if (part == &1 && p1_allowed) || (part == &2 && p2_allowed) {
-                match self.run_part_measurement(DAY, label, measurement_fn) {
+            let filter_passed = self.filter.is_empty() || label.contains(&self.filter);
+            let day_passed = (part == &1 && p1_allowed) || (part == &2 && p2_allowed);
+
+            if day_passed && filter_passed {
+                match self.run_part(DAY, label, measurement_fn) {
                     Ok(solution) => {
                         if *part == 1 {
                             self.print_solution(&solution, &part1)
@@ -195,7 +206,11 @@ impl AoCDay {
                     }
                     Err(err) => println!("{err}"),
                 }
+                something_runned = true;
             }
+        }
+        if !something_runned {
+            println!("              --- No solutions were run, check arguments ---");
         }
         self
     }
@@ -223,8 +238,8 @@ impl AoCDay {
         }
     }
 
-    fn run_part_measurement(
-        &mut self, // todo remove mut
+    fn run_part(
+        &self,
         day: i32,
         description: &str,
         measurement_fn: impl Fn(&str) -> (Duration, String),
@@ -239,7 +254,7 @@ impl AoCDay {
                 let (time, answer) = measurement_fn(input);
                 times.push(time);
 
-                let iters = if time.as_millis() <= 10 {
+                let iters = if time.as_millis() <= 20 {
                     100
                 } else if time.as_millis() <= 200 {
                     10
