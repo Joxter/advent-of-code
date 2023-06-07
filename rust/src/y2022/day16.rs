@@ -228,7 +228,7 @@ pub mod optimised {
     use std::collections::{BTreeMap, BinaryHeap, HashSet, VecDeque};
     use std::usize;
 
-    pub fn better_part1(input: &str) -> i32 {
+    pub fn part1(input: &str) -> i32 {
         let (new_map, _all_opened, heads_bit_pos, min_cost, total_power) = parse(input);
 
         // println!("heads: {:?}", heads);
@@ -268,7 +268,7 @@ pub mod optimised {
         max_released
     }
 
-    pub fn better_part2_based_on_part1(input: &str) -> i32 {
+    pub fn part2(input: &str) -> i32 {
         let (new_map, _all_opened, heads_bit_pos, min_cost, total_power) = parse(input);
 
         // println!("heads: {:?}", heads_bit_pos);
