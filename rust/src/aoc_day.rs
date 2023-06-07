@@ -254,7 +254,7 @@ impl AoCDay {
                 let (time, answer) = measurement_fn(input);
                 times.push(time);
 
-                let iters = if time.as_millis() <= 10 {
+                let iters = if time.as_millis() <= 20 {
                     100
                 } else if time.as_millis() <= 200 {
                     10

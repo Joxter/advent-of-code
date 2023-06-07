@@ -310,14 +310,12 @@ pub mod optimised {
             if p1_minutes == game_minutes {
                 for (to_node_id, cost) in &new_map[p1_node].next {
                     let left_mins = game_minutes - cost;
-                    if left_mins >= min_cost
-                        && (game_opened & heads_bit_pos[*to_node_id]) == 0
-                    {
+                    if left_mins >= min_cost && (game_opened & heads_bit_pos[*to_node_id]) == 0 {
                         let rate = new_map[*to_node_id].rate;
                         let new_released = game_released + rate * left_mins;
                         let new_opened = heads_bit_pos[*to_node_id] | game_opened;
 
-                        p1_variants.push((*to_node_id, new_released, new_opened, left_mins, ));
+                        p1_variants.push((*to_node_id, new_released, new_opened, left_mins));
                     }
                 }
             }
@@ -330,9 +328,7 @@ pub mod optimised {
                 for (p1_node_id, released, opened, p1_minutes) in &p1_variants {
                     for (to_node_id, cost) in &new_map[p2_node].next {
                         let left_mins = game_minutes - cost;
-                        if left_mins >= min_cost
-                            && (opened & heads_bit_pos[*to_node_id]) == 0
-                        {
+                        if left_mins >= min_cost && (opened & heads_bit_pos[*to_node_id]) == 0 {
                             let rate = new_map[*to_node_id].rate;
                             let new_released = released + rate * left_mins;
                             let new_opened = heads_bit_pos[*to_node_id] | opened;
@@ -385,12 +381,6 @@ pub mod optimised {
     struct BasicValve<'a> {
         rate: i32,
         next: Vec<&'a str>,
-    }
-
-    #[derive(Debug)]
-    struct Valve<'a> {
-        rate: i32,
-        next: Vec<(&'a str, i32)>,
     }
 
     #[derive(Debug)]
@@ -447,89 +437,62 @@ pub mod optimised {
         let mut new_map = Vec::new();
 
         for (i, from_name) in val_heads_names.iter().enumerate() {
-            let mut next = vec![];
-
             heads_bit_pos.push(1 << i);
 
+            let dist = find_path(map, from_name);
+            let mut next = vec![];
             for to_name in &val_heads_names {
-                // todo remove "AA" and inner array at all (find every path inside find_path function)
                 if from_name != to_name && *to_name != "AA" {
-                    let cost = find_path(map, from_name, to_name) + 1; // +1 to activate time
+                    let cost = dist[to_name] + 1; // "+ 1" time to open the valve
                     min_cost = i32::min(min_cost, cost);
                     next.push((heads_to_num[to_name], cost));
                 }
             }
 
-            new_map.push(
-                ValveNum {
-                    rate: map.get(from_name).unwrap().rate,
-                    name: from_name,
-                    next,
-                },
-            );
+            new_map.push(ValveNum {
+                rate: map.get(from_name).unwrap().rate,
+                name: from_name,
+                next,
+            });
         }
-        // dbg!(&new_map);
-
-        // for (k,v) in new_map.iter_mut() {
-        //     println!("{}: {:?}", k, v);
-        // }
 
         (new_map, min_cost, heads_bit_pos)
     }
 
-    fn find_path(map: &BTreeMap<&str, BasicValve>, start: &str, finish: &str) -> i32 {
-        // Dijkstra’s algorithm :)
-
-        let mut heap = BinaryHeap::new();
+    fn find_path<'a>(
+        map: &BTreeMap<&'a str, BasicValve<'a>>,
+        start: &'a str,
+    ) -> BTreeMap<&'a str, i32> {
+        let mut queue = VecDeque::new();
         let mut dist: BTreeMap<&str, i32> = map.iter().map(|(k, _)| (*k, i32::MAX)).collect();
-        let mut max_len = 0;
 
-        #[derive(Copy, Clone, Eq, PartialEq)]
         struct State<'a> {
             cost: i32,
             name: &'a str,
         }
 
-        impl<'a> Ord for State<'a> {
-            fn cmp(&self, other: &Self) -> Ordering {
-                other.cost.cmp(&self.cost)
-            }
-        }
-        impl<'a> PartialOrd for State<'a> {
-            fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-                Some(self.cmp(other))
-            }
-        }
-
-        heap.push(State {
+        queue.push_front(State {
             cost: 0,
             name: start,
         });
         dist.entry(start).and_modify(|e| *e = 0);
 
-        while let Some(State { name, cost }) = heap.pop() {
-            max_len = usize::max(max_len, heap.len());
-
-            if name == finish {
-                return cost;
-            }
+        while let Some(State { name, cost }) = queue.pop_back() {
             if cost > *dist.get(&name).unwrap() {
                 continue;
             }
 
             for next_node_name in &map.get(name).unwrap().next {
-                let next_state = State {
-                    cost: cost + 1,
-                    name: next_node_name,
-                };
-
-                if next_state.cost < *dist.get(next_state.name).unwrap() {
-                    heap.push(next_state);
-                    dist.entry(next_state.name).and_modify(|e| *e = cost + 1);
+                if cost + 1 < *dist.get(next_node_name).unwrap() {
+                    queue.push_front(State {
+                        cost: cost + 1,
+                        name: next_node_name,
+                    });
+                    dist.entry(next_node_name).and_modify(|e| *e = cost + 1);
                 }
             }
         }
 
-        unreachable!();
+        dist
     }
 }
