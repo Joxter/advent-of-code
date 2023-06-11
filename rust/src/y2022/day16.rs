@@ -445,7 +445,7 @@ pub mod optimised {
         val_heads_names.extend(
             map.iter()
                 .filter(|(_, v)| v.rate > 0)
-                .map(|(n, _)| n.clone()),
+                .map(|(n, _)| <&str>::clone(n)),
         );
 
         let heads_to_num = val_heads_names
