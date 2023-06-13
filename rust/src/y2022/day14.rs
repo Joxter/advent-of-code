@@ -160,19 +160,22 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
 }
 
 pub mod optimised {
+    use crate::y2022::day14::BORDER_CHAR;
     use serde_json::Value::String;
     use std::collections::{HashMap, HashSet};
 
-    type TaskMap = HashSet<(i32, i32)>;
+    type RockMap = HashSet<(usize, usize)>;
 
-    fn parse(input: &str) -> (TaskMap, i32) {
-        let mut map: TaskMap = HashSet::new();
+    fn parse(input: &str) -> (RockMap, usize, usize, usize) {
+        let mut map: RockMap = HashSet::new();
         let mut bottom = 0;
+        let mut left = usize::MAX;
+        let mut right = 0;
 
         input.lines().for_each(|line| {
             let mut h_vec = line.split(" -> ").map(|it| {
                 let (l, r) = it.split_once(',').unwrap();
-                (l.parse::<i32>().unwrap(), r.parse::<i32>().unwrap())
+                (l.parse::<usize>().unwrap(), r.parse::<usize>().unwrap())
             });
 
             let (mut hx, mut hy) = h_vec.next().unwrap();
@@ -191,19 +194,21 @@ pub mod optimised {
                     }
                     map.insert((hx, hy));
 
-                    bottom = i32::max(bottom, hy);
+                    bottom = usize::max(bottom, hy);
+                    left = usize::min(left, hx);
+                    right = usize::max(right, hx);
                 }
             }
         });
 
-        (map, bottom)
+        (map, bottom, left, right)
     }
 
-    pub fn part1(input: &str) -> i32 {
-        let (mut map, bottom) = parse(input);
+    pub fn part1(input: &str) -> usize {
+        let (mut map, bottom, _, _) = parse(input);
 
         let init_size = map.len();
-        let mut path = Vec::with_capacity(bottom as usize);
+        let mut path = Vec::with_capacity(bottom);
         path.push((500, 0));
 
         loop {
@@ -230,10 +235,68 @@ pub mod optimised {
             path.pop();
         }
 
-        (map.len() - init_size) as i32
+        map.len() - init_size
     }
 
-    fn print_map_to_file(map: &TaskMap, bottom: i32, name: &str) {
+    pub fn part2(input: &str) -> usize {
+        let (map, mut bottom, mut left, right) = parse(input);
+
+        let mut res = 1;
+        let start = 500;
+
+        bottom += 2;
+        left -= 2;
+        let row_len = right - left + 2;
+
+        let mut sand_row = vec![false; row_len];
+        sand_row[start - left] = true;
+
+        let mut left_part = 0;
+        let mut right_part = 0;
+
+        for row_i in 1..bottom {
+            let mut new_row = Vec::with_capacity(row_len);
+
+            if left_part == 0 && sand_row[0] {
+                left_part = bottom - row_i;
+            }
+            if right_part == 0 && *sand_row.last().unwrap() {
+                right_part = bottom - row_i;
+            }
+
+            for (i, prev) in sand_row.iter().enumerate() {
+                let i_plus_left = i + left;
+
+                if map.contains(&(i_plus_left, row_i)) {
+                    new_row.push(false);
+                } else {
+                    if *prev {
+                        new_row.push(true);
+                        res += 1;
+                    } else if i > 0 && sand_row[i - 1] {
+                        new_row.push(true);
+                        res += 1;
+                    } else if i + 1 < row_len && sand_row[i + 1] {
+                        new_row.push(true);
+                        res += 1;
+                    } else {
+                        new_row.push(false);
+                    }
+                }
+            }
+
+            sand_row = new_row;
+        }
+
+        let left_sum = left_part * (left_part + 1) / 2;
+        let right_sum = right_part * (right_part + 1) / 2;
+
+        // print_map_to_file(&map, bottom, "map_2_optimised");
+
+        res + left_sum + right_sum
+    }
+
+    fn print_map_to_file(map: &RockMap, bottom: usize, name: &str) {
         use std::fs::File;
         use std::io::Write;
 
@@ -242,16 +305,16 @@ pub mod optimised {
         let most_right_of_map = map.iter().map(|(x, _)| x).max().unwrap() + 4;
 
         let mut file_content = vec![];
-        for y in -1..=(bottom + 1) {
+        for y in 0..=(bottom + 1) {
             let mut row = "".to_string();
 
             for x in most_left_of_map..=most_right_of_map {
                 let c = map.contains(&(x, y));
 
                 if c {
-                    row.push('#');
+                    row.push('o');
                 } else {
-                    row.push('.');
+                row.push('.');
                 }
             }
 
