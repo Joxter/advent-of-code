@@ -131,6 +131,7 @@ pub fn run_2022(days: &HashMap<i32, (bool, bool)>, filter: &str) {
             (1, "optimised", t!(day14::optimised::part1)),
             (2, "naive js copy", t!(day14::naive_js_copy_part2)),
             (2, "optimised", t!(day14::optimised::part2)),
+            (2, "smith61 var", t!(day14::not_my_smith61::part2)),
         ])
         .run_day::<15>(&[
             (1, "naive js copy", t!(day15::naive_js_copy_part1)),
@@ -145,8 +146,12 @@ pub fn run_2022(days: &HashMap<i32, (bool, bool)>, filter: &str) {
         .run_day::<16>(&[
             (1, "naive js copy", t!(day16::naive_js_copy_part1)),
             (1, "optimised", t!(day16::optimised::part1)),
+            (1, "smith61 var", t!(day16::not_my_smith61::part1)),
+            (1, "zn6k1l var", t!(day16::not_my_zn6k1l::part1)),
             (2, "naive js copy", t!(day16::naive_js_copy_part2)),
             (2, "optimised", t!(day16::optimised::part2)),
+            (2, "smith61 var", t!(day16::not_my_smith61::part2)),
+            (2, "zn6k1l var", t!(day16::not_my_zn6k1l::part2)),
         ])
         .run_day::<17>(&[
             (1, "naive js copy", t!(day17::naive_js_copy_part1)),
