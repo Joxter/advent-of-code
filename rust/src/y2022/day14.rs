@@ -160,8 +160,10 @@ pub fn naive_js_copy_part2(input: &str) -> i32 {
 }
 
 pub mod optimised {
-    use crate::y2022::day14::BORDER_CHAR;
+    use super::not_my_smith61::build_grid;
+    use ndarray::Array2;
     use serde_json::Value::String;
+    use std::cmp;
     use std::collections::{HashMap, HashSet};
 
     type RockMap = HashSet<(usize, usize)>;
@@ -202,6 +204,61 @@ pub mod optimised {
         });
 
         (map, bottom, left, right)
+    }
+
+    fn parse_to_grid(input: &str) -> (Array2<bool>, usize, usize, usize) {
+        let mut bottom = 0;
+        let mut left = usize::MAX;
+        let mut right = 0;
+
+        let parsed_lines = Vec::from_iter(input.lines().map(|line| {
+            Vec::from_iter(line.split(" -> ").map(|it| {
+                let (l, r) = it.split_once(',').unwrap();
+                (l.parse::<usize>().unwrap(), r.parse::<usize>().unwrap())
+            }))
+        }));
+
+        parsed_lines.iter().for_each(|line| {
+            for (tx, ty) in line {
+                bottom = cmp::max(bottom, *ty);
+                left = cmp::min(left, *tx);
+                right = cmp::max(right, *tx);
+            }
+        });
+
+        let width = right - left + 1;
+        let offset_x = left - 1;
+        let mut grid = Array2::from_elem((bottom + 2, width + 2), false);
+
+        parsed_lines.iter().for_each(|line| {
+            let mut line = line.iter();
+
+            let (mut hx, mut hy) = line.next().unwrap();
+            grid[(hy, hx - offset_x)] = true;
+
+            for (tx, ty) in line {
+                let (tx, ty) = (*tx, *ty);
+
+                while tx != hx || ty != hy {
+                    if tx == hx {
+                        if ty > hy {
+                            hy += 1;
+                        } else {
+                            hy -= 1;
+                        }
+                    } else if ty == hy {
+                        if tx > hx {
+                            hx += 1;
+                        } else {
+                            hx -= 1;
+                        }
+                    }
+                    grid[(hy, hx - offset_x)] = true;
+                }
+            }
+        });
+
+        (grid, bottom, left, width + 2)
     }
 
     pub fn part1(input: &str) -> usize {
@@ -269,19 +326,61 @@ pub mod optimised {
 
                 if map.contains(&(i_plus_left, row_i)) {
                     new_row.push(false);
+                } else if *prev || i > 0 && sand_row[i - 1] || i + 1 < row_len && sand_row[i + 1] {
+                    new_row.push(true);
+                    res += 1;
                 } else {
-                    if *prev {
-                        new_row.push(true);
-                        res += 1;
-                    } else if i > 0 && sand_row[i - 1] {
-                        new_row.push(true);
-                        res += 1;
-                    } else if i + 1 < row_len && sand_row[i + 1] {
-                        new_row.push(true);
-                        res += 1;
-                    } else {
-                        new_row.push(false);
-                    }
+                    new_row.push(false);
+                }
+            }
+
+            sand_row = new_row;
+        }
+
+        let left_sum = left_part * (left_part + 1) / 2;
+        let right_sum = right_part * (right_part + 1) / 2;
+
+        // print_map_to_file(&map, bottom, "map_2_optimised");
+
+        res + left_sum + right_sum
+    }
+
+    pub fn part2_smith61_inspired(input: &str) -> usize {
+        let (grid, mut bottom, mut left, row_len) = parse_to_grid(input);
+
+        let mut res = 1;
+        let start = 500;
+
+        bottom += 2;
+        left -= 2;
+
+        let mut sand_row = vec![false; row_len];
+        sand_row[start - left] = true;
+
+        let mut left_part = 0;
+        let mut right_part = 0;
+
+        for row_i in 1..bottom {
+            let mut new_row = Vec::with_capacity(row_len);
+
+            if left_part == 0 && sand_row[0] {
+                left_part = bottom - row_i;
+            }
+            if right_part == 0 && *sand_row.last().unwrap() {
+                right_part = bottom - row_i;
+            }
+
+            for (i, prev) in sand_row.iter().enumerate() {
+                if grid[(row_i, i)] {
+                    new_row.push(false);
+                } else if *prev
+                    || (i > 0 && sand_row[i - 1])
+                    || (i + 1 < row_len && sand_row[i + 1])
+                {
+                    new_row.push(true);
+                    res += 1;
+                } else {
+                    new_row.push(false);
                 }
             }
 
@@ -375,7 +474,7 @@ pub mod not_my_smith61 {
         }
     }
 
-    fn build_grid<const ADD_FLOOR: bool>(input: &str) -> (Array2<bool>, usize) {
+    pub fn build_grid<const ADD_FLOOR: bool>(input: &str) -> (Array2<bool>, usize) {
         let mut x_min = usize::MAX;
         let mut y_min = 0;
         let mut x_max = usize::MIN;

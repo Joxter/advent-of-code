@@ -517,6 +517,7 @@ pub mod optimised {
     }
 }
 
+#[allow(clippy::all)]
 pub mod not_my_smith61 {
     // https://github.com/smith61/advent_of_code/blob/main/src/year_2022/day_16.rs
     use std::cmp::{self, Reverse};

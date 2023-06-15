@@ -132,6 +132,11 @@ pub fn run_2022(days: &HashMap<i32, (bool, bool)>, filter: &str, debug: bool) {
             (2, "naive js copy", t!(day14::naive_js_copy_part2)),
             (2, "optimised", t!(day14::optimised::part2)),
             (2, "smith61 var", t!(day14::not_my_smith61::part2)),
+            (
+                2,
+                "my + smith61",
+                t!(day14::optimised::part2_smith61_inspired),
+            ),
         ])
         .run_day::<15>(&[
             (1, "naive js copy", t!(day15::naive_js_copy_part1)),
