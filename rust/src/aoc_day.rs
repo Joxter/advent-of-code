@@ -10,6 +10,7 @@ pub struct AoCDay {
     filter: String,
     last_printed_part: String,
     flag_days: HashMap<i32, (bool, bool)>,
+    debug: bool,
 }
 
 struct Part {
@@ -90,7 +91,12 @@ impl Solution {
 }
 
 impl AoCDay {
-    pub fn new(year: u32, flag_days: &HashMap<i32, (bool, bool)>, filter: &str) -> Self {
+    pub fn new(
+        year: u32,
+        flag_days: &HashMap<i32, (bool, bool)>,
+        filter: &str,
+        debug: bool,
+    ) -> Self {
         println!("flag_days: {:?}", flag_days);
         println!("filter: `{}`", filter);
         println!();
@@ -102,6 +108,7 @@ impl AoCDay {
             filter: filter.to_string(),
             last_printed_part: "".to_string(),
             flag_days: flag_days.clone(),
+            debug,
         }
     }
 
@@ -254,7 +261,9 @@ impl AoCDay {
                 let (time, answer) = measurement_fn(input);
                 times.push(time);
 
-                let iters = if time.as_millis() <= 20 {
+                let iters = if self.debug {
+                    1
+                } else if time.as_millis() <= 20 {
                     100
                 } else if time.as_millis() <= 200 {
                     10

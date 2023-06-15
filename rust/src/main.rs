@@ -9,12 +9,12 @@ mod aoc_day;
 mod y2022;
 
 fn main() {
-    let (days, filter) = parse_args();
+    let (days, filter, debug) = parse_args();
 
-    run_2022(&days, &filter)
+    run_2022(&days, &filter, debug)
 }
 
-fn parse_args() -> (HashMap<i32, (bool, bool)>, String) {
+fn parse_args() -> (HashMap<i32, (bool, bool)>, String, bool) {
     // args: 1 2.1 3.2
     // days:
     //   day 1 part1-2,
@@ -24,6 +24,7 @@ fn parse_args() -> (HashMap<i32, (bool, bool)>, String) {
     // todo add filter sting like `1 2 better` to run only "*better*" versions of day 1 and 2
 
     let mut filter = String::new();
+    let mut debug = false;
 
     let days = env::args()
         .skip(1) // target/debug/rust
@@ -39,13 +40,17 @@ fn parse_args() -> (HashMap<i32, (bool, bool)>, String) {
                     Err(_) => None,
                 },
                 None => {
-                    dbg!(&arg);
-                    filter = arg;
+                    if arg == "dbg" || arg == "debug" {
+                        debug = true;
+                    } else {
+                        dbg!(&arg);
+                        filter = arg;
+                    }
                     None
                 }
             },
         })
         .collect();
 
-    (days, filter)
+    (days, filter, debug)
 }
