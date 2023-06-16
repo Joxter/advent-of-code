@@ -62,7 +62,11 @@ pub fn run_2022(days: &HashMap<i32, (bool, bool)>, filter: &str, debug: bool) {
         ])
         .run_day::<3>(&[
             (1, "naive js copy", t!(day03::naive_js_copy_part1)),
+            (1, "optimised", t!(day03::optimised::part1)),
+            (1, "SkiFire13 ver", t!(day03::not_my_ski_fire13::part1)),
             (2, "naive js copy", t!(day03::naive_js_copy_part2)),
+            (2, "optimised", t!(day03::optimised::part2)),
+            (2, "SkiFire13 ver", t!(day03::not_my_ski_fire13::part2)),
         ])
         .run_day::<4>(&[
             (1, "naive js copy", t!(day04::naive_js_copy_part1)),
