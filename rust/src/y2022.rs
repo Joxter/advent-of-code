@@ -38,14 +38,12 @@ macro_rules! t {
     };
 }
 
-pub fn run_2022(days: &HashMap<i32, (bool, bool)>, filter: &str, debug: bool) {
+pub fn run_2022(days: &HashMap<i32, (bool, bool)>, filter: &str, debug: bool, save: bool) {
     // todo implement something like this:
     //    - proper writing results to a file
     //    - move printing results to a different thing
 
-    // AoCDay::clear_result_file(); // todo make it better
-
-    AoCDay::new(2022, days, filter, debug)
+    AoCDay::new(2022, days, filter, debug, save)
         .run_day::<1>(&[
             (1, "naive js copy", t!(day01::naive_js_copy_part1)),
             (2, "naive js copy", t!(day01::naive_js_copy_part2)),
@@ -62,7 +60,11 @@ pub fn run_2022(days: &HashMap<i32, (bool, bool)>, filter: &str, debug: bool) {
         ])
         .run_day::<3>(&[
             (1, "naive js copy", t!(day03::naive_js_copy_part1)),
+            (1, "optimised", t!(day03::optimised::part1)),
+            (1, "SkiFire13 ver", t!(day03::not_my_ski_fire13::part1)),
             (2, "naive js copy", t!(day03::naive_js_copy_part2)),
+            (2, "optimised", t!(day03::optimised::part2)),
+            (2, "SkiFire13 ver", t!(day03::not_my_ski_fire13::part2)),
         ])
         .run_day::<4>(&[
             (1, "naive js copy", t!(day04::naive_js_copy_part1)),

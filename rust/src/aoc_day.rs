@@ -11,6 +11,7 @@ pub struct AoCDay {
     last_printed_part: String,
     flag_days: HashMap<i32, (bool, bool)>,
     debug: bool,
+    save: bool,
 }
 
 struct Part {
@@ -96,6 +97,7 @@ impl AoCDay {
         flag_days: &HashMap<i32, (bool, bool)>,
         filter: &str,
         debug: bool,
+        save: bool,
     ) -> Self {
         println!("flag_days: {:?}", flag_days);
         println!("filter: `{}`", filter);
@@ -109,6 +111,7 @@ impl AoCDay {
             last_printed_part: "".to_string(),
             flag_days: flag_days.clone(),
             debug,
+            save, // todo implement
         }
     }
 
