@@ -40,7 +40,6 @@ macro_rules! t {
 
 pub fn run_2022(days: &HashMap<i32, (bool, bool)>, filter: &str, debug: bool, save: bool) {
     // todo implement something like this:
-    //    - proper writing results to a file
     //    - move printing results to a different thing
 
     AoCDay::new(2022, days, filter, debug, save)
@@ -194,5 +193,6 @@ pub fn run_2022(days: &HashMap<i32, (bool, bool)>, filter: &str, debug: bool, sa
             (1, "naive js copy", t!(day24::naive_js_copy_part1)),
             (2, "naive js copy", t!(day24::naive_js_copy_part2)),
         ])
-        .run_day::<25>(&[(1, "naive js copy", t!(day25::naive_js_copy_part1))]);
+        .run_day::<25>(&[(1, "naive js copy", t!(day25::naive_js_copy_part1))])
+        .end();
 }

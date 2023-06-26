@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
+use std::fs::File;
 use std::hint::black_box;
 use std::io::Write;
 use std::time::{Duration, SystemTime};
@@ -11,7 +12,7 @@ pub struct AoCDay {
     last_printed_part: String,
     flag_days: HashMap<i32, (bool, bool)>,
     debug: bool,
-    save: bool,
+    printer: Printer,
 }
 
 struct Part {
@@ -91,6 +92,52 @@ impl Solution {
     }
 }
 
+struct Printer {
+    save: bool,
+    file: File,
+}
+
+impl Printer {
+    // todo move all "print" stuff here
+    pub fn new(path: &str, save: bool) -> Self {
+        if save {
+            if let Err(e) = fs::remove_file(path) {
+                eprintln!("Couldn't remove results file: {}", e);
+            }
+        }
+
+        let file = fs::OpenOptions::new()
+            .write(true)
+            .append(true)
+            .create(true)
+            .open(path)
+            .unwrap();
+
+        Self { save, file }
+    }
+
+    pub fn print_lines(&mut self, lines: &Vec<String>) {
+        lines.iter().for_each(|l| self.print(l))
+    }
+
+    pub fn print(&mut self, line: &str) {
+        println!("{}", line);
+        if self.save {
+            if let Err(e) = writeln!(self.file, "{}", line) {
+                eprintln!("Couldn't write to file: {}", e);
+            }
+        }
+    }
+
+    pub fn end(&mut self) {
+        if self.save {
+            if let Err(e) = writeln!(self.file, "```") {
+                eprintln!("Couldn't write to file: {}", e);
+            }
+        }
+    }
+}
+
 impl AoCDay {
     pub fn new(
         year: u32,
@@ -101,9 +148,11 @@ impl AoCDay {
     ) -> Self {
         println!("flag_days: {:?}", flag_days);
         println!("filter: `{}`", filter);
+        println!("save: {}", save);
         println!();
 
-        println!("      Advent of Code  🎄{}🎄", year);
+        let mut printer = Printer::new("results.md", save);
+        printer.print(&format!("```\n      Advent of Code  🎄{}🎄", year));
 
         AoCDay {
             year,
@@ -111,7 +160,7 @@ impl AoCDay {
             last_printed_part: "".to_string(),
             flag_days: flag_days.clone(),
             debug,
-            save, // todo implement
+            printer,
         }
     }
 
@@ -180,10 +229,12 @@ impl AoCDay {
         }
     }
 
-    fn print_solution(&mut self, solution: &Solution, part: &Part) {
-        solution.render_to_lines(part).iter().for_each(|l| {
-            println!("        {} {}", self.get_part_prefix(&part.name), l);
-        })
+    fn print_solution(&mut self, solution: &Solution, part: &Part) -> Vec<String> {
+        solution
+            .render_to_lines(part)
+            .iter()
+            .map(|l| format!("        {} {}", self.get_part_prefix(&part.name), l))
+            .collect::<Vec<String>>()
     }
 
     pub fn run_day<const DAY: i32>(mut self, measurement_fns: &[(i32, &str, &SolutionFn)]) -> Self {
@@ -192,10 +243,10 @@ impl AoCDay {
         }
         self.last_printed_part = "".to_string();
 
-        println!(
+        self.printer.print(&format!(
             "  ❄️{}/{:02}        average     fastest       total  iters |",
             self.year, DAY
-        );
+        ));
         let input_folder = format!("../{}/inputs/d{:02}", self.year, DAY);
         let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
         let (p1_allowed, p2_allowed) = *self.flag_days.get(&DAY).unwrap_or(&(true, true));
@@ -208,11 +259,13 @@ impl AoCDay {
             if day_passed && filter_passed {
                 match self.run_part(DAY, label, measurement_fn) {
                     Ok(solution) => {
-                        if *part == 1 {
+                        let lines = if *part == 1 {
                             self.print_solution(&solution, &part1)
                         } else {
                             self.print_solution(&solution, &part2)
-                        }
+                        };
+
+                        self.printer.print_lines(&lines);
                     }
                     Err(err) => println!("{err}"),
                 }
@@ -220,32 +273,15 @@ impl AoCDay {
             }
         }
         if !something_runned {
-            println!("              --- No solutions were run, check arguments ---");
+            self.printer.print(&format!(
+                "              --- No solutions were run, check arguments ---"
+            ));
         }
         self
     }
 
-    pub fn clear_result_file() {
-        if let Err(e) = fs::remove_file("results.md") {
-            eprintln!("Couldn't remove results file: {}", e);
-        }
-    }
-
-    fn append_to_file(str: &str) {
-        /*        let out = format!("{}", self);
-                println!("{out}");
-                AoCDay::append_to_file(&out);
-        */
-        let mut file = fs::OpenOptions::new()
-            .write(true)
-            .append(true)
-            .create(true)
-            .open("results.md")
-            .unwrap();
-
-        if let Err(e) = writeln!(file, "```text\n{}```", str) {
-            eprintln!("Couldn't write to file: {}", e);
-        }
+    pub fn end(&mut self) {
+        self.printer.print("```");
     }
 
     fn run_part(
