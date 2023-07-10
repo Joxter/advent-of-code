@@ -148,6 +148,7 @@ impl AoCDay {
     ) -> Self {
         println!("flag_days: {:?}", flag_days);
         println!("filter: `{}`", filter);
+        println!("debug: `{}`", debug);
         println!("save: {}", save);
         println!();
 
