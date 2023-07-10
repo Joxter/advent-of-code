@@ -42,24 +42,15 @@ fn parse_args() -> (HashMap<i32, (bool, bool)>, String, bool, bool) {
 }
 
 fn parse_day(raw: &str) -> Option<(i32, (bool, bool))> {
-    if !raw.contains('.') {
-        if let Ok(day) = raw.parse::<i32>() {
-            if (0..=25).contains(&day) {
-                return Some((day, (true, true)));
-            }
-            return None;
-        }
-        return None;
-    }
-
-    let (day, part) = raw.split_once('.').unwrap();
+    let (day, part) = raw.split_once('.').unwrap_or((raw, ""));
+    let parts = match part {
+        "1" => (true, false),
+        "2" => (false, true),
+        _ => (true, true),
+    };
 
     match day.parse::<i32>() {
-        Ok(day) if (0..=25).contains(&day) => match part {
-            "1" => Some((day, (true, false))),
-            "2" => Some((day, (false, true))),
-            _ => Some((day, (true, true))),
-        },
+        Ok(day) if (0..=25).contains(&day) => Some((day, parts)),
         _ => None,
     }
 }
