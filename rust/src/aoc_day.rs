@@ -6,11 +6,18 @@ use std::io::Write;
 use std::time::{Duration, SystemTime};
 use std::{fs, io};
 
+pub struct Params {
+    days: u64, //   ...000 = ...day2.p1,day1.p2,day1.p1
+    filter: String,
+    debug: bool,
+    save: bool,
+}
+
 pub struct AoCDay {
     year: u32,
     filter: String,
-    last_printed_part: String,
-    flag_days: HashMap<i32, (bool, bool)>,
+    last_printed_part: String, // todo remove
+    filter_days: u64,
     debug: bool,
     printer: Printer,
 }
@@ -139,28 +146,22 @@ impl Printer {
 }
 
 impl AoCDay {
-    pub fn new(
-        year: u32,
-        flag_days: &HashMap<i32, (bool, bool)>,
-        filter: &str,
-        debug: bool,
-        save: bool,
-    ) -> Self {
-        println!("flag_days: {:?}", flag_days);
-        println!("filter: `{}`", filter);
-        println!("debug: `{}`", debug);
-        println!("save: {}", save);
+    pub fn new(year: u32, params: Params) -> Self {
+        println!("days: {:b}", params.days);
+        println!("filter: `{}`", params.filter);
+        println!("debug: `{}`", params.debug);
+        println!("save: {}", params.save);
         println!();
 
-        let mut printer = Printer::new("results.md", save);
+        let mut printer = Printer::new("results.md", params.save);
         printer.print(&format!("```\n      Advent of Code  🎄{}🎄", year));
 
         AoCDay {
             year,
-            filter: filter.to_string(),
+            filter: params.filter,
             last_printed_part: "".to_string(),
-            flag_days: flag_days.clone(),
-            debug,
+            filter_days: params.days,
+            debug: params.debug,
             printer,
         }
     }
@@ -239,20 +240,22 @@ impl AoCDay {
     }
 
     pub fn run_day<const DAY: i32>(mut self, measurement_fns: &[(i32, &str, &SolutionFn)]) -> Self {
-        if !self.flag_days.is_empty() && !self.flag_days.contains_key(&DAY) {
+        let (p1_allowed, p2_allowed) = self.is_allowed(DAY);
+        if !p1_allowed && !p2_allowed {
             return self;
         }
+
         self.last_printed_part = "".to_string();
 
         self.printer.print(&format!(
             "  ❄️{}/{:02}        average     fastest       total  iters |",
             self.year, DAY
         ));
+
         let input_folder = format!("../{}/inputs/d{:02}", self.year, DAY);
         let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
-        let (p1_allowed, p2_allowed) = *self.flag_days.get(&DAY).unwrap_or(&(true, true));
-        let mut something_runned = false;
 
+        let mut something_runned = false;
         for (part, label, measurement_fn) in measurement_fns {
             let filter_passed = self.filter.is_empty() || label.contains(&self.filter);
             let day_passed = (part == &1 && p1_allowed) || (part == &2 && p2_allowed);
@@ -278,6 +281,7 @@ impl AoCDay {
                 "              --- No solutions were run, check arguments ---"
             ));
         }
+
         self
     }
 
@@ -324,5 +328,61 @@ impl AoCDay {
             }
             Err(err) => Err(format!("Day {} input file is invalid\n{}", day, err)),
         }
+    }
+
+    pub fn parse_env_args() -> Params {
+        // args: 1 2.1 dbg save --filter "some filter"
+
+        let mut filter_next = false;
+        let mut filter = String::new();
+
+        let mut debug = false;
+        let mut save = false;
+        let mut days: u64 = 0;
+
+        for part in std::env::args() {
+            if part == "--filter" {
+                filter_next = true
+            } else if filter_next {
+                filter_next = false;
+                filter = part
+            } else if part == "dbg" || part == "debug" {
+                debug = true;
+            } else if part == "save" {
+                save = true;
+            } else if let Some((day, parts)) = AoCDay::parse_day(&part) {
+                days = days | (parts << (day - 1) * 2);
+            }
+        }
+
+        Params {
+            days: if days == 0 { u64::MAX } else { days },
+            filter,
+            debug,
+            save,
+        }
+    }
+
+    fn parse_day(raw: &str) -> Option<(i32, u64)> {
+        let (day, part) = raw.split_once('.').unwrap_or((raw, ""));
+        let parts = match part {
+            "1" => 0b01,
+            "2" => 0b10,
+            "" => 0b11,
+            _ => return None,
+        };
+
+        match day.parse::<i32>() {
+            Ok(day) if (0..=25).contains(&day) => Some((day, parts)),
+            _ => None,
+        }
+    }
+
+    fn is_allowed(&self, day: i32) -> (bool, bool) {
+        let filtered_parts = self.filter_days >> (day - 1) * 2 & 0b11;
+
+        let p1_allowed = filtered_parts & 0b01 != 0;
+        let p2_allowed = filtered_parts & 0b10 != 0;
+        (p1_allowed, p2_allowed)
     }
 }

@@ -1,4 +1,4 @@
-use crate::aoc_day::AoCDay;
+use crate::aoc_day::{AoCDay, Params};
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 
@@ -38,11 +38,11 @@ macro_rules! t {
     };
 }
 
-pub fn run_2022(days: &HashMap<i32, (bool, bool)>, filter: &str, debug: bool, save: bool) {
+pub fn run_2022(params: Params) {
     // todo implement something like this:
     //    - move printing results to a different thing
 
-    AoCDay::new(2022, days, filter, debug, save)
+    AoCDay::new(2022, params)
         .run_day::<1>(&[
             (1, "naive js copy", t!(day01::naive_js_copy_part1)),
             (2, "naive js copy", t!(day01::naive_js_copy_part2)),
