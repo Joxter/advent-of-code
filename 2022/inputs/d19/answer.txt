@@ -1,8 +1,0 @@
-- part1_test
-33
-- part1
-2193
-- part2_test
-3410
-- part2
-7200

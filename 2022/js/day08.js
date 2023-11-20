@@ -3,8 +3,9 @@ import { runSolution } from '../../utils.js';
 
 // https://adventofcode.com/2022/day/8
 
-let testInput = fs.readFileSync('./testData.txt').toString();
-let inputData = fs.readFileSync('./input.txt').toString();
+let folder = '../inputs/d08/';
+let testInput = fs.readFileSync(folder + 'test.txt').toString();
+let inputData = fs.readFileSync(folder + 'input.txt').toString();
 
 runSolution('test  ', () => part1(testInput), 21);
 runSolution('part_1', () => part1(inputData), 1708);

@@ -171,55 +171,28 @@ impl AoCDay {
         input
     }
 
-    fn parse_answers(path: &str) -> (Part, Part) {
-        let mut part1_parts: Vec<String> = vec![];
-        let mut part2_parts: Vec<String> = vec![];
-
-        let mut stage = 0;
-
+    fn parse_answers(name: &str, path: &str) -> Part {
         match fs::read_to_string(path) {
-            Ok(aa) => {
-                for line in aa.lines() {
-                    match line {
-                        "- part1_test" => stage = 0,
-                        "- part2_test" => stage = 0,
-                        "- part1" => stage = 1,
-                        "- part2" => stage = 2,
-                        _ => match stage {
-                            1 => part1_parts.push(line.to_string()),
-                            2 => part2_parts.push(line.to_string()),
-                            _ => (),
-                        },
-                    }
+            Ok(content) => {
+                Part {
+                    name: name.to_string(),
+                    answer: Some(content),
+                    solutions: vec![],
                 }
             }
             Err(e) => {
-                println!(
+                eprintln!(
                     "Can't oped the file with answers\nPath: '{}'\nError: {}",
                     path, e
                 );
+
+                Part {
+                    name: name.to_string(),
+                    answer: None,
+                    solutions: vec![],
+                }
             }
         }
-
-        fn to_option_string(v: Vec<String>) -> Option<String> {
-            match v.is_empty() {
-                true => None,
-                false => Some(v.join("\n")),
-            }
-        }
-
-        let part1 = Part {
-            name: "part1".to_string(),
-            answer: to_option_string(part1_parts),
-            solutions: vec![],
-        };
-        let part2 = Part {
-            name: "part2".to_string(),
-            answer: to_option_string(part2_parts),
-            solutions: vec![],
-        };
-
-        (part1, part2)
     }
 
     fn get_part_prefix(&mut self, part_name: &str) -> String {
@@ -253,7 +226,8 @@ impl AoCDay {
         ));
 
         let input_folder = format!("../{}/inputs/d{:02}", self.year, DAY);
-        let (part1, part2) = AoCDay::parse_answers(&format!("{}/answer.txt", input_folder));
+        let part1 = AoCDay::parse_answers("part1", &format!("{}/part1.txt", input_folder));
+        let part2 = AoCDay::parse_answers("part2", &format!("{}/part2.txt", input_folder));
 
         let mut something_runned = false;
         for (part, label, measurement_fn) in measurement_fns {

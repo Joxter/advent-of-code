@@ -395,6 +395,8 @@ pub mod optimised {
         max_released
     }
 
+    // todo make alter part2, with approach from aive JS solution
+
     #[derive(Debug)]
     struct BasicValve<'a> {
         rate: i32,
