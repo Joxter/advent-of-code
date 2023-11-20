@@ -173,13 +173,11 @@ impl AoCDay {
 
     fn parse_answers(name: &str, path: &str) -> Part {
         match fs::read_to_string(path) {
-            Ok(content) => {
-                Part {
-                    name: name.to_string(),
-                    answer: Some(content),
-                    solutions: vec![],
-                }
-            }
+            Ok(content) => Part {
+                name: name.to_string(),
+                answer: Some(content),
+                solutions: vec![],
+            },
             Err(e) => {
                 eprintln!(
                     "Can't oped the file with answers\nPath: '{}'\nError: {}",

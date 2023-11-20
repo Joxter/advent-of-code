@@ -204,7 +204,9 @@ pub mod not_my_ski_fire13 {
             + input
                 .windows(n + 1)
                 .position(|c| {
-                    let &[old, .., new] = c else { panic!("Invalid input") };
+                    let &[old, .., new] = c else {
+                        panic!("Invalid input")
+                    };
                     counter.remove(old);
                     counter.add(new);
                     counter.unique == n
