@@ -7,13 +7,14 @@ pub fn part1(input: &str) -> usize {
     for it in input.lines() {
         let num = it.parse::<usize>().unwrap();
 
-        match m[2020 - num] {
-            true => return num * (2020 - num),
-            false => m[num] = true,
-        };
+        if m[2020 - num] {
+            return num * (2020 - num);
+        } else {
+            m[num] = true
+        }
     }
 
-    0
+    unreachable!()
 }
 
 pub fn part2(input: &str) -> usize {
@@ -32,6 +33,7 @@ pub fn part2(input: &str) -> usize {
         while left < right {
             let sum = nums[left] + nums[right];
 
+            #[allow(clippy::comparison_chain)]
             if sum > target {
                 right -= 1;
             } else if sum < target {
@@ -42,5 +44,5 @@ pub fn part2(input: &str) -> usize {
         }
     }
 
-    0
+    unreachable!()
 }

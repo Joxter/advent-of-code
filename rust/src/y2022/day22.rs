@@ -4,7 +4,7 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
     let (map, mut cur_pos, route) = parse(input);
 
     let dir_delta = HashMap::from([('>', (0, 1)), ('<', (0, -1)), ('^', (-1, 0)), ('v', (1, 0))]);
-    let clock_dir = vec!['>', 'v', '<', '^'];
+    let clock_dir = ['>', 'v', '<', '^'];
 
     let mut curr_direction = 100_000 - 1;
     let mut direction_arrow = clock_dir[curr_direction % 4];
@@ -87,7 +87,7 @@ pub fn naive_js_copy_part1(input: &str) -> i32 {
 pub fn naive_js_copy_part2(input: &str) -> i32 {
     let (map, mut cur_pos, route) = parse(input);
 
-    let clock_dir = vec!['>', 'v', '<', '^'];
+    let clock_dir = ['>', 'v', '<', '^'];
 
     let mut curr_direction = 100_000 - 1;
     let mut portals: Portals = HashMap::new();

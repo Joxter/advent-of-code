@@ -166,7 +166,7 @@ fn parse(input: &str) -> (BTreeMap<&str, Valve2>, i32, BTreeMap<&str, i32>) {
     (new_map, all_opened, heads)
 }
 
-fn transform_map<'a, 'b>(map: &BTreeMap<&'a str, Valve<'b>>) -> BTreeMap<&'b str, Valve2<'b>> {
+fn transform_map<'b>(map: &BTreeMap<&str, Valve<'b>>) -> BTreeMap<&'b str, Valve2<'b>> {
     let mut val_heads_names = vec!["AA"];
 
     val_heads_names.extend(map.iter().filter(|(_, v)| v.rate > 0).map(|(_, v)| v.name));
@@ -223,6 +223,7 @@ fn find_path<'a>(map: &BTreeMap<&str, Valve>, start: &str, finish: &'a str) -> (
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub mod optimised {
     use std::cmp::Ordering;
     use std::collections::{BTreeMap, BinaryHeap, HashSet, VecDeque};

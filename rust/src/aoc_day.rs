@@ -123,7 +123,7 @@ impl Printer {
         Self { save, file }
     }
 
-    pub fn print_lines(&mut self, lines: &Vec<String>) {
+    pub fn print_lines(&mut self, lines: &[String]) {
         lines.iter().for_each(|l| self.print(l))
     }
 
@@ -164,11 +164,6 @@ impl AoCDay {
             debug: params.debug,
             printer,
         }
-    }
-
-    fn parse_inputs(input_folder: &str) -> io::Result<String> {
-        let input = fs::read_to_string(format!("{}/input.txt", input_folder));
-        input
     }
 
     fn parse_answers(name: &str, path: &str) -> Part {
@@ -249,9 +244,7 @@ impl AoCDay {
             }
         }
         if !something_runned {
-            self.printer.print(&format!(
-                "              --- No solutions were run, check arguments ---"
-            ));
+            self.printer.print("              --- No solutions were run, check arguments ---");
         }
 
         self
@@ -268,7 +261,7 @@ impl AoCDay {
         measurement_fn: impl Fn(&str) -> (Duration, String),
     ) -> Result<Solution, String> {
         let input_folder = format!("../{}/inputs/d{:02}", self.year, day);
-        let input = AoCDay::parse_inputs(&input_folder);
+        let input = fs::read_to_string(format!("{}/input.txt", input_folder));
 
         match &input {
             Ok(input) => {
@@ -323,7 +316,7 @@ impl AoCDay {
             } else if part == "save" {
                 save = true;
             } else if let Some((day, parts)) = AoCDay::parse_day(&part) {
-                days = days | (parts << (day - 1) * 2);
+                days |= parts << ((day - 1) * 2);
             }
         }
 
@@ -351,7 +344,7 @@ impl AoCDay {
     }
 
     fn is_allowed(&self, day: i32) -> (bool, bool) {
-        let filtered_parts = self.filter_days >> (day - 1) * 2 & 0b11;
+        let filtered_parts = self.filter_days >> ((day - 1) * 2) & 0b11;
 
         let p1_allowed = filtered_parts & 0b01 != 0;
         let p2_allowed = filtered_parts & 0b10 != 0;

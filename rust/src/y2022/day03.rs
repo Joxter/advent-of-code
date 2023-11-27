@@ -70,11 +70,11 @@ pub mod optimised {
             .map(|line| {
                 let mut first_part: u64 = 0;
                 for byte in line[0..(line.len() / 2)].as_bytes() {
-                    first_part = first_part | 1 << (byte - b'A');
+                    first_part |= 1 << (byte - b'A');
                 }
 
                 for byte in line[line.len() / 2..].as_bytes() {
-                    if first_part & (1 << byte - b'A') != 0 {
+                    if first_part & (1 << (byte - b'A')) != 0 {
                         return match byte {
                             b'A'..=b'Z' => byte - 38,
                             _ => byte - 96,
@@ -98,12 +98,12 @@ pub mod optimised {
 
                 let mut first_part: u64 = 0;
                 for byte in line_1.as_bytes() {
-                    first_part = first_part | 1 << (byte - b'A');
+                    first_part |= 1 << (byte - b'A');
                 }
 
                 let mut second_part: u64 = 0;
                 for byte in line_2.as_bytes() {
-                    second_part = second_part | 1 << (byte - b'A');
+                    second_part |= 1 << (byte - b'A');
                 }
                 let total = first_part & second_part;
 

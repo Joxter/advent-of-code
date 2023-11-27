@@ -16,9 +16,6 @@ macro_rules! t {
 
 pub fn run_2020(params: Params) {
     AoCDay::new(2020, params)
-        .run_day::<1>(&[
-            (1, "", t!(day01::part1)),
-            (2, "", t!(day01::part2)),
-        ])
+        .run_day::<1>(&[(1, "", t!(day01::part1)), (2, "", t!(day01::part2))])
         .end();
 }

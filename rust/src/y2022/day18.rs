@@ -89,9 +89,7 @@ fn fill_in_with_water(max: Coords, cubes: &HashSet<Coords>) -> HashSet<Coords> {
     let mut water = HashSet::new();
     let mut stack = vec![(0, 0, 0)];
 
-    while !stack.is_empty() {
-        let (x, y, z) = stack.pop().unwrap();
-
+    while let Some((x, y, z)) = stack.pop() {
         if x < -1 || y < -1 || z < -1 {
             continue;
         }
