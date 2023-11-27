@@ -28,7 +28,7 @@ pub fn part2(input: &str) -> usize {
         let target = 2020 - nums[i];
 
         let mut left = i + 1;
-        let mut right = nums.binary_search(&(target / 2)).unwrap_err();
+        let mut right = nums.len() - 1;
 
         while left < right {
             let sum = nums[left] + nums[right];
