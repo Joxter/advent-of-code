@@ -11,6 +11,6 @@ mod y2020;
 mod y2022;
 
 fn main() {
-    // y2020::run_2020(AoCDay::parse_env_args())
-    run_2022(AoCDay::parse_env_args())
+    y2020::run_2020(AoCDay::parse_env_args())
+    // run_2022(AoCDay::parse_env_args())
 }

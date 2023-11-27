@@ -244,7 +244,8 @@ impl AoCDay {
             }
         }
         if !something_runned {
-            self.printer.print("              --- No solutions were run, check arguments ---");
+            self.printer
+                .print("              --- No solutions were run, check arguments ---");
         }
 
         self
