@@ -22,7 +22,7 @@ pub fn part2(input: &str) -> usize {
         .lines()
         .map(|it| it.parse::<usize>().unwrap())
         .collect();
-    nums.sort();
+    nums.sort_unstable();
 
     for i in 0..nums.len() {
         let target = 2020 - nums[i];
