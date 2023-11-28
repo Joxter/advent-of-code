@@ -1,14 +1,11 @@
-use itertools::Itertools;
-use std::str::Chars;
-
 pub fn part1(input: &str) -> usize {
-    let vec = input.lines().map(|l| l.as_bytes()).collect_vec();
+    let vec = input.lines().map(|l| l.as_bytes()).collect::<Vec<&[u8]>>();
 
     count_trees(&vec, 3, 1)
 }
 
 pub fn part2(input: &str) -> usize {
-    let vec = input.lines().map(|l| l.as_bytes()).collect_vec();
+    let vec = input.lines().map(|l| l.as_bytes()).collect::<Vec<&[u8]>>();
 
     count_trees(&vec, 1, 1)
         * count_trees(&vec, 3, 1)

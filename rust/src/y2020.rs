@@ -5,6 +5,7 @@ use std::fmt::Display;
 mod day01;
 mod day02;
 mod day03;
+mod day04;
 
 macro_rules! t {
     ($func:expr) => {
@@ -26,5 +27,11 @@ pub fn run_2020(params: Params) {
             (2, "bytes", t!(day02::part2_bytes)),
         ])
         .run_day::<3>(&[(1, "", t!(day03::part1)), (2, "", t!(day03::part2))])
+        .run_day::<4>(&[
+            (1, "", t!(day04::part1)),
+            (1, "timvisee", t!(day04::not_my::part1_timvisee)),
+            (1, "timvisee+vec", t!(day04::not_my::part1_timvisee_vec)),
+            (2, "", t!(day04::part2)),
+        ])
         .end();
 }

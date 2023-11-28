@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 pub fn part1(input: &str) -> usize {
     input
         .lines()
@@ -22,7 +20,7 @@ pub fn part2(input: &str) -> usize {
         .lines()
         .filter(|line| {
             let (p0, password) = line.split_once(": ").unwrap();
-            let password = password.chars().collect_vec();
+            let password: Vec<char> = password.chars().collect();
 
             let (times, ch) = p0.split_once(' ').unwrap();
             let ch = ch.chars().next().unwrap();
