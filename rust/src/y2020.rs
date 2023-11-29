@@ -7,6 +7,8 @@ mod day02;
 mod day03;
 mod day04;
 mod day05;
+mod day06;
+mod day07;
 
 macro_rules! t {
     ($func:expr) => {
@@ -41,5 +43,11 @@ pub fn run_2020(params: Params) {
             (2, "sort", t!(day05::part2_sort)),
             (2, "sort unstable", t!(day05::part2_sort_unstable)),
         ])
+        .run_day::<6>(&[
+            (1, "", t!(day06::part1)),
+            (1, "iter", t!(day06::part1_iter)),
+            (2, "", t!(day06::part2)),
+        ])
+        .run_day::<7>(&[(1, "", t!(day07::part1)), (2, "", t!(day07::part2))])
         .end();
 }
