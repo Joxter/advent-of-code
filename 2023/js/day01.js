@@ -4,7 +4,8 @@ import { runDay } from '../../utils.js';
 
 runDay(2023, 1)
   .part(1, part1)
-  .part(2, part2);
+  .part(2, part2)
+  .part(2, getCodeAhoCorasick, 'AhoCorasick');
 
 function part1(inp) {
   return inp
@@ -60,4 +61,117 @@ function getCode(line) {
   });
 
   return first * 10 + last;
+}
+
+function getCodeAhoCorasick(inp) {
+  // modified https://github.com/BrunoRB/ahocorasick
+  class AhoCorasick {
+    constructor(keywords) {
+      var gotoFn = [{}];
+      var output = [];
+
+      var state = 0;
+
+      Object.entries(keywords).forEach(function ([word, digit]) {
+        var curr = 0;
+        for (var i = 0; i < word.length; i++) {
+          var l = word[i];
+          if (gotoFn[curr] && l in gotoFn[curr]) {
+            curr = gotoFn[curr][l];
+          } else {
+            state++;
+            gotoFn[curr][l] = state;
+            gotoFn[state] = {};
+            curr = state;
+          }
+        }
+
+        output[curr] = digit;
+      });
+
+      var failure = [];
+      var xs = [];
+
+      for (var l in gotoFn[0]) {
+        state = gotoFn[0][l];
+        failure[state] = 0;
+        xs.push(state);
+      }
+
+      while (xs.length) {
+        var r = xs.shift();
+        for (var l in gotoFn[r]) {
+          var s = gotoFn[r][l];
+          xs.push(s);
+
+          state = failure[r];
+          while (state > 0 && !(l in gotoFn[state])) {
+            state = failure[state];
+          }
+
+          if (l in gotoFn[state]) {
+            failure[s] = gotoFn[state][l];
+          } else {
+            failure[s] = 0;
+          }
+        }
+      }
+
+      this.gotoFn = gotoFn;
+      this.output = output;
+      this.failure = failure;
+    };
+
+    search(string) {
+      var state = 0;
+
+      let first = null;
+      let last = null;
+
+      for (var i = 0; i < string.length; i++) {
+        var l = string[i];
+        while (state > 0 && !(l in this.gotoFn[state])) {
+          state = this.failure[state];
+        }
+        if (!(l in this.gotoFn[state])) {
+          continue;
+        }
+
+        state = this.gotoFn[state][l];
+
+        if (this.output[state]) {
+          if (first === null) first = this.output[state];
+          last = this.output[state];
+        }
+      }
+
+      return first * 10 + last;
+    };
+  }
+
+  let aho = new AhoCorasick({
+    'one': 1,
+    'two': 2,
+    'three': 3,
+    'four': 4,
+    'five': 5,
+    'six': 6,
+    'seven': 7,
+    'eight': 8,
+    'nine': 9,
+    '1': 1,
+    '2': 2,
+    '3': 3,
+    '4': 4,
+    '5': 5,
+    '6': 6,
+    '7': 7,
+    '8': 8,
+    '9': 9
+  });
+
+  return inp
+    .split('\n')
+    .map((line) => aho.search(line))
+    .reduce((sum, n) => sum + n, 0);
 }

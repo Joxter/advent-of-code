@@ -56,12 +56,11 @@ export function runDay(year, day) {
         console.log('❓ ', label, res, `[sec ${time}]`);
       } else {
         if (res === answer) {
-          console.log('✅', label, res, `[sec ${time}]`);
+          console.log(`✅  part${part} [sec ${time}] ${label}`);
         } else {
           console.log(`❌`, label, `[sec ${time}]`);
           console.log(`  expected:`, answer);
           console.log(`  actual:  `, res);
-
         }
       }
       return runner;
