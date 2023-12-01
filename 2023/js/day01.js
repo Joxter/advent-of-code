@@ -5,7 +5,7 @@ import { runDay } from '../../utils.js';
 runDay(2023, 1)
   .part(1, part1)
   .part(2, part2)
-  .part(2, getCodeAhoCorasick, 'AhoCorasick');
+  .part(2, part2AhoCorasick, 'Aho-Corasick');
 
 function part1(inp) {
   return inp
@@ -63,7 +63,7 @@ function getCode(line) {
   return first * 10 + last;
 }
 
-function getCodeAhoCorasick(inp) {
+function part2AhoCorasick(inp) {
   // modified https://github.com/BrunoRB/ahocorasick
   class AhoCorasick {
     constructor(keywords) {

@@ -36,7 +36,7 @@ export function runDay(year, day) {
   let part1 = fileToString(path.join(folder, 'part1.txt'));
   let part2 = fileToString(path.join(folder, 'part2.txt'));
 
-  console.log(`https://adventofcode.com/${year}/day/${day}`);
+  console.log(`🎄${year}/${String(day).padStart(2, '0')} https://adventofcode.com/${year}/day/${day}`);
 
   let runner = {
     part(part, fn, label = '') {
@@ -50,17 +50,17 @@ export function runDay(year, day) {
         console.error(err);
         res = 'ERROR';
       }
-      let time = (Date.now() - start) / 1000;
+      let time = formatTime(Date.now() - start);
 
       if (!answer) {
-        console.log('❓ ', label, res, `[sec ${time}]`);
+        console.log(`      ❓  part${part} ${res} [${time}] ${label}`);
       } else {
         if (res === answer) {
-          console.log(`✅  part${part} [sec ${time}] ${label}`);
+          console.log(`      ✅  part${part} [${time}] ${label}`);
         } else {
-          console.log(`❌`, label, `[sec ${time}]`);
-          console.log(`  expected:`, answer);
-          console.log(`  actual:  `, res);
+          console.log(`      ❌  part${part} [${time}] ${label}`);
+          console.log(`        expected:`, answer);
+          console.log(`        actual:  `, res);
         }
       }
       return runner;
@@ -76,6 +76,16 @@ function fileToString(p) {
   } catch (e) {
     return '';
   }
+}
+
+function formatTime(timeMsec) {
+  let sec = Math.floor(timeMsec / 1000);
+  let min = Math.floor(sec / 60);
+  sec = String(sec % 60).padStart(2, '0');
+
+  let msec = String(timeMsec % 1000).padStart(3, '0');
+
+  return `${min}:${sec}.${msec}`;
 }
 
 export function isNumericChar(char) {
