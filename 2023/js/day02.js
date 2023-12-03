@@ -1,6 +1,6 @@
 import { runDay } from '../../utils.js';
 
-// https://adventofcode.com/2023/day/***
+// https://adventofcode.com/2023/day/2
 
 runDay(2023, 2)
   .part(1, part1)
