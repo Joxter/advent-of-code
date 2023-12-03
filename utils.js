@@ -78,8 +78,16 @@ function fileToString(p) {
   }
 }
 
-export function inuq(arr) {
+export function isNumericChar(char) {
+  return char && char.charCodeAt(0) >= 48 && char.charCodeAt(0) <= 57;
+}
+
+export function uniq(arr) {
   return [...new Set(arr)];
+}
+
+export function sum(arr) {
+  return arr.reduce((a, b) => a + b, 0);
 }
 
 export function allNeibs8(i, j) {
