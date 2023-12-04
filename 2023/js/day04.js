@@ -47,4 +47,3 @@ function part2(inp) {
 
   return sum(cards);
 }
-
