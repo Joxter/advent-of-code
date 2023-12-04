@@ -7,6 +7,8 @@ runDay(2023, 4)
   .part(2, part2);
 
 function part1(inp) {
+  let score = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512];
+
   let points = inp
     .split('\n')
     .map((line) => {
@@ -16,7 +18,7 @@ function part1(inp) {
       numbers = numbers.trim().split(/\s+/);
 
       let matches = winning.filter((n) => numbers.includes(n));
-      return [0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512][matches.length];
+      return score[matches.length];
     });
 
   return sum(points);
@@ -35,14 +37,14 @@ function part2(inp) {
       return matches.length;
     });
 
-  let wins = Array(points.length).fill(1);
+  let cards = Array(points.length).fill(1);
 
   for (let i = 0; i < points.length; i++) {
     for (let j = 0; j < points[i]; j++) {
-      wins[i + j + 1] += wins[i]
+      cards[i + j + 1] += cards[i];
     }
   }
 
-  return sum(wins);
+  return sum(cards);
 }
 
