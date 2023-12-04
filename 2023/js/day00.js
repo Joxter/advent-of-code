@@ -4,7 +4,7 @@ import { runDay } from '../../utils.js';
 
 console.log(part1(`test`))
 
-runDay(2023, 1)
+runDay(2023, ___)
   .part(1, part1)
   .part(2, part2);
 
