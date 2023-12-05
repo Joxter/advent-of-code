@@ -63,7 +63,6 @@ function part2Recursive(inp) {
     });
 
   // let cache = {}; cache makes the solution as fast as the original one
-
   function play(i) {
     // if (cache[i]) return cache[i];
     let t = 1;
@@ -78,6 +77,5 @@ function part2Recursive(inp) {
   for (let i = 0; i < points.length; i++) {
     total += play(i);
   }
-
   return total;
 }

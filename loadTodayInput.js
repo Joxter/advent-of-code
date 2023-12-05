@@ -54,7 +54,8 @@ function part1(inp) {
 
 function part2(inp) {
   return 123;
-}`
+}
+`
   ;
 
   let folder = new URL(`./${year}/js/`, import.meta.url).pathname;
