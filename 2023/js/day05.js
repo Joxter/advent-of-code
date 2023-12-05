@@ -8,27 +8,14 @@ class Range {
     this.len = +len;
   }
 
-  asFromTo() {
-    return `${this.start}..=${this.start + this.len - 1}`;
-  }
-
-  raw() {
-    return `${this.start}+${this.len}`;
-  }
-
   end() {
-    return this.start + this.len - 1;
-  }
-
-  moveStart(offset) {
-    this.start = this.start + offset;
-    return this
+    return this.start + this.len;
   }
 }
 
 runDay(2023, 5)
-.part(1, part1)
-.part(2, part2);
+  .part(1, part1)
+  .part(2, part2);
 
 function part1(inp) {
   let [seeds, ...paths] = inp.split('\n\n');
@@ -48,7 +35,7 @@ function part1(inp) {
         }
       });
     });
-    seeds = [...newSeeds];
+    seeds = newSeeds;
   });
 
   return Math.min(...seeds);
@@ -73,24 +60,27 @@ function part2(inp) {
       let ruleRange = new Range(source, len);
 
       seedRanges.forEach((seedRange) => {
-        let overlap = new Range(...getOverlapOfRanges(ruleRange, seedRange));
-        if (overlap.len > 0) {
-          newSeedRanges = newSeedRanges.filter(r => r !== seedRange);
-          let leftOvers = removeRange(seedRange, overlap);
+        let overlap = getOverlapOfRanges(ruleRange, seedRange);
 
+        if (overlap.len > 0) {
+          newSeedRanges.splice(newSeedRanges.indexOf(seedRange) - 1, 1);
+
+          let leftOvers = removeRange(seedRange, overlap);
           if (leftOvers.length) {
             newSeedRanges.push(...leftOvers);
           }
 
-          overlap.moveStart(destination - source);
-          newSeedRanges.push(overlap);
+          overlap.start += destination - source;
+          if (overlap.start > 0 && overlap.len > 0) { // why do we need .start>0 here?
+            newSeedRanges.push(overlap);
+          }
         }
       });
     });
-    seedRanges = [...newSeedRanges];
+    seedRanges = newSeedRanges;
   });
 
-  return Math.min(...seedRanges.filter(r => r.start > 0 && r.len > 0).map(r => r.start));
+  return Math.min(...seedRanges.map(r => r.start));
 }
 
 /**
@@ -102,15 +92,15 @@ function getOverlapOfRanges(range1, range2) {
     return getOverlapOfRanges(range2, range1);
   }
 
-  if (range1.end() < range2.start) {
-    return [0, 0];
+  if (range1.end() <= range2.start) {
+    return new Range(0, 0);
   }
 
   if (range1.end() < range2.end()) {
-    return [range2.start, range1.end() - range2.start + 1];
+    return new Range(range2.start, range1.end() - range2.start);
   }
 
-  return [range2.start, range2.len];
+  return new Range(range2.start, range2.len);
 }
 
 /**
@@ -126,7 +116,7 @@ function removeRange(base, target) {
   }
 
   if (target.end() < base.end()) {
-    res.push(new Range(target.end() + 1, base.end() - target.end()));
+    res.push(new Range(target.end(), base.end() - target.end()));
   }
 
   return res;
