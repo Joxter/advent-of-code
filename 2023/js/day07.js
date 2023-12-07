@@ -8,7 +8,8 @@ let CARDS_POWER = ['C', 'B', 'A', '9', '8', '7', '6', '5', '4', '3', '2', '1', '
 
 runDay(2023, 7)
   .part(1, part1)
-  .part(2, part2);
+  .part(2, part2)
+  .part(2, part2alter, 'alter');
 
 function part1(inp) {
   let lines = inp.split('\n');
@@ -53,6 +54,47 @@ function combPower(line) {
   return 4;
 }
 
+function combPower2(line) {
+  let cards = line.slice(0, 5).split('');
+
+  let cnts = CARDS.map((c) => {
+    return cards.filter(it => it === c).length;
+  });
+  let jcnt = cnts[3];
+  cnts[3] = 0;
+
+  if (jcnt === 0) {
+    if (cnts.includes(5)) return 10;
+    if (cnts.includes(4)) return 9;
+    if (cnts.includes(3) && cnts.includes(2)) return 8;
+    if (cnts.includes(3)) return 7;
+    if (cnts.filter(it => it === 2).length === 2) return 6;
+    if (cnts.includes(2)) return 5;
+    return 4;
+  }
+
+  if (jcnt === 1) {
+    if (cnts.includes(4)) return 10;
+    if (cnts.includes(3)) return 9;
+    if (cnts.filter(it => it === 2).length === 2) return 8;
+    if (cnts.includes(2)) return 7;
+    return 5;
+  }
+
+  if (jcnt === 2) {
+    if (cnts.includes(3)) return 10;
+    if (cnts.includes(2)) return 9;
+    return 7;
+  }
+
+  if (jcnt === 3) {
+    if (cnts.includes(2)) return 10;
+    return 9;
+  }
+
+  return 10;
+}
+
 function combPowerJ(line) {
   let cards = line.slice(0, 5).split('');
   if (!cards.includes('J')) return combPower(line);
@@ -77,7 +119,7 @@ function combPowerJ(line) {
 
   replace(cards);
   for (let i = 0; i < total.length; i++) {
-    let p = combPower(total[i].join(''))
+    let p = combPower(total[i].join(''));
     if (p > max) max = p;
   }
 
@@ -90,6 +132,32 @@ function part2(inp) {
   lines.sort((a, b) => {
     let aPower = combPowerJ(a);
     let bPower = combPowerJ(b);
+
+    if (aPower !== bPower) {
+      return bPower - aPower;
+    }
+
+    let aOrder = orderPower2(a);
+    let bOrder = orderPower2(b);
+
+    return bOrder - aOrder;
+  });
+  lines.reverse();
+
+  let bids = lines.map((line, i) => {
+    let bid = +line.split(' ')[1];
+    return bid * (i + 1);
+  });
+
+  return sum(bids);
+}
+
+function part2alter(inp) {
+  let lines = inp.split('\n');
+
+  lines.sort((a, b) => {
+    let aPower = combPower2(a);
+    let bPower = combPower2(b);
 
     if (aPower !== bPower) {
       return bPower - aPower;
