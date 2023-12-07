@@ -9,8 +9,9 @@ let CARDS_TO_HEX = ['C', 'B', 'A', '9', '8', '7', '6', '5', '4', '3', '2', '1', 
 
 runDay(2023, 7)
   .part(1, part1)
-  .part(2, part2)
-  .part(2, part2alter, 'alter');
+  .part(2, part2, 'rush advent solution')
+  .part(2, part2opt, 'part2 optimised')
+  .part(2, part2alter, 'alter approach');
 
 function part1(inp) {
   let lines = inp.split('\n');
@@ -93,28 +94,75 @@ function part2(inp) {
   }
 }
 
+function part2opt(inp) {
+  let lines = inp.split('\n');
+
+  let bids = lines
+    .map(l => [l, combPowerJ(l)])
+    .sort(([a, aPower], [b, bPower]) => {
+      if (aPower !== bPower) {
+        return aPower - bPower;
+      }
+
+      let aOrder = orderPower2(a);
+      let bOrder = orderPower2(b);
+
+      return aOrder - bOrder;
+    })
+    .map((line, i) => {
+      let bid = +line[0].slice(5);
+      return bid * (i + 1);
+    });
+
+  return sum(bids);
+
+  function combPowerJ(line) {
+    if (!line.includes('J')) return combPower(line);
+    let cards = line.slice(0, 5).split('');
+
+    let max = 0;
+
+    function replaceJ(cards) {
+      let p = cards.indexOf('J');
+      if (p === -1) return;
+
+      CARDS_NO_J.forEach((c) => {
+        let newCards = [...cards];
+        newCards[p] = c;
+
+        let r = combPower(newCards.join(''));
+        if (r > max) max = r;
+
+        replaceJ(newCards);
+      });
+    }
+
+    replaceJ(cards);
+
+    return max;
+  }
+}
+
 function part2alter(inp) {
   let lines = inp.split('\n');
 
-  lines.sort((a, b) => {
-    let aPower = combPower2(a);
-    let bPower = combPower2(b);
+  let bids = lines
+    .map(l => [l, combPower2(l)])
+    .sort(([a, aPower], [b, bPower]) => {
 
-    if (aPower !== bPower) {
-      return bPower - aPower;
-    }
+      if (aPower !== bPower) {
+        return aPower - bPower;
+      }
 
-    let aOrder = orderPower2(a);
-    let bOrder = orderPower2(b);
+      let aOrder = orderPower2(a);
+      let bOrder = orderPower2(b);
 
-    return bOrder - aOrder;
-  });
-  lines.reverse();
-
-  let bids = lines.map((line, i) => {
-    let bid = +line.split(' ')[1];
-    return bid * (i + 1);
-  });
+      return aOrder - bOrder;
+    })
+    .map((line, i) => {
+      let bid = +line[0].slice(5);
+      return bid * (i + 1);
+    });
 
   return sum(bids);
 
