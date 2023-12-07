@@ -3,8 +3,9 @@ import { runDay, sum } from '../../utils.js';
 // https://adventofcode.com/2023/day/7
 
 let CARDS = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-let CARDS2 = ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J'];
-let CARDS_POWER = ['C', 'B', 'A', '9', '8', '7', '6', '5', '4', '3', '2', '1', '0'];
+let CARDS_NO_J = ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+let CARDS_PART_2 = ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J'];
+let CARDS_TO_HEX = ['C', 'B', 'A', '9', '8', '7', '6', '5', '4', '3', '2', '1', '0'];
 
 runDay(2023, 7)
   .part(1, part1)
@@ -37,95 +38,6 @@ function part1(inp) {
   return sum(bids);
 }
 
-function combPower(line) {
-  let cards = line.slice(0, 5).split('');
-
-  let cnts = CARDS.map((c) => {
-    return cards.filter(it => it === c).length;
-  });
-
-  if (cnts.includes(5)) return 10;
-  if (cnts.includes(4)) return 9;
-  if (cnts.includes(3) && cnts.includes(2)) return 8;
-  if (cnts.includes(3)) return 7;
-  if (cnts.filter(it => it === 2).length === 2) return 6;
-  if (cnts.includes(2)) return 5;
-
-  return 4;
-}
-
-function combPower2(line) {
-  let cards = line.slice(0, 5).split('');
-
-  let cnts = CARDS.map((c) => {
-    return cards.filter(it => it === c).length;
-  });
-  let jcnt = cnts[3];
-  cnts[3] = 0;
-
-  if (jcnt === 0) {
-    if (cnts.includes(5)) return 10;
-    if (cnts.includes(4)) return 9;
-    if (cnts.includes(3) && cnts.includes(2)) return 8;
-    if (cnts.includes(3)) return 7;
-    if (cnts.filter(it => it === 2).length === 2) return 6;
-    if (cnts.includes(2)) return 5;
-    return 4;
-  }
-
-  if (jcnt === 1) {
-    if (cnts.includes(4)) return 10;
-    if (cnts.includes(3)) return 9;
-    if (cnts.filter(it => it === 2).length === 2) return 8;
-    if (cnts.includes(2)) return 7;
-    return 5;
-  }
-
-  if (jcnt === 2) {
-    if (cnts.includes(3)) return 10;
-    if (cnts.includes(2)) return 9;
-    return 7;
-  }
-
-  if (jcnt === 3) {
-    if (cnts.includes(2)) return 10;
-    return 9;
-  }
-
-  return 10;
-}
-
-function combPowerJ(line) {
-  let cards = line.slice(0, 5).split('');
-  if (!cards.includes('J')) return combPower(line);
-
-  let cc = ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-  let total = [];
-
-  function replace(cards) {
-    if (cards.includes('J')) {
-      let p = cards.indexOf('J');
-
-      cc.forEach((c) => {
-        let newCards = [...cards];
-        newCards[p] = c;
-        total.push(newCards);
-        replace(newCards);
-      });
-    }
-  }
-
-  let max = 0;
-
-  replace(cards);
-  for (let i = 0; i < total.length; i++) {
-    let p = combPower(total[i].join(''));
-    if (p > max) max = p;
-  }
-
-  return max;
-}
-
 function part2(inp) {
   let lines = inp.split('\n');
 
@@ -150,6 +62,35 @@ function part2(inp) {
   });
 
   return sum(bids);
+
+  function combPowerJ(line) {
+    let cards = line.slice(0, 5).split('');
+    if (!cards.includes('J')) return combPower(line);
+
+    let total = [];
+
+    function replaceJ(cards) {
+      let p = cards.indexOf('J');
+      if (p === -1) return;
+
+      CARDS_NO_J.forEach((c) => {
+        let newCards = [...cards];
+        newCards[p] = c;
+        total.push(newCards);
+        replaceJ(newCards);
+      });
+    }
+
+    replaceJ(cards);
+
+    let max = 0;
+    for (let i = 0; i < total.length; i++) {
+      let p = combPower(total[i].join(''));
+      if (p > max) max = p;
+    }
+
+    return max;
+  }
 }
 
 function part2alter(inp) {
@@ -176,14 +117,72 @@ function part2alter(inp) {
   });
 
   return sum(bids);
+
+  function combPower2(line) {
+    let cards = line.slice(0, 5).split('');
+
+    let cnts = CARDS.map((c) => {
+      return cards.filter(it => it === c).length;
+    });
+    let jcnt = cnts[3]; // index of "J" in CARDS
+    cnts[3] = 0;
+
+    if (jcnt === 0) {
+      if (cnts.includes(5)) return 10;
+      if (cnts.includes(4)) return 9;
+      if (cnts.includes(3) && cnts.includes(2)) return 8;
+      if (cnts.includes(3)) return 7;
+      if (cnts.filter(it => it === 2).length === 2) return 6;
+      if (cnts.includes(2)) return 5;
+      return 4;
+    }
+
+    if (jcnt === 1) {
+      if (cnts.includes(4)) return 10;
+      if (cnts.includes(3)) return 9;
+      if (cnts.filter(it => it === 2).length === 2) return 8;
+      if (cnts.includes(2)) return 7;
+      return 5;
+    }
+
+    if (jcnt === 2) {
+      if (cnts.includes(3)) return 10;
+      if (cnts.includes(2)) return 9;
+      return 7;
+    }
+
+    if (jcnt === 3) {
+      if (cnts.includes(2)) return 10;
+      return 9;
+    }
+
+    return 10;
+  }
+}
+
+function combPower(line) {
+  let cards = line.slice(0, 5).split('');
+
+  let cnts = CARDS.map((c) => {
+    return cards.filter(it => it === c).length;
+  });
+
+  if (cnts.includes(5)) return 10;
+  if (cnts.includes(4)) return 9;
+  if (cnts.includes(3) && cnts.includes(2)) return 8;
+  if (cnts.includes(3)) return 7;
+  if (cnts.filter(it => it === 2).length === 2) return 6;
+  if (cnts.includes(2)) return 5;
+
+  return 4;
 }
 
 function orderPower(line) {
-  let powers = line.slice(0, 5).split('').map(c => CARDS_POWER[CARDS.indexOf(c)]).join('');
+  let powers = line.slice(0, 5).split('').map(c => CARDS_TO_HEX[CARDS.indexOf(c)]).join('');
   return parseInt(powers, 16);
 }
 
 function orderPower2(line) {
-  let powers = line.slice(0, 5).split('').map(c => CARDS_POWER[CARDS2.indexOf(c)]).join('');
+  let powers = line.slice(0, 5).split('').map(c => CARDS_TO_HEX[CARDS_PART_2.indexOf(c)]).join('');
   return parseInt(powers, 16);
 }
