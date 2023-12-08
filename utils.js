@@ -112,3 +112,16 @@ export function allNeibs8(i, j) {
     [i - 1, j - 1],
   ];
 }
+
+export function lcm(nums) {
+  return nums.reduce((number1, number2) => {
+    let hcf = 1;
+    for (let i = 1; i <= number1 && i <= number2; i++) {
+      if (number1 % i === 0 && number2 % i === 0) {
+        hcf = i;
+      }
+    }
+
+    return (number1 * number2) / hcf;
+  }, 1);
+}
