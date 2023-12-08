@@ -78,7 +78,7 @@ function fileToString(p) {
   }
 }
 
-function formatTime(timeMsec) {
+export function formatTime(timeMsec) {
   let sec = Math.floor(timeMsec / 1000);
   let min = Math.floor(sec / 60);
   sec = String(sec % 60).padStart(2, '0');
