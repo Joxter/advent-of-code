@@ -8,6 +8,7 @@ let years = process.argv.slice(2).map((it) => {
     throw `Invalid year: "${it}"`
   }
 })
+if (years.length === 0) throw 'No years specified'
 
 for (const year of years) {
   for (let day = 1; day <= 25; day++) {
