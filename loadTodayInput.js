@@ -3,6 +3,7 @@ import path from 'path';
 
 let day = (new Date()).getDate();
 let year = (new Date()).getFullYear();
+let DD = String(day).padStart(2, '0');
 
 let url = `https://adventofcode.com/${year}/day/${day}/input`;
 let token = process.env.SESSION_TOKEN;
@@ -25,13 +26,13 @@ fetch(url, {
 
     text = text.trim();
 
-    let folder = new URL(`./${year}/inputs/d${String(day).padStart(2, '0')}/`, import.meta.url).pathname;
-    fs.mkdirSync(folder, { recursive: true });
-    fs.writeFileSync(path.join(folder, 'input.txt'), text);
+    let inputFolder = new URL(`./inputs/${year}`, import.meta.url).pathname;
+    fs.mkdirSync(inputFolder, { recursive: true });
+    fs.writeFileSync(path.join(inputFolder, `day${DD}.txt`), text);
     console.log('Saved!');
 
     createTodayJs(day);
-    console.log(`day${String(day).padStart(2, '0')}.js has been created, enjoy!`);
+    console.log(`day${DD}.js has been created, enjoy!`);
   })
   .catch((err) => {
     console.error(err);
@@ -60,5 +61,5 @@ function part2(inp) {
 
   let folder = new URL(`./${year}/js/`, import.meta.url).pathname;
   fs.mkdirSync(folder, { recursive: true });
-  fs.writeFileSync(path.join(folder, `day${String(day).padStart(2, '0')}.js`), content);
+  fs.writeFileSync(path.join(folder, `day${DD}.js`), content);
 }
