@@ -31,12 +31,21 @@ export function runSolution(label, fn, answer = null) {
 }
 
 export function runDay(year, day) {
-  let folder = new URL(`./${year}/inputs/d${String(day).padStart(2, '0')}/`, import.meta.url).pathname;
-  let inputData = fileToString(path.join(folder, 'input.txt'));
-  let part1 = fileToString(path.join(folder, 'part1.txt'));
-  let part2 = fileToString(path.join(folder, 'part2.txt'));
+  let DD = String(day).padStart(2, '0');
 
-  console.log(`🎄${year}/${String(day).padStart(2, '0')} https://adventofcode.com/${year}/day/${day}`);
+  let inputFolder = new URL(`./inputs/${year}/`, import.meta.url).pathname;
+
+  if (!fs.existsSync(path.join(inputFolder, `day${DD}.txt`))) {
+    throw `Input file for ${year}/${day} not found`;
+  }
+
+  let ansFolder = new URL(`./${year}/answers/`, import.meta.url).pathname;
+  let part1 = fileToStringOrEmpty(path.join(ansFolder, `day${DD}-part1.txt`));
+  let part2 = fileToStringOrEmpty(path.join(ansFolder, `day${DD}-part2.txt`));
+
+  let inputData = fs.readFileSync(path.join(inputFolder, `day${DD}.txt`)).toString().trim()
+
+  console.log(`🎄${year}/${DD} https://adventofcode.com/${year}/day/${day}`);
 
   let runner = {
     part(part, fn, label = '') {
@@ -70,7 +79,7 @@ export function runDay(year, day) {
   return runner;
 }
 
-function fileToString(p) {
+function fileToStringOrEmpty(p) {
   try {
     return fs.readFileSync(p).toString().trim();
   } catch (e) {
