@@ -218,9 +218,15 @@ impl AoCDay {
             self.year, DAY
         ));
 
-        let input_folder = format!("../{}/inputs/d{:02}", self.year, DAY);
-        let part1 = AoCDay::parse_answers("part1", &format!("{}/part1.txt", input_folder));
-        let part2 = AoCDay::parse_answers("part2", &format!("{}/part2.txt", input_folder));
+        let answer_folder = format!("../{}/answers/", self.year,);
+        let part1 = AoCDay::parse_answers(
+            "part1",
+            &format!("{}/day{:02}-part1.txt", answer_folder, DAY),
+        );
+        let part2 = AoCDay::parse_answers(
+            "part2",
+            &format!("{}/day{:02}-part2.txt", answer_folder, DAY),
+        );
 
         let mut something_runned = false;
         for (part, label, measurement_fn) in measurement_fns {
@@ -261,8 +267,8 @@ impl AoCDay {
         description: &str,
         measurement_fn: impl Fn(&str) -> (Duration, String),
     ) -> Result<Solution, String> {
-        let input_folder = format!("../{}/inputs/d{:02}", self.year, day);
-        let input = fs::read_to_string(format!("{}/input.txt", input_folder));
+        let input_folder = format!("../inputs/{}/", self.year);
+        let input = fs::read_to_string(format!("{}/day{:02}.txt", input_folder, day));
 
         match &input {
             Ok(input) => {

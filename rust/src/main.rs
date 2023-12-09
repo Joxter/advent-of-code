@@ -9,8 +9,8 @@ use std::{env, io};
 mod aoc_day;
 mod y2020;
 mod y2022;
-
+// cargo run -- 1 2.1 dbg save --filter "some filter"
 fn main() {
-    y2020::run_2020(AoCDay::parse_env_args())
-    // run_2022(AoCDay::parse_env_args())
+    // y2020::run_2020(AoCDay::parse_env_args())
+    run_2022(AoCDay::parse_env_args())
 }
