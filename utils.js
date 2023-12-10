@@ -43,7 +43,7 @@ export function runDay(year, day) {
   let part1 = fileToStringOrEmpty(path.join(ansFolder, `day${DD}-part1.txt`));
   let part2 = fileToStringOrEmpty(path.join(ansFolder, `day${DD}-part2.txt`));
 
-  let inputData = fs.readFileSync(path.join(inputFolder, `day${DD}.txt`)).toString().trim()
+  let inputData = fs.readFileSync(path.join(inputFolder, `day${DD}.txt`)).toString().trim();
 
   console.log(`🎄${year}/${DD} https://adventofcode.com/${year}/day/${day}`);
 
@@ -141,4 +141,15 @@ export function lcm(list) {
     }
     return a;
   }
+}
+
+export function printGrid(grid) {
+  let res = grid.map(row => row.join('')).join('\n');
+
+  return res;
+}
+
+export function waitHard(msec) {
+  let start = Date.now();
+  while (Date.now() - start < msec) {};
 }
