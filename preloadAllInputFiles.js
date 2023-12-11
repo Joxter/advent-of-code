@@ -5,10 +5,10 @@ let years = process.argv.slice(2).map((it) => {
   if (+it) {
     return +it
   } else {
-    throw `Invalid year: "${it}"`
+    throw new Error(`Invalid year: "${it}"`)
   }
 })
-if (years.length === 0) throw 'No years specified'
+if (years.length === 0) throw new Error('No years specified')
 
 for (const year of years) {
   for (let day = 1; day <= 25; day++) {
@@ -47,7 +47,7 @@ function loadDay(year, day) {
   })
     .then((res) => {
       if (res.status === 404) {
-        throw `Day ${year}/${day} not found. Too soon for ${day} december ${year}?`
+        throw new Error(`Day ${year}/${day} not found. Too soon for ${day} december ${year}?`)
       }
 
       return res.text();

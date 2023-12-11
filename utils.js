@@ -30,13 +30,13 @@ export function runSolution(label, fn, answer = null) {
   }
 }
 
-export function runDay(year, day) {
+export function runDay(year, day, iters = 1) {
   let DD = String(day).padStart(2, '0');
 
   let inputFolder = new URL(`./inputs/${year}/`, import.meta.url).pathname;
 
   if (!fs.existsSync(path.join(inputFolder, `day${DD}.txt`))) {
-    throw `Input file for ${year}/${day} not found`;
+    throw new Error(`Input file for ${year}/${day} not found. Too soon for ${day} december ${year}?`);
   }
 
   let ansFolder = new URL(`./${year}/answers/`, import.meta.url).pathname;
@@ -46,20 +46,27 @@ export function runDay(year, day) {
   let inputData = fs.readFileSync(path.join(inputFolder, `day${DD}.txt`)).toString().trim();
 
   console.log(`🎄${year}/${DD} https://adventofcode.com/${year}/day/${day}`);
+  if (iters > 1) {
+    console.log(`              (The best time for ${iters} iterations)`);
+  }
 
   let runner = {
     part(part, fn, label = '') {
       let answer = part === 1 ? part1 : part2;
 
-      let start = Date.now();
       let res;
+      let minTime = Infinity;
       try {
-        res = String(fn(inputData));
+        for (let i = 0; i < iters; i++) {
+          let start = Date.now();
+          res = String(fn(inputData));
+          minTime = Math.min(minTime, Date.now() - start);
+        }
       } catch (err) {
         console.error(err);
         res = 'ERROR';
       }
-      let time = formatTime(Date.now() - start);
+      let time = formatTime(minTime);
 
       if (!answer) {
         console.log(`      ❓  part${part} ${res} [${time}] ${label}`);
