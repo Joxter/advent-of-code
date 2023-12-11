@@ -153,3 +153,12 @@ export function waitHard(msec) {
   let start = Date.now();
   while (Date.now() - start < msec) {};
 }
+
+export function rotateGrid90(grid) {
+  let newGrid = [];
+  for (let i = 0; i < grid[0].length; i++) {
+    let col = grid.map(row => row[i]).reverse();
+    newGrid.push(col);
+  }
+  return newGrid;
+}
