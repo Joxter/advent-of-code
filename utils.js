@@ -158,7 +158,9 @@ export function printGrid(grid) {
 
 export function waitHard(msec) {
   let start = Date.now();
-  while (Date.now() - start < msec) {};
+  while (Date.now() - start < msec) {
+    //
+  }
 }
 
 export function rotateGrid90(grid) {
@@ -168,4 +170,12 @@ export function rotateGrid90(grid) {
     newGrid.push(col);
   }
   return newGrid;
+}
+
+export function forEachInGrid(grid, cb) {
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[0].length; j++) {
+      cb(grid[i][j], i, j);
+    }
+  }
 }

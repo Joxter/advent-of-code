@@ -1,4 +1,4 @@
-import { rotateGrid90, runDay } from '../../utils.js';
+import { forEachInGrid, rotateGrid90, runDay } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/11
 
@@ -32,14 +32,9 @@ function part1(inp) {
   grid = newGrid;
 
   let galaxies = [];
-  for (let row = 0; row < grid.length; row++) {
-    for (let col = 0; col < grid[row].length; col++) {
-      let cell = grid[row][col];
-      if (cell === '#') {
-        galaxies.push([row, col]);
-      }
-    }
-  }
+  forEachInGrid(grid, (cell, row, col) => {
+    if (cell === '#') galaxies.push([row, col]);
+  });
 
   let total = 0;
   for (let i = 0; i < galaxies.length - 1; i++) {
@@ -73,14 +68,9 @@ function part2(inp) {
   }
 
   let galaxies = [];
-  for (let row = 0; row < grid.length; row++) {
-    for (let col = 0; col < grid[row].length; col++) {
-      let cell = grid[row][col];
-      if (cell === '#') {
-        galaxies.push([row, col]);
-      }
-    }
-  }
+  forEachInGrid(grid, (cell, row, col) => {
+    if (cell === '#') galaxies.push([row, col]);
+  });
 
   let total = 0;
   let oldness = 1_000_000 - 1;
@@ -126,14 +116,9 @@ function part1and2(inp, oldness) {
   }
 
   let galaxies = [];
-  for (let row = 0; row < grid.length; row++) {
-    for (let col = 0; col < grid[row].length; col++) {
-      let cell = grid[row][col];
-      if (cell === '#') {
-        galaxies.push([row, col]);
-      }
-    }
-  }
+  forEachInGrid(grid, (cell, row, col) => {
+    if (cell === '#') galaxies.push([row, col]);
+  });
 
   let total = 0;
   oldness = oldness - 1;
