@@ -1,12 +1,15 @@
-import { forEachInGrid, rotateGrid90, runDay } from '../../utils.js';
+import { forEachInGrid, rotateGrid90, runDay, sum } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/11
 
 runDay(2023, 11)
   .part(1, part1)
-  .part(1, (inp) => part1and2(inp, 2), 'general solution')
+  .part(1, (inp) => part1and2(inp, 2), 'general solution O(star^2)')
+  .part(1, (inp) => part12alter(inp, 2), 'part12alter O(grid_size)')
   .part(2, part2)
-  .part(2, (inp) => part1and2(inp, 1_000_000), 'general solution');
+  .part(2, (inp) => part1and2(inp, 1_000_000), 'general solution O(star^2)')
+  .part(2, (inp) => part12alter(inp, 1_000_000), 'part12alter O(grid_size)')
+  .end();
 
 function part1(inp) {
   let grid = inp.split('\n').map(l => l.split(''));
@@ -31,17 +34,17 @@ function part1(inp) {
   }
   grid = newGrid;
 
-  let galaxies = [];
+  let stars = [];
   forEachInGrid(grid, (cell, row, col) => {
-    if (cell === '#') galaxies.push([row, col]);
+    if (cell === '#') stars.push([row, col]);
   });
 
   let total = 0;
-  for (let i = 0; i < galaxies.length - 1; i++) {
-    let a = galaxies[i];
+  for (let i = 0; i < stars.length - 1; i++) {
+    let a = stars[i];
 
-    for (let j = i + 1; j < galaxies.length; j++) {
-      let b = galaxies[j];
+    for (let j = i + 1; j < stars.length; j++) {
+      let b = stars[j];
 
       total += Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
     }
@@ -67,19 +70,19 @@ function part2(inp) {
     }
   }
 
-  let galaxies = [];
+  let stars = [];
   forEachInGrid(grid, (cell, row, col) => {
-    if (cell === '#') galaxies.push([row, col]);
+    if (cell === '#') stars.push([row, col]);
   });
 
   let total = 0;
   let oldness = 1_000_000 - 1;
 
-  for (let i = 0; i < galaxies.length - 1; i++) {
-    let a = galaxies[i];
+  for (let i = 0; i < stars.length - 1; i++) {
+    let a = stars[i];
 
-    for (let j = i + 1; j < galaxies.length; j++) {
-      let b = galaxies[j];
+    for (let j = i + 1; j < stars.length; j++) {
+      let b = stars[j];
 
       let rowMin = Math.min(a[0], b[0]);
       let rowMax = Math.max(a[0], b[0]);
@@ -115,19 +118,19 @@ function part1and2(inp, oldness) {
     }
   }
 
-  let galaxies = [];
+  let stars = [];
   forEachInGrid(grid, (cell, row, col) => {
-    if (cell === '#') galaxies.push([row, col]);
+    if (cell === '#') stars.push([row, col]);
   });
 
   let total = 0;
   oldness = oldness - 1;
 
-  for (let i = 0; i < galaxies.length - 1; i++) {
-    let a = galaxies[i];
+  for (let i = 0; i < stars.length - 1; i++) {
+    let a = stars[i];
 
-    for (let j = i + 1; j < galaxies.length; j++) {
-      let b = galaxies[j];
+    for (let j = i + 1; j < stars.length; j++) {
+      let b = stars[j];
 
       let rowMin = Math.min(a[0], b[0]);
       let rowMax = Math.max(a[0], b[0]);
@@ -144,4 +147,56 @@ function part1and2(inp, oldness) {
   }
 
   return total;
+}
+
+function part12alter(inp, oldness = 2) {
+  let grid = inp.split('\n').map(l => l.split(''));
+
+  let res = 0;
+
+  let stars = 0;
+  let age = 0;
+  let prevForOneStar = 0;
+  for (let i = 0; i < grid.length; i++) {
+    let rowStars = 0;
+    for (let j = 0; j < grid[0].length; j++) {
+      if (grid[i][j] === '#') rowStars++;
+    }
+
+    if (rowStars === 0) {
+      age += oldness;
+    } else {
+      let toAddForOneStar = (prevForOneStar + stars * (age + 1));
+      prevForOneStar = toAddForOneStar;
+
+      stars += rowStars;
+      res += toAddForOneStar * rowStars;
+
+      age = 0;
+    }
+  }
+
+  stars = 0;
+  age = 0;
+  prevForOneStar = 0;
+  for (let i = 0; i < grid[0].length; i++) {
+    let rowStars = 0;
+    for (let j = 0; j < grid.length; j++) {
+      if (grid[j][i] === '#') rowStars++;
+    }
+
+    if (rowStars === 0) {
+      age += oldness;
+    } else {
+      let toAddForOneStar = (prevForOneStar + stars * (age + 1));
+      prevForOneStar = toAddForOneStar;
+
+      stars += rowStars;
+      res += toAddForOneStar * rowStars;
+
+      age = 0;
+    }
+  }
+
+  return res;
 }

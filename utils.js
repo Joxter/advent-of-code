@@ -47,7 +47,7 @@ export function runDay(year, day, iters = 1) {
 
   console.log(`🎄${year}/${DD} https://adventofcode.com/${year}/day/${day}`);
   if (iters > 1) {
-    console.log(`              (The best time for ${iters} iterations)`);
+    console.log(`              (Best time in ${iters} iterations)`);
   }
 
   let runner = {
@@ -80,6 +80,9 @@ export function runDay(year, day, iters = 1) {
         }
       }
       return runner;
+    },
+    end() {
+      // nothing
     }
   };
 
