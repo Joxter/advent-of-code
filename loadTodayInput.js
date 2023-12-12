@@ -47,7 +47,8 @@ console.log(part1(\`test\`))
 
 runDay(2023, ${day})
   .part(1, part1)
-  .part(2, part2);
+  .part(2, part2)
+  .end();
 
 function part1(inp) {
   return 123;

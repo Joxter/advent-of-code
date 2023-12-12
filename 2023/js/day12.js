@@ -10,18 +10,19 @@ console.log(part1(`???.### 1,1,3
 ?###???????? 3,2,1`));
 
 runDay(2023, 12)
-  .part(1, part1) // 7403 LOW
+  .part(1, part1)
   // .part(2, part2)
   .end();
 
 function part1(inp) {
   let comb = inp
     .split('\n')
-    .slice(0, 10)
-    .map((line) => {
-      // console.log();
+    // .slice(0, 10)
+    .map((line, i, t) => {
+      console.log(i, t.length);
       let [details, numbers] = line.split(' ');
       // numbers = numbers.split(',').map(Number);
+      // console.log([details, numbers]);
 
       let noUnknowns = details.split('').map((ch) => ch === '?' ? '.' : ch);
       let unknownsIds = details
@@ -51,13 +52,13 @@ function part1(inp) {
           .join(',');
 
         if (toNumbers === numbers) {
-          // console.log(testLine.join(''));
           cnt++;
+          // console.log(cnt, ' ' + testLine.join(''));
         }
       }
 
-      console.log([details, numbers], cnt);
-      return cnt;
+      // console.log([details, numbers], cnt);
+      return cnt || 1;
     });
 
 
