@@ -2,12 +2,22 @@ import { runDay, sum } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/12
 
-console.log(part2(`???.### 1,1,3
-.??..??...?##. 1,1,3
-?#?#?#?#?#?#?#? 1,3,1,6
-????.#...#... 4,1,1
-????.######..#####. 1,6,5
-?###???????? 3,2,1`));
+// console.log(part2(`???.### 1,1,3
+// .??..??...?##. 1,1,3
+// ?#?#?#?#?#?#?#? 1,3,1,6
+// ????.#...#... 4,1,1
+// ????.######..#####. 1,6,5
+// ?###???????? 3,2,1`));
+
+// console.log(part2(`?..?.??... 1`));
+// console.log(part2(`??.?? 1,1`));
+// console.log(part2(`?#.??# 1,1`));
+// console.log(part2(`??.?#? 1,2`));
+// console.log(part2(`??.?## 1,2`));
+console.log(part2(`??? 1,1`));
+// console.log(part2(`???.### 1,1,3`));
+
+// console.log(part2(`?#?#?#?#?#?#?#? 1,3,1,6`));
 
 runDay(2023, 12)
   // .part(1, part1)
@@ -68,7 +78,7 @@ function part1(inp) {
 function part2(inp) {
   let comb = inp
     .split('\n')
-    // .slice(0, 2)
+    // .slice(2, 3)
     .map((line, i, t) => {
       // console.log(i, t.length);
       console.log(line);
@@ -97,21 +107,24 @@ function part2(inp) {
 
       let res = 0;
 
-      let lim = 10000;
+      let lim = 100;
 
-      function go(det, nums) {
+      debugger
+
+      function go(det, nums, acc) {
         lim--;
         if (!lim) {
-          console.log('ERROR LIMIT');
+          throw 'LIMIT';
           return;
         }
 
-        // console.log('GO: ');
+        // console.log('GO: ', [acc]);
         // console.log([det.join(' '), nums.join(', ')]);
         if (
           nums.length === 0 &&
-          (det.length === 0 || det.length === 1 && getLastItem(det).ch === '.')
+          det.map((it) => it.at(-1)).every(it => it === '.' || it === '?')
         ) {
+          // console.log('>>> RES', acc);
           res++;
           return;
         }
@@ -119,24 +132,38 @@ function part2(inp) {
 
         let { n, ch } = getLastItem(det);
 
-        if (ch === '.' || n === 0) {
-          // nothing
-          // console.log('nothing');
-          go(popped(det), nums);
+        if (n === 0) {
+          // console.log('nothing1');
+          go(popped(det), nums, acc);
+          return;
+        } else if (n < 0) {
+          // debugger
+          return;
+        }
+
+        if (ch === '.') {
+          // console.log('nothing2');
+          go(popped(det), nums, '.' + acc);
           return;
         }
 
         // ch: ?, #
         if (ch === '?') {
           // console.log('detract last "?"', det.length);
-          go(detractLastItemMut([...det]), nums);
+
+          // let r = +Math.random().toString().slice(2,10);
+          // console.log('INNNNN', r);
+          // console.log(det.join(' '), nums.join(','), acc);
+          go(detractLastItemMut([...det]), nums, '.' + acc);
+          // console.log('.... CONTINUE', r);
+          // console.log([det.join(' '), nums.join(','), acc]);
         }
 
-        // find enough space between "?" amd "#"
         let currentNumber = nums.at(-1);
         let space = 0;
         let required = false;
 
+        // console.log('while');
         while (space < currentNumber) {
           if (det.length === 0) {
             // console.log('not enough space');
@@ -170,9 +197,9 @@ function part2(inp) {
             }
           } else if (ch === '?') {
             if (n > leftNumber) { //  '...???' 2
-              // TODO
               space += leftNumber;
               detractLastItemMut(det, leftNumber + 1); // +1 because it must be a "." after
+              break;
             }
             if (n === leftNumber) {    // '...???' 3
               det.pop();
@@ -184,15 +211,24 @@ function part2(inp) {
             }
           }
         }
+
+        // console.log('while END');
+        // console.log([det.join(' '), nums.join(','), acc]);
         if (space === currentNumber) {
-          // res++
-          go([...det], popped(nums));
+          let newAcc;
+          if (acc) {
+            newAcc = '.' + '#'.repeat(currentNumber) + acc;
+          } else {
+            newAcc = '.' + '#'.repeat(currentNumber);
+          }
+          // console.log('ADD', [currentNumber, newAcc]);
+          go(detractLastItemMut([...det]), popped(nums), newAcc);
         }
       }
 
-      go(det, numbers);
+      go(det, numbers, '');
 
-      console.log(res);
+      console.log({ res });
 
       return res;
     });
@@ -218,7 +254,9 @@ function getLastItem(det) {
 }
 
 function detractLastItemMut(det, amount = 1) {
+  if (det.length === 0) return det;
+
   let { n, ch } = getLastItem(det);
-  det[det.length - 1] = `${n - amount}${ch}`;
+  det[det.length - 1] = `${Math.max(n - amount, 0)}${ch}`;
   return det;
 }
