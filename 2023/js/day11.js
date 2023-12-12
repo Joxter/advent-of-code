@@ -1,13 +1,13 @@
-import { forEachInGrid, rotateGrid90, runDay, sum } from '../../utils.js';
+import { forEachInGrid, rotateGrid90, runDay } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/11
 
 runDay(2023, 11)
   .part(1, part1)
-  .part(1, (inp) => part1and2(inp, 2), 'general solution O(star^2)')
+  .part(1, (inp) => part1and2(inp, 2), 'general solution O(stars^2)')
   .part(1, (inp) => part12alter(inp, 2), 'part12alter O(grid_size)')
   .part(2, part2)
-  .part(2, (inp) => part1and2(inp, 1_000_000), 'general solution O(star^2)')
+  .part(2, (inp) => part1and2(inp, 1_000_000), 'general solution O(stars^2)')
   .part(2, (inp) => part12alter(inp, 1_000_000), 'part12alter O(grid_size)')
   .end();
 
