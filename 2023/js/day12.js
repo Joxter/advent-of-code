@@ -52,9 +52,7 @@ function part1(inp) {
 function part1Fast(inp) {
   let comb = inp
     .split('\n')
-    .map((line, i, t) => {
-      return solve2(line);
-    });
+    .map((line) => solve2(line));
 
   return sum(comb);
 }
@@ -62,9 +60,7 @@ function part1Fast(inp) {
 function part2(inp) {
   let comb = inp
     .split('\n')
-    // .slice(2, 10)
-    .map((line, i, t) => {
-      // console.log(`${i}/${t.length}`, line.split(' '));
+    .map((line) => {
       let [details, numbers] = line.split(' ');
       details = Array(5).fill(details).join('?');
       numbers = Array(5).fill(numbers).join(',');
@@ -72,18 +68,10 @@ function part2(inp) {
 
       line = details + ' ' + numbers;
 
-      let res = solve2(line);
-      // console.log({ res });
-      // console.log(res);
-      return res;
+      return solve2(line);
     });
 
-
   return sum(comb);
-}
-
-function mm(n) {
-  return (n / 1_000_000).toFixed(2) + 'm';
 }
 
 function solve2(line) {
@@ -149,8 +137,6 @@ function solve2(line) {
   }
 
   let res = dp(details, numbers, '', false);
-
-  // console.log(Object.keys(cache).length);
 
   return res;
 }
