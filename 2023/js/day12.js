@@ -2,12 +2,14 @@ import { runDay, sum } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/12
 
-// console.log(part2(`???.### 1,1,3
-// .??..??...?##. 1,1,3
-// ?#?#?#?#?#?#?#? 1,3,1,6
-// ????.#...#... 4,1,1
-// ????.######..#####. 1,6,5
-// ?###???????? 3,2,1`));
+console.log('TEST');
+console.log(part2(`???.### 1,1,3
+.??..??...?##. 1,1,3
+?#?#?#?#?#?#?#? 1,3,1,6
+????.#...#... 4,1,1
+????.######..#####. 1,6,5
+?###???????? 3,2,1`) === 525152, [525152]);
+
 
 // console.log(part2(`?? 1`));
 // console.log(part2(`?..?.??... 1`));
@@ -23,7 +25,8 @@ import { runDay, sum } from '../../utils.js';
 
 runDay(2023, 12)
   // .part(1, part1)
-  .part(2, part2)
+  .part(1, part1Fast, 'part1Fast')
+  // .part(2, part2)
   .end();
 
 function part1(inp) {
@@ -77,25 +80,31 @@ function part1(inp) {
   return sum(comb);
 }
 
+function part1Fast(inp) {
+  let comb = inp
+    .split('\n')
+    .map((line, i, t) => {
+      return solve2(line);
+    });
+
+  return sum(comb);
+}
+
 function part2(inp) {
   let comb = inp
     .split('\n')
-    // .slice(2, 3)
+    // .slice(2, 10)
     .map((line, i, t) => {
-      // console.log(i, t.length);
+      console.log(`${i}/${t.length}`);
       let [details, numbers] = line.split(' ');
       details = Array(5).fill(details).join('?');
       numbers = Array(5).fill(numbers).join(',');
       numbers = numbers.split(',').map(it => +it);
 
-      // console.log({line});
       line = details + ' ' + numbers;
-      // console.log({line});
 
-      console.log(i, t.length);
-      console.log([line]);
       let res = solve2(line);
-      // console.log([res, line.split(' ')]);
+      // console.log(res);
       return res;
     });
 
@@ -103,16 +112,26 @@ function part2(inp) {
   return sum(comb);
 }
 
+function mm(n) {
+  return (n / 1_000_000).toFixed(2) + 'm';
+}
+
 function solve2(line) {
   let [details, numbers] = line.split(' ');
   numbers = numbers.split(',').map(it => +it);
 
   let cnt = 0;
+  let fails = 0;
 
   // details -  '??.#..###..'
   // nums    - [ 3, 1, 1 ]
 
-  let limit = 100;
+  let limit = 10_000_000_000;
+  // 10000000 -> 326706
+  // 100000000 -> 3038061
+  // 1000000000 -> 28_909_870
+
+  // console.log({ details, numbers });
 
   // debugger
   function dp(details, numbers, acc, smol) {
@@ -122,49 +141,50 @@ function solve2(line) {
     // console.log([details, numbers.join(',')], [acc, smol]);
     limit--;
 
+    if (limit % 10_000_000 === 0) {
+      console.log(mm(cnt), 'fails', mm(fails), limit);
+    }
+
     if (!limit) {
-      console.log([details, numbers], [acc, smol]);
+      console.log([details, numbers], [acc, smol], cnt);
       throw 'LIMIT';
       return;
     }
 
     if (numbers.length === 0) {
       if (details.includes('#')) {
+        fails++;
         return;
       } else {
         cnt++;
-        // console.log(acc);
-        // debugger
+
         return;
       }
     }
 
     if (smol) {
-      if (numbers[0] === 0 && (details === '' || details[0] === '?' || details[0] === '.')) {
-        let n = [...numbers];
-        n.shift();
-        dp(details.slice(1), n, acc + '.', false);
-        return;
-      }
-
-      if (details[0] === '#' || details[0] === '?') {
-        let n = [...numbers];
-        n[0]--;
-
-        if (n[0] === 0) {
-          dp(details.slice(1), n, acc + '#', true);
+      if (numbers[0] === 0) {
+        if (details === '' || details[0] === '?' || details[0] === '.') {
+          numbers.shift();
+          dp(details.slice(1), numbers, acc + '.', false);
           return;
         } else {
-          dp(details.slice(1), n, acc + '#', true);
+          fails++;
           return;
         }
       }
+
+      if (details[0] === '#' || details[0] === '?') {
+        numbers[0]--;
+
+        dp(details.slice(1), numbers, acc + '#', true);
+        return;
+      }
     } else {
       if (details[0] === '#') {
-        let n = [...numbers];
-        n[0]--;
+        numbers[0]--;
 
-        dp(details.slice(1), n, acc + '#', true);
+        dp(details.slice(1), numbers, acc + '#', true);
         return;
       }
       if (details[0] === '?') {
@@ -177,6 +197,7 @@ function solve2(line) {
         return;
       }
     }
+    fails++;
 
     // console.log('!!!!');
     // console.log({ details, numbers, acc, smol });
@@ -214,9 +235,9 @@ function solve1() {
 
   let res = 0;
 
-  let lim = 100;
+  let lim = 1000000;
 
-  debugger
+  // debugger
 
   function go(det, nums, acc) {
     lim--;
