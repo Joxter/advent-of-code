@@ -167,6 +167,7 @@ export function waitHard(msec) {
 }
 
 export function rotateGrid90(grid) {
+  // rotate T[][] or string[] clockwise. Returns T[][] or string[][]
   let newGrid = [];
   for (let i = 0; i < grid[0].length; i++) {
     let col = grid.map(row => row[i]).reverse();
