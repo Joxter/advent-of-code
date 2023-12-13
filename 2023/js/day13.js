@@ -2,55 +2,9 @@ import { rotateGrid90, runDay, sum } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/13
 
-
-/*
-
-#.#.##.#.
-##..##..#
-##..##..#
-##...#..#
-.##.##..#
-.##.##..#
-##...#..#
-##...#..#
-
-
-##..####
-#######.
-..##...#
-..##.###
-########
-.......#
-#######.
-
-
-*/
-
-console.log(part2(`
-#....#.#
-..##..##
-.#..#.#
-`.trim()), [400]);
-
-// console.log(part2(`#.##..##.
-// ..#.##.#.
-// ##......#
-// ##......#
-// ..#.##.#.
-// ..##..##.
-// #.#.##.#.
-//
-// #...##..#
-// #....#..#
-// ..##..###
-// #####.##.
-// #####.##.
-// ..##..###
-// #....#..#`), [400]);
-
 runDay(2023, 13)
-  // .part(1, part1)
-  // .part(2, part2) // hight 41219, 34772 lowб 39163: hight... WRONG 37036, 40696
+  .part(1, part1)
+  .part(2, part2)
   .end();
 
 // Because you have guessed incorrectly 10 times on this puzzle, please wait 10 minutes before trying again. [Return to Day 13]
@@ -58,10 +12,7 @@ runDay(2023, 13)
 function part1(inp) {
   let reflections = inp
     .split('\n\n')
-    .map((pattern, i) => {
-      // console.log('-- Pattern', i);
-      return findReflection(pattern);
-    });
+    .map((pattern) => findReflection(pattern));
 
   return sum(reflections);
 }
@@ -69,11 +20,7 @@ function part1(inp) {
 function part2(inp) {
   let reflections = inp
     .split('\n\n')
-    // .slice(0, 5)
-    .map((pattern, i) => {
-      console.log('       -- Pattern', i);
-      return findReflection2(pattern);
-    });
+    .map((pattern) => findReflection2(pattern));
 
   return sum(reflections);
 }
@@ -103,43 +50,40 @@ function findReflection(pattern) {
 
 function findReflection2(pattern) {
   let lines = pattern.split('\n');
-  // console.log('pattern');
-  // console.log(pattern);
 
   let horizontal = symmetry(lines);
   if (horizontal) {
     return horizontal * 100;
   }
 
-  console.log('rotateGrid90');
-  console.log(rotateGrid90(lines).map(row => row.join('')).join('\n'));
-
   return symmetry(rotateGrid90(lines).map(row => row.join('')));
 
   function symmetry(lines) {
+    let ans = 0;
+
     for (let i = 1; i < lines.length; i++) {
       let offset = 0;
       let collectDiff = 0;
 
       while (true) {
-        // debugger
-        collectDiff += diff(lines[i + offset], lines[i - 1 - offset]);
-        console.log('collectDiff', [i, offset], collectDiff);
+        let l = i - 1 - offset;
+        let r = i + offset;
+        if (l < 0 || r >= lines.length) break;
+
+        collectDiff += diff(lines[l], lines[r]);
 
         if (collectDiff > 1) {
           break;
-        } else {
-          if (i - 1 - offset === 0 || (i + offset) === lines.length - 1) {
-            // console.log('FOUND', i);
-            return i;
-          }
+        } else if (collectDiff === 1 && (l === 0 || r === lines.length - 1)) {
+          ans = i;
+          break;
         }
 
         offset++;
       }
-      // console.log('symmetry', i, collectDiff);
     }
-    return 0;
+
+    return ans;
   }
 
   function diff(lineA, lineB) {
@@ -149,12 +93,4 @@ function findReflection2(pattern) {
     }
     return cnt;
   }
-}
-
-function diff(lineA, lineB) {
-  let cnt = 0;
-  for (let i = 0; i < lineA.length; i++) {
-    if (lineA[i] !== lineB[i]) cnt++;
-  }
-  return cnt;
 }
