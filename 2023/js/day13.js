@@ -2,44 +2,62 @@ import { rotateGrid90, runDay, sum } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/13
 
-// console.log(part1(`#.##..##.
-// ..#.##.#.
-// ##......#
-// ##......#
-// ..#.##.#.
-// ..##..##.
-// #.#.##.#.
-//
-// #...##..#
-// #....#..#
-// ..##..###
-// #####.##.
-// #####.##.
-// ..##..###
-// #....#..#`));
+console.log(part1(`#.##..##.
+..#.##.#.
+##......#
+##......#
+..#.##.#.
+..##..##.
+#.#.##.#.
 
-// console.log(part1(`
-// ...##.#
-// .##.###
-// .##.###
-// ...##.#
-// #...###
-// .#..##.
-// ##.##.#
-// ...####
-// #.#.###
-// #....#.
-// ..#.##.
-// ..#.##.
-// #....#.
-// #.#.#.#
-// ...####
-// `));
+#...##..#
+#....#..#
+..##..###
+#####.##.
+#####.##.
+..##..###
+#....#..#`));
+
+console.log(part1(`...##.#
+.##.###
+.##.###
+...##.#
+#...###
+.#..##.
+##.##.#
+...####
+#.#.###
+#....#.
+..#.##.
+..#.##.
+#....#.
+#.#.#.#
+...####
+`));
+
+// 1 ...##.#
+// 2 .##.###
+// 3 .##.###
+// 4 ...##.#
+// 5 #...###
+// 6 .#..##.
+// 7 ##.##.#
+// 8 ...####
+// 9 #.#.###
+// 0 #....#.
+// 1 ..#.##. ---
+// 2 ..#.##.
+// 3 #....#.
+// 4 #.#.#.#
+// 5 ...####
+
 
 runDay(2023, 13)
-  .part(1, part1) // low 24951, 22624, (45619 wrong)
+  .part(1, part1) // low 24951, 22624, (45619, 59478 wrong)
   // .part(2, part2)
   .end();
+// try 51441, 37159
+// 40281 --??
 
 function part1(inp) {
   let patterns = inp.split('\n\n');
@@ -53,10 +71,9 @@ function part1(inp) {
     let horI = 0;
     let horOffset = 0;
     for (let i = 1; i < lines.length; i++) {
+      horOffset = 1;
       if (lines[i] === lines[i - 1]) {
         // console.log('hor', i);
-
-        horOffset = 1;
 
         while (
           i - horOffset >= 0 && (i - 1 + horOffset) < lines.length &&
@@ -67,12 +84,13 @@ function part1(inp) {
         // console.log('hor offset', horOffset);
       }
 
-      if (horOffset >= horMaxOffset) {
+      if (horOffset > horMaxOffset) {
+        // console.log({horOffset, i});
         horMaxOffset = horOffset;
         horI = i;
       }
     }
-    console.log({ horMaxOffset }, { horI });
+    // console.log({ horMaxOffset }, { horI });
 
     let vectMaxOffset = 0;
     let vecJ = 0;
@@ -83,10 +101,10 @@ function part1(inp) {
     // console.log(rotated.join('\n'));
 
     for (let i = 1; i < rotated.length; i++) {
+      vectOffset = 1;
       if (rotated[i] === rotated[i - 1]) {
         // console.log('vert', i);
 
-        vectOffset = 1;
 
         while (
           i - vectOffset >= 0 && (i - 1 + vectOffset) < rotated.length &&
@@ -97,16 +115,16 @@ function part1(inp) {
         // console.log('vert offset', vectOffset);
       }
 
-      if (vectOffset >= vectMaxOffset) {
+      if (vectOffset > vectMaxOffset) {
         vectMaxOffset = vectOffset;
         vecJ = i;
       }
     }
 
-    console.log({ vectMaxOffset }, { vecJ });
-    // console.log({ horMaxOffset, vectMaxOffset }, {horI, vecJ});
+    // console.log({ vectMaxOffset }, { vecJ });
+    console.log({ horMaxOffset, vectMaxOffset }, {horI, vecJ});
 
-    return vectMaxOffset > horMaxOffset ? vecJ * 100 : horI;
+    return vectMaxOffset >= horMaxOffset ? vecJ  : horI * 100;
   });
   console.log(rowsAndCols);
 
