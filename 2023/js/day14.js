@@ -51,9 +51,14 @@ function part2(inp) {
   let stat = Date.now();
   // console.log(printGrid(grid));
 
+  let init = null;
+
+  let all = {};
+  let loop = null;
+
   for (let i = 1; i <= limit; i++) {
     if (i % 10_000 === 0) {
-      console.log('Progress %', ((i / limit) * 100).toFixed(3), 'time:', formatTime(Date.now() - stat));
+      console.log('Progress %', ((i / limit) * 100).toFixed(3), 'time:', formatTime(Date.now() - stat), i);
     }
     // console.log(i);
     // console.log();
@@ -197,6 +202,22 @@ function part2(inp) {
           jl--;
           jr--;
         }
+      }
+    }
+
+    if (!loop) {
+      let a = printGrid(grid);
+      if (all[a]) {
+        console.log('LOOOP!', [all[a], i]);
+        loop = [all[a], i];
+
+        let x = Math.floor((limit - all[a]) / (i - all[a])) - 1
+        console.log({ i });
+        i += (i - all[a]) * x
+        console.log({ i, x });
+
+      } else {
+        all[a] = i;
       }
     }
   }
