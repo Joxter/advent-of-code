@@ -48,95 +48,158 @@ function part2(inp) {
   let rock = 'O';
   let limit = 1_000_000_000;
   // let limit = 3;
-  let stat = Date.now()
+  let stat = Date.now();
+  // console.log(printGrid(grid));
 
   for (let i = 1; i <= limit; i++) {
     if (i % 10_000 === 0) {
-      console.log('Progress %', i / 1_000_000_000 * 100,'time:', formatTime(Date.now() - stat));
+      console.log('Progress %', ((i / limit) * 100).toFixed(3), 'time:', formatTime(Date.now() - stat));
     }
     // console.log(i);
     // console.log();
 
-    // up
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[0].length; j++) {
-        let cell = grid[i][j];
-        if (cell === rock) {
-          let currI = i;
-          while (grid[currI - 1]?.[j] === '.') {
-            currI--;
-          }
-          let rCount = 0;
-          while (grid[i + rCount]?.[j] === rock) {
-            grid[i + rCount][j] = '.';
-            grid[currI + rCount][j] = rock;
-            rCount++;
-          }
-        }
-      }
-    }
-    // console.log(printGrid(grid));
-    // left
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[0].length; j++) {
-        let cell = grid[i][j];
-        if (cell === rock) {
-          let currJ = j;
-          while (grid[i][currJ - 1] === '.') {
-            currJ--;
-          }
-          let rCount = 0;
-          while (grid[i][j + rCount] === rock) {
-            grid[i][j + rCount] = '.';
-            grid[i][currJ + rCount] = rock;
-            rCount++;
-          }
-        }
-      }
-    }
-    // console.log(printGrid(grid));
+    // to top
+    for (let j = 0; j < grid[0].length; j++) {
+      let jl = 0;
+      let jr = 0;
 
-    // bottom
-    for (let i = grid.length - 1; i >= 0; i--) {
-      for (let j = 0; j < grid[0].length; j++) {
-        let cell = grid[i][j];
-        if (cell === rock) {
-          let currI = i;
-          while (grid[currI + 1]?.[j] === '.') {
-            currI++;
-          }
-          let rCount = 0;
-          while (grid[i - rCount]?.[j] === rock) {
-            grid[i - rCount][j] = '.';
-            grid[currI - rCount][j] = rock;
-            rCount++;
-          }
+      while (jr < grid.length) {
+        while (grid[jl]?.[j] && grid[jl][j] !== '.') {
+          jl++;
         }
-      }
-    }
-    // console.log(printGrid(grid));
+        let l = jl;
 
-    // right
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = grid[0].length - 1; j >= 0; j--) {
-        let cell = grid[i][j];
-        if (cell === rock) {
-          let currJ = j;
-          while (grid[i][currJ + 1] === '.') {
-            currJ++;
+        jr = Math.max(jl + 1, jr);
+
+        while (grid[jr]?.[j]) {
+          if (grid[jr][j] === rock) break;
+          if (grid[jr][j] === '#') {
+            jr++;
+            jl = jr;
+            l = jr;
+            break;
           }
-          let rCount = 0;
-          while (grid[i][j - rCount] === rock) {
-            grid[i][j - rCount] = '.';
-            grid[i][currJ - rCount] = rock;
-            rCount++;
-          }
+
+          jr++;
+        }
+        let r = jr;
+
+        if (grid[l]?.[j] === '.' && grid[r]?.[j] === rock) {
+          grid[l][j] = rock;
+          grid[r][j] = '.';
+          jl++;
+          jr++;
         }
       }
     }
-    // console.log(printGrid(grid));
+
+    // to left
+    for (let i = 0; i < grid.length; i++) {
+      let row = grid[i];
+      let jl = 0;
+      let jr = 0;
+
+      while (jr < row.length) {
+        while (row[jl] && row[jl] !== '.') {
+          jl++;
+        }
+        let l = jl;
+
+        jr = Math.max(jl + 1, jr);
+
+        while (row[jr]) {
+          if (row[jr] === rock) break;
+          if (row[jr] === '#') {
+            jr++;
+            jl = jr;
+            l = jr;
+            break;
+          }
+
+          jr++;
+        }
+        let r = jr;
+
+        if (row[l] === '.' && row[r] === rock) {
+          row[l] = rock;
+          row[r] = '.';
+          jl++;
+          jr++;
+        }
+      }
+    }
+
+    // to bottom
+    for (let j = 0; j < grid[0].length; j++) {
+      let jl = grid.length - 1;
+      let jr = grid.length - 1;
+
+      while (jl >= 0) {
+        while (grid[jr]?.[j] && grid[jr][j] !== '.') {
+          jr--;
+        }
+        let r = jr;
+
+        jl = Math.min(jr - 1, jl);
+
+        while (jl >= 0) {
+          if (grid[jl][j] === rock) break;
+          if (grid[jl][j] === '#') {
+            jr = jl;
+            r = jl;
+            break;
+          }
+
+          jl--;
+        }
+        let l = jl;
+
+        if (!grid[l] || !grid[r]) break;
+
+        if (grid[l][j] === rock && grid[r][j] === '.') {
+          grid[l][j] = '.';
+          grid[r][j] = rock;
+          jl--;
+          jr--;
+        }
+      }
+    }
+
+    // to right
+    for (let i = 0; i < grid.length; i++) {
+      let row = grid[i];
+      let jl = row.length - 1;
+      let jr = row.length - 1;
+
+      while (jl >= 0) {
+        while (row[jr] && row[jr] !== '.') {
+          jr--;
+        }
+        let r = jr;
+
+        jl = Math.min(jr - 1, jl);
+
+        while (jl >= 0) {
+          if (row[jl] === rock) break;
+          if (row[jl] === '#') {
+            jr = jl;
+            r = jl;
+            break;
+          }
+
+          jl--;
+        }
+        let l = jl;
+
+        if (row[l] === rock && row[r] === '.') {
+          row[l] = '.';
+          row[r] = rock;
+          jl--;
+          jr--;
+        }
+      }
+    }
   }
-
 
   let height = grid.length;
 
