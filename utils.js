@@ -154,7 +154,7 @@ export function lcm(list) {
 }
 
 export function printGrid(grid) {
-  let res = '\n' +grid.map(row => row.join('')).join('\n');
+  let res = grid.map(row => row.join('')).join('\n');
 
   return res;
 }
