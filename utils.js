@@ -159,6 +159,19 @@ export function printGrid(grid) {
   return res;
 }
 
+export function makeGridWithBorder(inp, border) {
+  let lines = inp.split('\n');
+
+  let res = [];
+  res.push(border.repeat(lines[0].length + 2));
+  for (let line of lines) {
+    res.push(border + line + border);
+  }
+  res.push(border.repeat(lines[0].length + 2));
+
+  return res;
+}
+
 export function printGridCb(grid, cb) {
   let res = grid.map((row, i) => {
     return row.map((cell, j) => {

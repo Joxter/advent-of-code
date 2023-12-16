@@ -1,4 +1,4 @@
-import { runDay } from '../../utils.js';
+import { makeGridWithBorder, runDay } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/16
 
@@ -8,186 +8,99 @@ runDay(2023, 16)
   .end();
 
 function part1(inp) {
-  let grid = inp.split('\n').map((line) => line.split(''));
+  let grid = makeGridWithBorder(inp, 'X');
 
-  let energized = {};
-
-  function goBeam(direction, i, j) {
-    let cell = grid[i]?.[j];
-
-    if (cell) {
-      let key = i + ',' + j;
-
-      if (energized[key] === direction) {
-        return;
-      } else {
-        energized[key] = direction;
-      }
-    } else {
-      return;
-    }
-    if (cell === '.') {
-      if (direction === 'r') {
-        goBeam(direction, i, j + 1);
-      } else if (direction === 'l') {
-        goBeam(direction, i, j - 1);
-      } else if (direction === 'u') {
-        goBeam(direction, i - 1, j);
-      } else if (direction === 'd') {
-        goBeam(direction, i + 1, j);
-      }
-      return;
-    }
-
-    if (cell === '|') {
-      if (direction === 'l' || direction === 'r') {
-        goBeam('d', i + 1, j);
-        goBeam('u', i - 1, j);
-      } else if (direction === 'd') {
-        goBeam('d', i + 1, j);
-      } else if (direction === 'u') {
-        goBeam('u', i - 1, j);
-      }
-    } else if (cell === '-') {
-      if (direction === 'u' || direction === 'd') {
-        goBeam('r', i, j + 1);
-        goBeam('l', i, j - 1);
-      } else if (direction === 'l') {
-        goBeam('l', i, j - 1);
-      } else if (direction === 'r') {
-        goBeam('r', i, j + 1);
-      }
-    } else if (cell === '\\') {
-      if (direction === 'l') {
-        goBeam('u', i - 1, j);
-      } else if (direction === 'u') {
-        goBeam('l', i, j - 1);
-      } else if (direction === 'd') {
-        goBeam('r', i, j + 1);
-      } else if (direction === 'r') {
-        goBeam('d', i + 1, j);
-      }
-    } else if (cell === '/') {
-      debugger
-      if (direction === 'l') {
-        goBeam('d', i + 1, j);
-      } else if (direction === 'u') {
-        goBeam('r', i, j + 1);
-      } else if (direction === 'd') {
-        goBeam('l', i, j - 1);
-      } else if (direction === 'r') {
-        goBeam('u', i - 1, j);
-      }
-    }
-  }
-
-  goBeam('r', 0, 0);
-
-  return Object.keys(energized).length;
+  return beeeeeam(grid, ['r', 1, 1]);
 }
 
 function part2(inp) {
-  let grid = inp.split('\n').map((line) => line.split(''));
+  let grid = makeGridWithBorder(inp, 'X');
 
-  let energized = {};
+  let max = 0;
 
-  function goBeam(direction, i, j) {
-    let cell = grid[i]?.[j];
+  for (let i = 1; i < grid.length - 1; i++) {
+    let dCnt = beeeeeam(grid, ['d', 1, i]);
+    let uCnt = beeeeeam(grid, ['u', grid.length - 2, i]);
+    let rCnt = beeeeeam(grid, ['r', i, 1]);
+    let lCnt = beeeeeam(grid, ['l', i, grid.length - 2]);
 
-    if (cell) {
-      let key = i + ',' + j;
+    max = Math.max(max, dCnt, uCnt, rCnt, lCnt);
+  }
 
-      if (energized[key] === direction) {
-        return;
-      } else {
-        energized[key] = direction;
-      }
+  return max;
+}
+
+function beeeeeam(grid, start) {
+  let energized = Array(grid.length * grid[0].length);
+
+  let stack = [start];
+  while (stack.length > 0) {
+    let [direction, i, j] = stack.pop();
+    let cell = grid[i][j];
+
+    if (cell === 'X') continue;
+
+    let key = i * grid.length + j;
+
+    if (energized[key] === direction) {
+      continue;
     } else {
-      return;
+      energized[key] = direction;
     }
+
     if (cell === '.') {
       if (direction === 'r') {
-        goBeam(direction, i, j + 1);
+        stack.push(['r', i, j + 1]);
       } else if (direction === 'l') {
-        goBeam(direction, i, j - 1);
+        stack.push(['l', i, j - 1]);
       } else if (direction === 'u') {
-        goBeam(direction, i - 1, j);
+        stack.push(['u', i - 1, j]);
       } else if (direction === 'd') {
-        goBeam(direction, i + 1, j);
+        stack.push(['d', i + 1, j]);
       }
-      return;
+      continue;
     }
 
     if (cell === '|') {
       if (direction === 'l' || direction === 'r') {
-        goBeam('d', i + 1, j);
-        goBeam('u', i - 1, j);
+        stack.push(['d', i + 1, j]);
+        stack.push(['u', i - 1, j]);
       } else if (direction === 'd') {
-        goBeam('d', i + 1, j);
+        stack.push(['d', i + 1, j]);
       } else if (direction === 'u') {
-        goBeam('u', i - 1, j);
+        stack.push(['u', i - 1, j]);
       }
     } else if (cell === '-') {
       if (direction === 'u' || direction === 'd') {
-        goBeam('r', i, j + 1);
-        goBeam('l', i, j - 1);
+        stack.push(['r', i, j + 1]);
+        stack.push(['l', i, j - 1]);
       } else if (direction === 'l') {
-        goBeam('l', i, j - 1);
+        stack.push(['l', i, j - 1]);
       } else if (direction === 'r') {
-        goBeam('r', i, j + 1);
+        stack.push(['r', i, j + 1]);
       }
     } else if (cell === '\\') {
       if (direction === 'l') {
-        goBeam('u', i - 1, j);
+        stack.push(['u', i - 1, j]);
       } else if (direction === 'u') {
-        goBeam('l', i, j - 1);
+        stack.push(['l', i, j - 1]);
       } else if (direction === 'd') {
-        goBeam('r', i, j + 1);
+        stack.push(['r', i, j + 1]);
       } else if (direction === 'r') {
-        goBeam('d', i + 1, j);
+        stack.push(['d', i + 1, j]);
       }
     } else if (cell === '/') {
       if (direction === 'l') {
-        goBeam('d', i + 1, j);
+        stack.push(['d', i + 1, j]);
       } else if (direction === 'u') {
-        goBeam('r', i, j + 1);
+        stack.push(['r', i, j + 1]);
       } else if (direction === 'd') {
-        goBeam('l', i, j - 1);
+        stack.push(['l', i, j - 1]);
       } else if (direction === 'r') {
-        goBeam('u', i - 1, j);
+        stack.push(['u', i - 1, j]);
       }
     }
   }
 
-  let max = 0;
-
-  for (let i = 0; i < grid[0].length; i++) {
-    energized = {};
-    goBeam('d', 0, i);
-    let en = Object.keys(energized).length;
-    max = Math.max(max, en);
-  }
-
-  for (let i = 0; i < grid[0].length; i++) {
-    energized = {};
-    goBeam('u', grid.length - 1, i);
-    let en = Object.keys(energized).length;
-    max = Math.max(max, en);
-  }
-
-  for (let i = 0; i < grid.length; i++) {
-    energized = {};
-    goBeam('r', i, 0);
-    let en = Object.keys(energized).length;
-    max = Math.max(max, en);
-  }
-
-  for (let i = 0; i < grid.length; i++) {
-    energized = {};
-    goBeam('l', i, grid[0].length - 1);
-    let en = Object.keys(energized).length;
-    max = Math.max(max, en);
-  }
-
-  return max;
+  return energized.filter(Boolean).length;
 }
