@@ -43,7 +43,16 @@ function part2(inp) {
   let width = grid[0].length;
   let height = grid.length;
 
+  // let start = Date.now();
+
   for (let i = 1; i <= limit; i++) {
+    // if (i % 10_000 === 0) {
+    //   console.log('progress',
+    //     (i * 100 / limit).toFixed(3) + '%',
+    //     [formatTime(Date.now() - start)],
+    //     `${i / 1000_000}kk`);
+    // }
+
     // to top
     for (let j = 0; j < width; j++) {
       let jSlow = 0;
