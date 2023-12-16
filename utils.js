@@ -159,6 +159,16 @@ export function printGrid(grid) {
   return res;
 }
 
+export function printGridCb(grid, cb) {
+  let res = grid.map((row, i) => {
+    return row.map((cell, j) => {
+      return cb(cell, i, j);
+    }).join('');
+  }).join('\n');
+
+  return res;
+}
+
 export function waitHard(msec) {
   let start = Date.now();
   while (Date.now() - start < msec) {
