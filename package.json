@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/Joxter/advent-2022/issues"
   },
-  "homepage": "https://github.com/Joxter/advent-2022#readme"
+  "homepage": "https://github.com/Joxter/advent-2022#readme",
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
 }

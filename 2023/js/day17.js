@@ -1,7 +1,7 @@
-import { allNeibs8, makeGridWithBorder, printGridCb, PriorityQueue, runDay } from '../../utils.js';
+import { allNeibs8, makeGridWithBorder, printGridCb, runDay } from '../../utils.js';
+import readlineSync from 'readline-sync';
 
 // https://adventofcode.com/2023/day/17
-
 
 console.log(part1(`2413432311323
 3215453535623
@@ -18,76 +18,117 @@ console.log(part1(`2413432311323
 4322674655533`));
 
 runDay(2023, 17)
-  // .part(1, part1)
+  .part(1, part1)
   // .part(2, part2)
   .end();
+
+function printGridAndPath(grid, path, allP) {
+  let a = printGridCb(grid, (cell, gi, gj) => {
+    if (path.find(([pi, pj]) => gi === pi && gj === pj)) {
+      return ` [${cell}]`;
+    } else if (allP.find((p) => {
+        return p.find(([pi, pj]) => gi === pi && gj === pj);
+      }
+    )) {
+      return `  ${cell}!`;
+    } else {
+      return `  ${cell} `;
+    }
+  });
+
+  return a;
+}
+
+function printM(m) {
+  let a = m.map(r => {
+    return r.map((it) => {
+      return Number.isFinite(it) ? String(it).padStart(3, ' ') + ' ' : '  x ';
+    }).join('');
+  }).join('\n');
+
+  return a;
+}
+
+function pathContains(path, i, j) {
+  return !!path.find(([pi, pj]) => i === pi && j === pj);
+}
+
+function printDbg(grid, m, path, q) {
+  console.log(JSON.stringify(path));
+  console.log(printGridAndPath(grid, path, q.map(([acc, i, j, dir, cnt, path]) => {
+    return path;
+  })));
+  console.log('');
+  console.log(printM(m));
+
+  readlineSync.question('wait');
+}
 
 function part1(inp) {
   let grid = makeGridWithBorder(inp, 'x');
   // console.log(grid);
 
-  let m = Array(grid.length).fill(0).map(() => {
+  let maxGridU = Array(grid.length).fill(0).map(() => {
+    return Array(grid[0].length).fill(Infinity);
+  });
+  let maxGridD = Array(grid.length).fill(0).map(() => {
+    return Array(grid[0].length).fill(Infinity);
+  });
+  let maxGridL = Array(grid.length).fill(0).map(() => {
+    return Array(grid[0].length).fill(Infinity);
+  });
+  let maxGridR = Array(grid.length).fill(0).map(() => {
     return Array(grid[0].length).fill(Infinity);
   });
   let maxSteps = 3;
 
-  let q = [[0, 1, 1, 'r', maxSteps, [[1, 1]]]]; // acc, i, j, direction, straight steps, path
-
+  let q = [0, 1, 1, 'r', maxSteps, [[1, 1]]]]; // acc, i, j, direction, straight steps, path
   let result = Infinity;
-  // debugger
-
   let aMin = 1000;
 
+  let iters = 0;
+
   while (q.length > 0) {
+    if (++iters % 50_000 === 0) {
+      console.log({ iters }, q.length);
+    }
     let [acc, i, j, dir, cnt, path] = q.shift();
     // console.log(acc, [i,j], dir, cnt);
 
-    if (i === 3 && j === 10 && acc < aMin) {
-      // console.log('3-10', acc);
-      // console.log(printGridCb(grid, (cell, gi, gj) => {
-      //   if (path.find(([pi, pj]) => gi === pi && gj === pj)) {
-      //     return '*';
-      //   } else {
-      //     return cell;
-      //   }
-      // }));
-      // aMin = acc;
-      // debugger
-    }
+    // debugger
+    // if (pathContains(path, 3, 11)) {
+    // console.log('3-11', acc);
 
-    // [[1,1],[1,2],[1,3],[2,3],[2,4],[2,5],[2,6],[1,6],[1,7],[1,8],[1,9],[2,9],[2,10],[3,10],[3,11],[4,11],[4,12],[5,12],[6,12],[7,12],[7,13],[8,13],[9,13],[10,13],[10,12],[11,12],[12,12],[13,12],[13,13]]
-    // [[1,1],[1,2],[1,3],[2,3],[2,4],[2,5],[2,6],[1,6],[1,7],[1,8],[1,9],[2,9]]
-    if (JSON.stringify(path) === '[[1,1],[1,2],[1,3],[2,3],[2,4],[2,5],[2,6],[1,6],[1,7],[1,8],[1,9],[2,9],[3,9],[3,10]]') {
-      // console.log('>>>', 'OK');
-      // console.log(printGridCb(grid, (cell, gi, gj) => {
-      //   if (path.find(([pi, pj]) => gi === pi && gj === pj)) {
-      //     return '*';
-      //   } else {
-      //     return cell;
-      //   }
-      // }));
-      // // debugger
-    }
+    // printDbg(grid, maxGrid, path, q);
+    // aMin = acc;
+    // debugger
+    // }
 
     if (cnt < 1) continue;
 
     if (i === grid.length - 2 && j === grid[0].length - 2 && acc < result) {
-      console.log('');
-      console.log(JSON.stringify(path));
-      console.log({ acc });
-      console.log(printGridCb(grid, (cell, gi, gj) => {
-        if (path.find(([pi, pj]) => gi === pi && gj === pj)) {
-          return '*';
-        } else {
-          return cell;
-        }
-      }));
+      console.log('>>>> RESULT', q.length, [acc], iters);
+      // console.log({ acc }, JSON.stringify(path));
+      // console.log(printGridAndPath(grid, path));
       result = acc;
     }
 
-    let c = [acc, m[i][j]];
-    if (acc >= m[i][j]) continue;
-    m[i][j] = acc;
+    if (dir === 'u') {
+      if (acc > maxGridU[i][j]) continue;
+      maxGridU[i][j] = acc;
+    }
+    if (dir === 'd') {
+      if (acc > maxGridD[i][j]) continue;
+      maxGridD[i][j] = acc;
+    }
+    if (dir === 'l') {
+      if (acc > maxGridL[i][j]) continue;
+      maxGridL[i][j] = acc;
+    }
+    if (dir === 'r') {
+      if (acc > maxGridR[i][j]) continue;
+      maxGridR[i][j] = acc;
+    }
 
     // down
     if (grid[i + 1][j] !== 'x') {
@@ -135,13 +176,6 @@ function part1(inp) {
     }
   }
 
-  // console.log(m.map(r => {
-  //   return r.map((it) => {
-  //     // console.log(it);
-  //     return Number.isFinite(it) ? String(it).padStart(3,' ') : 'x'
-  //   }).join(',')
-  // }).join('\n'));
-
   return result;
 }
 
@@ -151,6 +185,20 @@ function part2(inp) {
 
 
 /*
+
+2413432311323
+3215453535623
+3255245654254
+3446585845452
+4546657867536
+1438598798454
+4457876987766
+3637877979653
+4654967986887
+4564679986453
+1224686865563
+2546548887735
+4322674655533
 
 2>>34^>>>1323
 32v>>>35v5623
@@ -181,4 +229,26 @@ x25465488877*5x
 x43226746555**x
 */
 
+
+function myQ() {
+  let obj = {};
+
+  let q = {
+    add(acc, data) {
+      if (!obj[+acc]) obj[+acc] = [];
+      obj[+acc].push(data);
+
+      return q;
+    },
+    pop() {
+      for (const objKey in obj) {
+        let arr = obj[objKey];
+        let it = arr.pop();
+        return it;
+      }
+    }
+  };
+
+  return q;
+}
 

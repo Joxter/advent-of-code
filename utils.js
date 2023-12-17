@@ -225,7 +225,7 @@ export function PriorityQueue() {
     for (let i = 0; i < items.length; i++) {
       //We are using giving priority to higher numbers
       //If new element has more priority then add it at that place
-      if (queueElement.priority > items[i].priority) {
+      if (queueElement.priority < items[i].priority) {
         items.splice(i, 0, queueElement);
 
         //Mark the flag true
@@ -273,3 +273,19 @@ export function PriorityQueue() {
     }
   };
 }
+
+/*
+let pQ = new PriorityQueue();
+pQ.enqueue(1, 5);
+pQ.enqueue(6, 3);
+pQ.enqueue(61, 3);
+pQ.enqueue(11, 7);
+pQ.enqueue(5, 2);
+pQ.enqueue(13, 1);
+pQ.enqueue(10, 8);
+pQ.dequeue();
+pQ.print();
+
+while (!pQ.isEmpty()) {
+  console.log(pQ.dequeue());
+}*/
