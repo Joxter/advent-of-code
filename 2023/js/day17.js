@@ -3,6 +3,17 @@ import readlineSync from 'readline-sync';
 
 // https://adventofcode.com/2023/day/17
 
+//                 0
+//                  1234567890
+// console.log(part2(`01111111111`), ['OK']);
+// console.log(part2(`011111111111`), ['UNDEF']);
+
+console.log('---');
+//                 0
+//                  1234567890
+// console.log(part2(`01111`), ['OK']);
+// console.log(part2(`0111`), ['UNDEF']);
+
 console.log(part2(`2413432311323
 3215453535623
 3255245654254
@@ -17,6 +28,10 @@ console.log(part2(`2413432311323
 2546548887735
 4322674655533`), [94]);
 
+// .rrrrrrrrddddrrrrdddddddd 25
+// .8r 4d 4r 8d (CORRECT)
+
+//
 console.log(part2(`111111111111
 999999999991
 999999999991
@@ -167,14 +182,19 @@ function part2(inp) {
   let maxGrid = {};
 
   let q = ProitoryQueue();
-  let ppp = ['.'];
+  let ppp = '.';
 
-  q.push(0, [0, 1, 1, 'r', 0, ppp]); // acc, i, j, direction, straight steps, path
+  q.push(0, [0, 1, 1, '.', 0, ppp]); // acc, i, j, direction, straight steps, path
   let iters = 0;
 
   while (!q.isEmpty()) {
     let [acc, i, j, dir, directionCnt, path] = q.pop();
     // console.log([acc, i, j, dir, directionCnt, path]);
+    // 8r 4d 4r 8d (CORRECT)
+
+    // if (path.startsWith('.rrrrd')) {
+    //   console.log('cor', path);
+    // }
 
     if (directionCnt === 4) {
       debugger
@@ -185,6 +205,7 @@ function part2(inp) {
     }
 
     if (grid[i][j] === 'x') continue;
+    if (directionCnt > 10) continue;
 
     let gkey = `${dir}-${directionCnt}-${i}-${j}`;
     if (maxGrid[gkey]) {
@@ -197,7 +218,7 @@ function part2(inp) {
       maxGrid[gkey] = acc;
     }
 
-    if (i === grid.length - 2 && j === grid[0].length - 2) {
+    if (i === grid.length - 2 && j === grid[0].length - 2 && directionCnt >= 4) {
       console.log('>>>> RESULT', [acc], iters, path, path.length);
       // console.log('keys: ', Object.keys(maxGrid).length);
       // console.log({ iters }, 'size:', q.size());
@@ -205,8 +226,41 @@ function part2(inp) {
       return acc;
     }
 
+
+    // dir = 'u', cnt = 2
+    // d- false
+    // u - true
+    // r - false
+    // l - fasle
+
+    // dir = 'u', cnt = 4
+    // d- false
+    // u - true
+    // r - false
+    // l - fasle
+
+    let possibleD = dir === '.' ||
+      (dir === 'd' && directionCnt <= 10 || dir !== 'd' && directionCnt >= 3)
+      && dir !== 'u';
+    let possibleU = dir === '.' ||
+      (dir === 'u' && directionCnt <= 10 || dir !== 'u' && directionCnt >= 3)
+      && dir !== 'd';
+    let possibleR = dir === '.' ||
+      (dir === 'r' && directionCnt <= 10 || dir !== 'r' && directionCnt >= 3)
+      && dir !== 'l';
+    let possibleL = dir === '.' ||
+      (dir === 'l' && directionCnt <= 10 || dir !== 'l' && directionCnt >= 3)
+      && dir !== 'r';
+
+    if (!possibleD && !possibleU && !possibleR && !possibleL) {
+      console.log([i, j], { dir, directionCnt });
+    }
+
+    // console.log({possibleD, });
+
+
     // down
-    if (!(dir === 'd' && directionCnt === 10) && dir !== 'u') {
+    if (possibleD) {
       let cell = +grid[i + 1][j];
       // let newPath = [...path, [i, j, 'd']];
       let newPath = path + 'd';
@@ -216,11 +270,10 @@ function part2(inp) {
       } else {
         q.push(acc + cell, [acc + cell, i + 1, j, 'd', 0, newPath]);
       }
-      if (dir === 'd' && directionCnt < 4) continue;
     }
 
     // right
-    if (!(dir === 'r' && directionCnt === 10) && dir !== 'l') {
+    if (possibleR) {
       let cell = +grid[i][j + 1];
       // let newPath = [...path, [i, j, 'r']];
       let newPath = path + 'r';
@@ -230,11 +283,10 @@ function part2(inp) {
       } else {
         q.push(acc + cell, [acc + cell, i, j + 1, 'r', 0, newPath]);
       }
-      if (dir === 'r' && directionCnt < 4) continue;
     }
 
     // left
-    if (!(dir === 'l' && directionCnt === 10) && dir !== 'r') {
+    if (possibleL) {
       if (grid[i][j - 1] !== 'x') {
         let cell = +grid[i][j - 1];
         // let newPath = [...path, [i, j, 'l']];
@@ -246,11 +298,10 @@ function part2(inp) {
           q.push(acc + cell, [acc + cell, i, j - 1, 'l', 0, newPath]);
         }
       }
-      if (dir === 'l' && directionCnt < 4) continue;
     }
 
     // up
-    if (!(dir !== 'u' && directionCnt === 10) && dir !== 'd') {
+    if (possibleU) {
       if (grid[i - 1][j] !== 'x') {
         let cell = +grid[i - 1][j];
         // let newPath = [...path, [i, j, 'u']];
@@ -262,7 +313,6 @@ function part2(inp) {
           q.push(acc + cell, [acc + cell, i - 1, j, 'u', 0, newPath]);
         }
       }
-      if (dir === 'u' && directionCnt < 4) continue;
     }
   }
 }
