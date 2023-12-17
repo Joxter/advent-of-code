@@ -1,4 +1,4 @@
-import { allNeibs8, makeGridWithBorder, printGridCb, runDay } from '../../utils.js';
+import { allNeibs8, makeGridWithBorder, printGridCb, ProitoryQueue, ProitoryQueueArr, runDay } from '../../utils.js';
 import readlineSync from 'readline-sync';
 
 // https://adventofcode.com/2023/day/17
@@ -18,7 +18,7 @@ console.log(part1(`2413432311323
 4322674655533`));
 
 runDay(2023, 17)
-  .part(1, part1)
+  // .part(1, part1, '850 hight')
   // .part(2, part2)
   .end();
 
@@ -54,10 +54,8 @@ function pathContains(path, i, j) {
 }
 
 function printDbg(grid, m, path, q) {
-  console.log(JSON.stringify(path));
-  console.log(printGridAndPath(grid, path, q.map(([acc, i, j, dir, cnt, path]) => {
-    return path;
-  })));
+  // console.log(JSON.stringify(path));
+  // console.log(printGridAndPath(grid, path, []));
   console.log('');
   console.log(printM(m));
 
@@ -82,32 +80,29 @@ function part1(inp) {
   });
   let maxSteps = 3;
 
-  let q = [0, 1, 1, 'r', maxSteps, [[1, 1]]]]; // acc, i, j, direction, straight steps, path
+  let q = ProitoryQueue();
+  // let q = ProitoryQueueArr();
+  q.push(0, [0, 1, 1, 'r', maxSteps, 0]); // acc, i, j, direction, straight steps, path
   let result = Infinity;
   let aMin = 1000;
 
   let iters = 0;
+  let ans = 0;
 
-  while (q.length > 0) {
+  while (!q.isEmpty()) {
+    let [acc, i, j, dir, cnt, path] = q.pop();
+
     if (++iters % 50_000 === 0) {
-      console.log({ iters }, q.length);
+      console.log({ iters }, 'path:', path);
     }
-    let [acc, i, j, dir, cnt, path] = q.shift();
-    // console.log(acc, [i,j], dir, cnt);
-
-    // debugger
-    // if (pathContains(path, 3, 11)) {
-    // console.log('3-11', acc);
-
-    // printDbg(grid, maxGrid, path, q);
-    // aMin = acc;
-    // debugger
-    // }
 
     if (cnt < 1) continue;
 
+    if (i === grid.length - 2 && j === grid[0].length - 2) {
+      // ans++;
+    }
     if (i === grid.length - 2 && j === grid[0].length - 2 && acc < result) {
-      console.log('>>>> RESULT', q.length, [acc], iters);
+      console.log('>>>> RESULT', [acc], iters, path);
       // console.log({ acc }, JSON.stringify(path));
       // console.log(printGridAndPath(grid, path));
       result = acc;
@@ -130,51 +125,54 @@ function part1(inp) {
       maxGridR[i][j] = acc;
     }
 
+    // printDbg(grid, maxGridR, [], q)
+
     // down
     if (grid[i + 1][j] !== 'x') {
       let cell = +grid[i + 1][j];
-      let newPath = [...path, [i + 1, j]];
+      let newPath = path + 1;
 
       if (dir === 'd') {
-        q.push([acc + cell, i + 1, j, 'd', cnt - 1, newPath]);
+        q.push(acc + cell, [acc + cell, i + 1, j, 'd', cnt - 1, newPath]);
       } else {
-        q.push([acc + cell, i + 1, j, 'd', maxSteps, newPath]);
+        q.push(acc + cell, [acc + cell, i + 1, j, 'd', maxSteps, newPath]);
       }
     }
     // right
     if (grid[i][j + 1] !== 'x') {
       let cell = +grid[i][j + 1];
-      let newPath = [...path, [i, j + 1]];
+      let newPath = path + 1;
 
       if (dir === 'r') {
-        q.push([acc + cell, i, j + 1, 'r', cnt - 1, newPath]);
+        q.push(acc + cell, [acc + cell, i, j + 1, 'r', cnt - 1, newPath]);
       } else {
-        q.push([acc + cell, i, j + 1, 'r', maxSteps, newPath]);
+        q.push(acc + cell, [acc + cell, i, j + 1, 'r', maxSteps, newPath]);
       }
     }
     // left
     if (grid[i][j - 1] !== 'x') {
       let cell = +grid[i][j - 1];
-      let newPath = [...path, [i, j - 1]];
+      let newPath = path + 1;
 
       if (dir === 'l') {
-        q.push([acc + cell, i, j - 1, 'l', cnt - 1, newPath]);
+        q.push(acc + cell, [acc + cell, i, j - 1, 'l', cnt - 1, newPath]);
       } else {
-        q.push([acc + cell, i, j - 1, 'l', maxSteps, newPath]);
+        q.push(acc + cell, [acc + cell, i, j - 1, 'l', maxSteps, newPath]);
       }
     }
     // up
     if (grid[i - 1][j] !== 'x') {
       let cell = +grid[i - 1][j];
-      let newPath = [...path, [i - 1, j]];
+      let newPath = path + 1;
 
       if (dir === 'u') {
-        q.push([acc + cell, i - 1, j, 'u', cnt - 1, newPath]);
+        q.push(acc + cell, [acc + cell, i - 1, j, 'u', cnt - 1, newPath]);
       } else {
-        q.push([acc + cell, i - 1, j, 'u', maxSteps, newPath]);
+        q.push(acc + cell, [acc + cell, i - 1, j, 'u', maxSteps, newPath]);
       }
     }
   }
+  // console.log({ ans });
 
   return result;
 }

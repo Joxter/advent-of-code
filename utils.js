@@ -207,85 +207,51 @@ export function forEachInGrid(grid, cb) {
   }
 }
 
-export function PriorityQueue() {
-  let items = [];
+export function ProitoryQueue() {
+  // push(n, data) - add to the queue
+  // pop() - returns "data" with the lowest "n"
 
-  //Container
-  function QueueElement(element, priority) {
-    this.element = element;
-    this.priority = priority;
-  }
+  let arr = [];
+  let map = {};
+  let size = 0;
 
-  //Add a new element in queue
-  this.enqueue = function (element, priority) {
-    let queueElement = new QueueElement(element, priority);
-
-    //To check if element is added
-    let added = false;
-    for (let i = 0; i < items.length; i++) {
-      //We are using giving priority to higher numbers
-      //If new element has more priority then add it at that place
-      if (queueElement.priority < items[i].priority) {
-        items.splice(i, 0, queueElement);
-
-        //Mark the flag true
-        added = true;
-        break;
+  return {
+    push(n, data) {
+      if (map[n] === undefined) {
+        map[n] = [];
       }
-    }
-
-    //If element is not added
-    //Then add it to the end of the queue
-    if (!added) {
-      items.push(queueElement);
-    }
-  };
-
-  //Remove element from the queue
-  this.dequeue = () => {
-    return items.shift();
-  };
-
-  //Return the first element from the queue
-  this.front = () => {
-    return items[0];
-  };
-
-  //Return the last element from the queue
-  this.rear = () => {
-    return items[items.length - 1];
-  };
-
-  //Check if queue is empty
-  this.isEmpty = () => {
-    return items.length == 0;
-  };
-
-  //Return the size of the queue
-  this.size = () => {
-    return items.length;
-  };
-
-  //Print the queue
-  this.print = function () {
-    for (let i = 0; i < items.length; i++) {
-      console.log(`${items[i].element} - ${items[i].priority}`);
+      map[n].push(data);
+      size++;
+    },
+    pop() {
+      let min = Math.min(...Object.keys(map));
+      // console.log(min, map);
+      let res = map[min].pop();
+      if (map[min].length === 0) {
+        delete map[min];
+      }
+      size--;
+      return res;
+    },
+    isEmpty() {
+      return size === 0;
     }
   };
 }
 
-/*
-let pQ = new PriorityQueue();
-pQ.enqueue(1, 5);
-pQ.enqueue(6, 3);
-pQ.enqueue(61, 3);
-pQ.enqueue(11, 7);
-pQ.enqueue(5, 2);
-pQ.enqueue(13, 1);
-pQ.enqueue(10, 8);
-pQ.dequeue();
-pQ.print();
+export function ProitoryQueueArr() {
+  let arr = [];
 
-while (!pQ.isEmpty()) {
-  console.log(pQ.dequeue());
-}*/
+  return {
+    push(n, data) {
+      arr.push(data)
+    },
+    pop() {
+      let it = arr.shift()
+      return it;
+    },
+    isEmpty() {
+      return arr.length === 0;
+    }
+  };
+}
