@@ -42,7 +42,7 @@ console.log(part2(`111111111111
 
 runDay(2023, 17)
   // .part(1, part1)
-  // .part(2, part2)
+  .part(2, part2)
   .end();
 
 function printGridAndPath(grid, path, allP) {
