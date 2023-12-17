@@ -196,9 +196,9 @@ function part2(inp) {
     // .7r 4d 4r (correct)
 
     if (path.startsWith('.rrrrrrrdddd')) {
-      console.log('cor', path);
+      // console.log('cor', path);
     }
-    if (path === '.rrrrrrrrrrr') {
+    if (path === '.rrr') {
       debugger
     }
 
@@ -242,16 +242,16 @@ function part2(inp) {
     // l - fasle
 
     let possibleD = dir === '.' ||
-      (dir === 'd' && directionCnt <= 10 || dir !== 'd' && directionCnt >= 3)
+      (dir === 'd' && directionCnt <= 10 || dir !== 'd' && directionCnt >= 4)
       && dir !== 'u';
     let possibleU = dir === '.' ||
-      (dir === 'u' && directionCnt <= 10 || dir !== 'u' && directionCnt >= 3)
+      (dir === 'u' && directionCnt <= 10 || dir !== 'u' && directionCnt >= 4)
       && dir !== 'd';
     let possibleR = dir === '.' ||
-      (dir === 'r' && directionCnt <= 10 || dir !== 'r' && directionCnt >= 3)
+      (dir === 'r' && directionCnt <= 10 || dir !== 'r' && directionCnt >= 4)
       && dir !== 'l';
     let possibleL = dir === '.' ||
-      (dir === 'l' && directionCnt <= 10 || dir !== 'l' && directionCnt >= 3)
+      (dir === 'l' && directionCnt <= 10 || dir !== 'l' && directionCnt >= 4)
       && dir !== 'r';
 
     if (!possibleD && !possibleU && !possibleR && !possibleL) {
