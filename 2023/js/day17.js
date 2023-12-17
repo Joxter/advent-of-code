@@ -18,7 +18,7 @@ console.log(part1(`2413432311323
 4322674655533`));
 
 runDay(2023, 17)
-  // .part(1, part1, '850 hight')
+  // .part(1, part1, '850 hight, 843 low')
   // .part(2, part2)
   .end();
 
@@ -39,13 +39,24 @@ function printGridAndPath(grid, path, allP) {
   return a;
 }
 
-function printM(m) {
-  let a = m.map(r => {
-    return r.map((it) => {
-      return Number.isFinite(it) ? String(it).padStart(3, ' ') + ' ' : '  x ';
+function printM(grid, maxGrid, path) {
+  let max = Array(grid.length).fill(0).map(() => {
+    return Array(grid[0].length).fill(Infinity);
+  });
+
+  // `${dir}-${cnt}-${i}-${j}`
+  for (const maxGridKey in maxGrid) {
+    let [, , i, j] = maxGridKey.split('-');
+    max[i][j] = Math.min(max[i][j], maxGrid[maxGridKey]);
+  }
+
+  let a = max.map((r, i) => {
+    return r.map((it, j) => {
+      // let inc = path.find(([pi, pj]) => i === pi && j === pj)?.[2] || ' ';
+      let inc = ' ';
+      return Number.isFinite(it) ? String(it).padStart(3, ' ') + inc : '  x ';
     }).join('');
   }).join('\n');
-
   return a;
 }
 
@@ -55,9 +66,9 @@ function pathContains(path, i, j) {
 
 function printDbg(grid, m, path, q) {
   // console.log(JSON.stringify(path));
-  // console.log(printGridAndPath(grid, path, []));
+  console.log(printGridAndPath(grid, path, []));
   console.log('');
-  console.log(printM(m));
+  // console.log(printM(m));
 
   readlineSync.question('wait');
 }
@@ -66,23 +77,16 @@ function part1(inp) {
   let grid = makeGridWithBorder(inp, 'x');
   // console.log(grid);
 
-  let maxGridU = Array(grid.length).fill(0).map(() => {
-    return Array(grid[0].length).fill(Infinity);
-  });
-  let maxGridD = Array(grid.length).fill(0).map(() => {
-    return Array(grid[0].length).fill(Infinity);
-  });
-  let maxGridL = Array(grid.length).fill(0).map(() => {
-    return Array(grid[0].length).fill(Infinity);
-  });
-  let maxGridR = Array(grid.length).fill(0).map(() => {
-    return Array(grid[0].length).fill(Infinity);
-  });
+  let maxGrid = {};
+
   let maxSteps = 3;
 
   let q = ProitoryQueue();
   // let q = ProitoryQueueArr();
-  q.push(0, [0, 1, 1, 'r', maxSteps, 0]); // acc, i, j, direction, straight steps, path
+  // let ppp = [[1,1,'?']];
+  let ppp = ['.'];
+
+  q.push(0, [0, 1, 1, 'r', maxSteps, ppp]); // acc, i, j, direction, straight steps, path
   let result = Infinity;
   let aMin = 1000;
 
@@ -92,8 +96,8 @@ function part1(inp) {
   while (!q.isEmpty()) {
     let [acc, i, j, dir, cnt, path] = q.pop();
 
-    if (++iters % 50_000 === 0) {
-      console.log({ iters }, 'path:', path);
+    if (++iters % 1_000_000 === 0) {
+      console.log({ iters }, q.size(), path.length);
     }
 
     if (cnt < 1) continue;
@@ -101,36 +105,44 @@ function part1(inp) {
     if (i === grid.length - 2 && j === grid[0].length - 2) {
       // ans++;
     }
-    if (i === grid.length - 2 && j === grid[0].length - 2 && acc < result) {
-      console.log('>>>> RESULT', [acc], iters, path);
+
+    let gkey = `${dir}-${cnt}-${i}-${j}`;
+    if (maxGrid[gkey]) {
+      if (acc > maxGrid[gkey]) {
+        continue;
+      } else {
+        maxGrid[gkey] = acc;
+      }
+    } else {
+      maxGrid[gkey] = acc;
+    }
+
+    // if (i === 8 && j === 13 && acc === 73) {
+    //   console.log({ dir, cnt });
+    //   // debugger
+    // }
+
+    if (i === grid.length - 2 && j === grid[0].length - 2) {
+      console.log(cnt);
+      console.log('>>>> RESULT', [acc], iters, path, path.length);
       // console.log({ acc }, JSON.stringify(path));
       // console.log(printGridAndPath(grid, path));
       result = acc;
-    }
 
-    if (dir === 'u') {
-      if (acc > maxGridU[i][j]) continue;
-      maxGridU[i][j] = acc;
-    }
-    if (dir === 'd') {
-      if (acc > maxGridD[i][j]) continue;
-      maxGridD[i][j] = acc;
-    }
-    if (dir === 'l') {
-      if (acc > maxGridL[i][j]) continue;
-      maxGridL[i][j] = acc;
-    }
-    if (dir === 'r') {
-      if (acc > maxGridR[i][j]) continue;
-      maxGridR[i][j] = acc;
+      console.log('keys: ', Object.keys(maxGrid).length);
+      console.log({ iters }, 'size:', q.size());
+      console.log(printM(grid, maxGrid, path));
+
+      return acc;
     }
 
     // printDbg(grid, maxGridR, [], q)
 
     // down
-    if (grid[i + 1][j] !== 'x') {
+    if (grid[i + 1][j] !== 'x' && path.at(-1) !== 'u') {
       let cell = +grid[i + 1][j];
-      let newPath = path + 1;
+      // let newPath = [...path, [i, j, 'd']];
+      let newPath = path+'d';
 
       if (dir === 'd') {
         q.push(acc + cell, [acc + cell, i + 1, j, 'd', cnt - 1, newPath]);
@@ -139,9 +151,10 @@ function part1(inp) {
       }
     }
     // right
-    if (grid[i][j + 1] !== 'x') {
+    if (grid[i][j + 1] !== 'x' && path.at(-1) !== 'l') {
       let cell = +grid[i][j + 1];
-      let newPath = path + 1;
+      // let newPath = [...path, [i, j, 'r']];
+      let newPath = path+'r';
 
       if (dir === 'r') {
         q.push(acc + cell, [acc + cell, i, j + 1, 'r', cnt - 1, newPath]);
@@ -150,9 +163,10 @@ function part1(inp) {
       }
     }
     // left
-    if (grid[i][j - 1] !== 'x') {
+    if (grid[i][j - 1] !== 'x' && path.at(-1) !== 'r') {
       let cell = +grid[i][j - 1];
-      let newPath = path + 1;
+      // let newPath = [...path, [i, j, 'l']];
+      let newPath = path+'l';
 
       if (dir === 'l') {
         q.push(acc + cell, [acc + cell, i, j - 1, 'l', cnt - 1, newPath]);
@@ -161,9 +175,10 @@ function part1(inp) {
       }
     }
     // up
-    if (grid[i - 1][j] !== 'x') {
+    if (grid[i - 1][j] !== 'x' && path.at(-1) !== 'd') {
       let cell = +grid[i - 1][j];
-      let newPath = path + 1;
+      // let newPath = [...path, [i, j, 'u']];
+      let newPath = path+'u';
 
       if (dir === 'u') {
         q.push(acc + cell, [acc + cell, i - 1, j, 'u', cnt - 1, newPath]);
@@ -212,19 +227,21 @@ function part2(inp) {
 25465488877v5
 43226746555v>
 
-x***34****1323x
-x32****35**623x
-x325524565**54x
-x3446585845**2x
-x45466578675*6x
-x14385987984*4x
-x44578769877**x
-x363787797965*x
-x465496798688*x
-x45646799864**x
-x12246868655*3x
-x25465488877*5x
-x43226746555**x
+ x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+  x  17  22  25  34  36  41  41  53  50  56  58  60  60   x
+  x  26  24  30  41  42  50  51  65  60  67  64  67  65   x
+  x  28  32  35  47  47  59  63  75  73  77  67  73  74   x
+  x  32  39  44  54  58  71  74  85  85  88  79  79  81   x
+  x  38  45  49  59  65  74  82  94  99  83  91  85  89   x
+  x  41  52  58  68  75  82  85 100  93  94  86  96  93   x
+  x  52  60  69  76  83  88  91  93  98  89  98  91 100   x
+  x  55  63  71  83  92  99  92 100  93  95  93  96 100   x
+  x  58  65  74  83  97  88  99  97  99 100  99  97 100   x
+  x  60  66  74  84  80  97  98  98  94 100  98  98  97   x
+  x  56  63  75  87  99  93 100  97 100 100 100 100 101   x
+  x  66  75  79  87  97  92  88 100  95 100   x 101  98   x
+  x  65  69  79  90  98  92  96  93  99  96   x  99 101   x
+  x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
 */
 
 

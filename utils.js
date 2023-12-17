@@ -224,7 +224,11 @@ export function ProitoryQueue() {
       size++;
     },
     pop() {
-      let min = Math.min(...Object.keys(map));
+      let min;
+      for (const key in map) {
+        min = key;
+        break
+      }
       // console.log(min, map);
       let res = map[min].pop();
       if (map[min].length === 0) {
@@ -232,6 +236,9 @@ export function ProitoryQueue() {
       }
       size--;
       return res;
+    },
+    size() {
+      return size;
     },
     isEmpty() {
       return size === 0;
