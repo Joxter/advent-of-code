@@ -37,6 +37,8 @@ console.log(part2(`111111111111
 999999999991
 999999999991
 999999999991`), [71]);
+// .rrrrrrrrrrr
+// .7r 4d 4r (correct)
 
 runDay(2023, 17)
   // .part(1, part1)
@@ -191,12 +193,12 @@ function part2(inp) {
     let [acc, i, j, dir, directionCnt, path] = q.pop();
     // console.log([acc, i, j, dir, directionCnt, path]);
     // 8r 4d 4r 8d (CORRECT)
+    // .7r 4d 4r (correct)
 
-    // if (path.startsWith('.rrrrd')) {
-    //   console.log('cor', path);
-    // }
-
-    if (directionCnt === 4) {
+    if (path.startsWith('.rrrrrrrdddd')) {
+      console.log('cor', path);
+    }
+    if (path === '.rrrrrrrrrrr') {
       debugger
     }
 
@@ -268,7 +270,7 @@ function part2(inp) {
       if (dir === 'd') {
         q.push(acc + cell, [acc + cell, i + 1, j, 'd', directionCnt + 1, newPath]);
       } else {
-        q.push(acc + cell, [acc + cell, i + 1, j, 'd', 0, newPath]);
+        q.push(acc + cell, [acc + cell, i + 1, j, 'd', 1, newPath]);
       }
     }
 
@@ -281,7 +283,7 @@ function part2(inp) {
       if (dir === 'r') {
         q.push(acc + cell, [acc + cell, i, j + 1, 'r', directionCnt + 1, newPath]);
       } else {
-        q.push(acc + cell, [acc + cell, i, j + 1, 'r', 0, newPath]);
+        q.push(acc + cell, [acc + cell, i, j + 1, 'r', 1, newPath]);
       }
     }
 
@@ -295,7 +297,7 @@ function part2(inp) {
         if (dir === 'l') {
           q.push(acc + cell, [acc + cell, i, j - 1, 'l', directionCnt + 1, newPath]);
         } else {
-          q.push(acc + cell, [acc + cell, i, j - 1, 'l', 0, newPath]);
+          q.push(acc + cell, [acc + cell, i, j - 1, 'l', 1, newPath]);
         }
       }
     }
@@ -310,7 +312,7 @@ function part2(inp) {
         if (dir === 'u') {
           q.push(acc + cell, [acc + cell, i - 1, j, 'u', directionCnt + 1, newPath]);
         } else {
-          q.push(acc + cell, [acc + cell, i - 1, j, 'u', 0, newPath]);
+          q.push(acc + cell, [acc + cell, i - 1, j, 'u', 1, newPath]);
         }
       }
     }
