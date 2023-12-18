@@ -17,7 +17,7 @@ import { runDay } from '../../utils.js';
 // L 2 (#015232)
 // U 2 (#7a21e3)`), [62]); // 62, 952408144115
 
-console.log(part12(`R 4 foo
+console.log(part1opt(`R 4 foo
 D 4 foo
 L 2 foo
 D 2 foo
@@ -29,9 +29,9 @@ R 1 foo
 U 3 foo`), [5 * 3 + 6 * 2 + 4 + 7 * 3]); // 62, 952408144115
 
 runDay(2023, 18)
-  .part(1, part1, 'old')
-  .part(1, part12, 'should be ok')
-  // .part(2, part2)
+  .part(1, part1)
+  .part(1, part1opt, 'optimized')
+  .part(2, part2, '62762509300692 high, 62762509300691, 62762509300690 wrong')
   .end();
 
 /*
@@ -60,9 +60,6 @@ runDay(2023, 18)
 8 XXXXXXX 8  ??????X 8
 
 -- R4 D4 L2 D2 R3 D2   L6   U5 R1 U3
-
-
-
 
 */
 
@@ -133,150 +130,73 @@ function part1(inp) {
   return Object.keys(trench).length;
 }
 
-function part12(inp) {
+function part1opt(inp) {
+  return countSize(parse1(inp));
+}
+
+/*
+L 4 (#6c74e0) R
+D 4 (#1afab1)
+L 4 (#0b54a0)
+D 18 (#3533c1)
+*/
+function part2(inp) {
+  return countSize(parse2(inp));
+}
+
+function countSize(steps) {
   let total = 0;
-
   let deep = 0;
-
   let pp = 0;
   let prevDir = null;
 
-  inp.split('\n')
-     .forEach((line) => {
-       let [dir, n] = line.split(' ');
-       n = +n;
+  steps.forEach(([dir, steps]) => {
+    if (dir === 'D') {
+      pp += steps;
+      deep += (steps);
+    }
+    if (dir === 'U') {
+      deep -= (steps);
+    }
+    if (dir === 'R') {
+      if (prevDir === 'U') pp -= 1;
 
+      total -= (deep) * (steps);
+    }
+    if (dir === 'L') {
+      pp += steps;
+      if (prevDir === 'D') pp += 1;
 
-       if (dir === 'D') {
-         pp += n;
-         deep += (n);
-       }
-       if (dir === 'U') {
-         deep -= (n);
-       }
-       if (dir === 'R') {
-         if (prevDir === 'U') pp -= 1;
+      total += (deep) * (steps);
+    }
 
-         total -= (deep) * (n);
-       }
-       if (dir === 'L') {
-         pp += n;
-         if (prevDir === 'D') pp += 1;
-
-         total += (deep) * (n);
-       }
-
-       prevDir = dir;
-     });
+    prevDir = dir;
+  });
 
   return total + pp;
 }
 
+function parse1(inp) {
+  return inp
+    .split('\n')
+    .map((line) => {
+        let [direction, steps] = line.split(' ');
+        steps = +steps;
 
-function part2(inp) {
-
-  let trench = {};
-
-  let curX = 0;
-  let curY = 0;
-
-  let sizes = [];
-
-  inp.split('\n')
-     .forEach((line) => {
-       line = line.split(' ')[2];
-
-       let n = parseInt(line.slice(2, 7), 16);
-       let dir = ['R', 'D', 'L', 'U'][line.slice(7, 8)];
-       console.log(line, { n, dir });
-
-       sizes.push(n);
-
-       return;
-
-       if (dir === 'L') {
-         while (n) {
-           curX++;
-           trench[curX + ',' + curY] = 1;
-           n--;
-         }
-       }
-       if (dir === 'R') {
-         while (n) {
-           curX--;
-           trench[curX + ',' + curY] = "#";
-           n--;
-         }
-       }
-       if (dir === 'U') {
-         while (n) {
-           curY--;
-           trench[curX + ',' + curY] = "#";
-           n--;
-         }
-       }
-       if (dir === 'D') {
-         while (n) {
-           curY++;
-           trench[curX + ',' + curY] = "#";
-           n--;
-         }
-       }
-     });
-
-  // console.log(Object.keys(trench).length);
-// trench len 6_405_262
-// size 0..=1_186_328 ^^ 2
-// test result 952_408_144_115
-
-  return 123;
+        return [direction, steps];
+      }
+    );
 }
 
-function getSize(trench) {
-  // print grid
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-  let maxY = -Infinity;
-  let i = 0;
-  for (const key in trench) {
-    i++;
-    if (i % 100_000 === 0) {
-      console.log(i, key, { minY, minX, maxX, maxY });
-    }
-    let [x, y] = key.split(',').map(Number);
-    minX = Math.min(minX, x);
-    maxX = Math.max(maxX, x);
-    minY = Math.min(minY, y);
-    maxY = Math.max(maxY, y);
-  }
+function parse2(inp) {
+  return inp
+    .split('\n')
+    .map((line) => {
+        line = line.split(' ')[2];
+        let steps = parseInt(line.slice(2, 7), 16);
+        let dirrdirction = ['R', 'D', 'L', 'U'][line.slice(7, 8)];
 
-  return { minY, minX, maxX, maxY };
-}
-
-function printTrench(trench) {
-  // print grid
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-  let maxY = -Infinity;
-  for (const key in trench) {
-    let [x, y] = key.split(',').map(Number);
-    minX = Math.min(minX, x);
-    maxX = Math.max(maxX, x);
-    minY = Math.min(minY, y);
-    maxY = Math.max(maxY, y);
-  }
-
-  let grid = [];
-  for (let i = minY; i <= maxY; i++) {
-    let row = [];
-    for (let j = minX; j <= maxX; j++) {
-      row.push(trench[j + ',' + i] || ' ');
-    }
-    grid.push(row);
-  }
-
-  let res = grid.map(row => row.join('')).join('\n');
-  console.log(res);
+        return [dirrdirction, steps];
+      }
+    );
 }
