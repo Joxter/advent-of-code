@@ -153,6 +153,23 @@ export function lcm(list) {
   }
 }
 
+export function gcd(list) {
+  let res = list[0];
+  for (let i = 1; i < list.length; i++) {
+    res = _gcd(res, list[i]);
+  }
+  return res;
+
+  function _gcd(a, b) {
+    while (b !== 0) {
+      let temp = b;
+      b = a % b;
+      a = temp;
+    }
+    return a;
+  }
+}
+
 export function printGrid(grid) {
   let res = grid.map(row => row.join('')).join('\n');
 
