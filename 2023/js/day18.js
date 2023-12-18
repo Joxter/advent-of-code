@@ -2,25 +2,69 @@ import { runDay } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/18
 
-console.log(part2(`R 6 (#70c710)
-D 5 (#0dc571)
-L 2 (#5713f0)
-D 2 (#d2c081)
-R 2 (#59c680)
-D 2 (#411b91)
-L 5 (#8ceee2)
-U 2 (#caa173)
-L 1 (#1b58a2)
-U 2 (#caa171)
-R 2 (#7807d2)
-U 3 (#a77fa3)
-L 2 (#015232)
-U 2 (#7a21e3)`));
+// console.log(part12(`R 6 (#70c710)
+// D 5 (#0dc571)
+// L 2 (#5713f0)
+// D 2 (#d2c081)
+// R 2 (#59c680)
+// D 2 (#411b91)
+// L 5 (#8ceee2)
+// U 2 (#caa173)
+// L 1 (#1b58a2)
+// U 2 (#caa171)
+// R 2 (#7807d2)
+// U 3 (#a77fa3)
+// L 2 (#015232)
+// U 2 (#7a21e3)`), [62]); // 62, 952408144115
+
+console.log(part12(`R 4 foo
+D 4 foo
+L 2 foo
+D 2 foo
+R 3 foo
+D 2 foo
+L 6 foo
+U 5 foo
+R 1 foo
+U 3 foo`), [5 * 3 + 6 * 2 + 4 + 7 * 3]); // 62, 952408144115
 
 runDay(2023, 18)
-  // .part(1, part1)
+  .part(1, part1, 'old')
+  .part(1, part12, 'should be ok')
   // .part(2, part2)
   .end();
+
+/*
+  0123456
+
+0 .XXXXX. 0
+1 .X...X. 1
+2 .X...X. 2
+3 XX...X. 3
+4 X..XXX. 4
+5 X..X... 5
+6 X..XXXX 6
+7 X.....X 7
+8 XXXXXXX 8
+
+  0123456    0123456   012345
+
+0 .XXXXX. 0  .OOOO?. 0 .XXXX. 0
+1 .XXXXX. 1  .OOOO?. 1 .XXXX. 1
+2 .XXXXX. 2  .OOOO?. 2 .XXXX. 2
+3 XXXXXX. 3  OOOOO?. 3 XXXXX. 3
+4 XXXXXX. 4  OOO??X. 4 XXX... 4
+5 XXXX... 5  OOO?... 5 XXX... 5
+6 XXXXXXX 6  OOOOOO? 6 XXXXXX 6
+7 XXXXXXX 7  OOOOOO? 7 XXXXXX 7
+8 XXXXXXX 8  ??????X 8
+
+-- R4 D4 L2 D2 R3 D2   L6   U5 R1 U3
+
+
+
+
+*/
 
 function part1(inp) {
   let trench = {};
@@ -89,6 +133,46 @@ function part1(inp) {
   return Object.keys(trench).length;
 }
 
+function part12(inp) {
+  let total = 0;
+
+  let deep = 0;
+
+  let pp = 0;
+  let prevDir = null;
+
+  inp.split('\n')
+     .forEach((line) => {
+       let [dir, n] = line.split(' ');
+       n = +n;
+
+
+       if (dir === 'D') {
+         pp += n;
+         deep += (n);
+       }
+       if (dir === 'U') {
+         deep -= (n);
+       }
+       if (dir === 'R') {
+         if (prevDir === 'U') pp -= 1;
+
+         total -= (deep) * (n);
+       }
+       if (dir === 'L') {
+         pp += n;
+         if (prevDir === 'D') pp += 1;
+
+         total += (deep) * (n);
+       }
+
+       prevDir = dir;
+     });
+
+  return total + pp;
+}
+
+
 function part2(inp) {
 
   let trench = {};
@@ -106,7 +190,7 @@ function part2(inp) {
        let dir = ['R', 'D', 'L', 'U'][line.slice(7, 8)];
        console.log(line, { n, dir });
 
-       sizes.push(n)
+       sizes.push(n);
 
        return;
 
@@ -157,7 +241,7 @@ function getSize(trench) {
   let i = 0;
   for (const key in trench) {
     i++;
-    if (i%100_000 === 0) {
+    if (i % 100_000 === 0) {
       console.log(i, key, { minY, minX, maxX, maxY });
     }
     let [x, y] = key.split(',').map(Number);
