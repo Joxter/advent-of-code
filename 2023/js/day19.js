@@ -11,13 +11,14 @@ function part1(inp) {
   let [_rules, parts] = inp.split('\n\n');
 
   let rules = {};
+
   _rules
     .split('\n')
     .forEach((line) => {
       let [name, rest] = line.split('{');
       rest = rest.slice(0, -1);
 
-      let r = rest.split(',').map((l) => {
+      rules[name] = rest.split(',').map((l) => {
         if (l[1] === '<' || l[1] === '>') {
           let [r, target] = l.split(':');
           return [l[0], l[1], +r.slice(2), target];
@@ -25,7 +26,6 @@ function part1(inp) {
           return l;
         }
       });
-      rules[name] = r;
     });
 
   let accepted = parts
@@ -33,26 +33,22 @@ function part1(inp) {
     .map((line) => {
       line = line.slice(1, -1);
       let res = {};
-      line.split(',')
-          .forEach((l) => {
-            let [name, value] = l.split('=');
-            res[name] = +value;
-          });
+
+      line
+        .split(',')
+        .forEach((l) => {
+          let [name, value] = l.split('=');
+          res[name] = +value;
+        });
 
       return res;
     })
     .filter((part) => {
-
       let current = 'in';
-      let limit = 100;
 
       while (current !== 'R' && current !== 'A') {
-        if (!limit--) return false;
 
-        // console.log({current});
         let rule = rules[current];
-        // console.log(rule);
-
         for (const cond of rule) {
           if (Array.isArray(cond)) {
             let [p, sign, val, target] = cond;
@@ -104,20 +100,20 @@ function part2(inp) {
     });
 
   let stack = [
-    ["in", [], ["in"]]
+    ["in", []]
   ];
-  let final = [];
 
-  let op = { '>': '<=', '<': '>=' };
+  let neg = { '>': '<=', '<': '>=' };
+  let totals = [];
 
   while (stack.length > 0) {
-    let [ruleName, limitations, path] = stack.pop();
+    let [ruleName, limitations] = stack.pop();
 
     if (ruleName === 'R') {
       continue;
     }
     if (ruleName === 'A') {
-      final.push(limitations);
+      totals.push( applyLimitations(limitations))
       continue;
     }
 
@@ -130,49 +126,16 @@ function part2(inp) {
 
         let l = deepClone(currNegLimitations);
         l.push([p, sign, val]);
-        currLimitations = deepClone(l);
-        currNegLimitations.push([p, op[sign], val]);
 
-        stack.push([target, l, [...path, target]]);
+        currLimitations = deepClone(l);
+        currNegLimitations.push([p, neg[sign], val]);
+
+        stack.push([target, l]);
       } else {
-        stack.push([cond, currNegLimitations, [...path, cond]]);
+        stack.push([cond, currNegLimitations]);
       }
     }
-
-
   }
-
-  let totals = final.map((path) => {
-    let totalRule = {
-      x: [1, 4000],
-      m: [1, 4000],
-      a: [1, 4000],
-      s: [1, 4000]
-    };
-
-    path.forEach(([p, cond, val]) => {
-      if (cond === '>') {
-        // up min val + 1
-        totalRule[p][0] = Math.max(totalRule[p][0], val + 1);
-      } else if (cond === '>=') {
-        // up min val
-        totalRule[p][0] = Math.max(totalRule[p][0], val);
-      } else if (cond === '<') {
-        // down max val - 1
-        totalRule[p][1] = Math.min(totalRule[p][1], val - 1);
-      } else if (cond === '<=') {
-        // down max val
-        totalRule[p][1] = Math.min(totalRule[p][1], val);
-      }
-    });
-
-    let aa = Object.values(totalRule).map(([from, to]) => {
-      return to - from + 1
-    })
-
-    return prod(aa);
-  });
-
 
   return sum(totals);
 }
@@ -181,3 +144,29 @@ function deepClone(limitations) {
   return JSON.parse(JSON.stringify(limitations));
 }
 
+function applyLimitations(path) {
+  let totalRule = {
+    x: [1, 4000],
+    m: [1, 4000],
+    a: [1, 4000],
+    s: [1, 4000]
+  };
+
+  path.forEach(([p, cond, val]) => {
+    if (cond === '>') {
+      totalRule[p][0] = Math.max(totalRule[p][0], val + 1);
+    } else if (cond === '>=') {
+      totalRule[p][0] = Math.max(totalRule[p][0], val);
+    } else if (cond === '<') {
+      totalRule[p][1] = Math.min(totalRule[p][1], val - 1);
+    } else if (cond === '<=') {
+      totalRule[p][1] = Math.min(totalRule[p][1], val);
+    }
+  });
+
+  let combinations = Object.values(totalRule).map(([from, to]) => {
+    return to - from + 1;
+  });
+
+  return prod(combinations);
+}
