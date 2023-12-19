@@ -11,21 +11,22 @@ function part1(inp) {
   let [_rules, parts] = inp.split('\n\n');
 
   let rules = {};
-
   _rules
     .split('\n')
     .forEach((line) => {
       let [name, rest] = line.split('{');
-      rest = rest.slice(0, -1);
 
-      rules[name] = rest.split(',').map((l) => {
-        if (l[1] === '<' || l[1] === '>') {
-          let [r, target] = l.split(':');
-          return [l[0], l[1], +r.slice(2), target];
-        } else {
-          return l;
-        }
-      });
+      rules[name] = rest
+        .slice(0, -1)
+        .split(',')
+        .map((l) => {
+          if (l[1] === '<' || l[1] === '>') {
+            let [r, target] = l.split(':');
+            return [l[0], l[1], +r.slice(2), target];
+          } else {
+            return l;
+          }
+        });
     });
 
   let accepted = parts
@@ -44,51 +45,40 @@ function part1(inp) {
       return res;
     })
     .filter((part) => {
-      let current = 'in';
-
-      while (current !== 'R' && current !== 'A') {
-
-        let rule = rules[current];
-        for (const cond of rule) {
-          if (Array.isArray(cond)) {
-            let [p, sign, val, target] = cond;
-
-            if (sign === '<') {
-              if (part[p] < val) {
-                current = target;
-                break;
-              }
-            } else {
-              if (part[p] > val) {
-                current = target;
-                break;
-              }
-            }
-          } else {
-            current = cond;
-          }
-        }
-      }
-      return current === 'A';
+      return calc(part, 'in');
     })
     .map((part) => {
-      return part['x'] + part['m'] + part['a'] + part['s'];
+      return part.x + part.m + part.a + part.s;
     });
 
   return sum(accepted);
+
+  function calc(part, current) {
+    if (current === 'A') return true;
+    if (current === 'R') return false;
+
+    for (let [p, sign, val, target] of rules[current].slice(0, -1)) {
+      if (sign === '<' && part[p] < val) return calc(part, target);
+      if (sign === '>' && part[p] > val) return calc(part, target);
+    }
+
+    return calc(part, rules[current].at(-1));
+  }
 }
 
 function part2(inp) {
-  let [_rules, parts] = inp.split('\n\n');
+  let _rules = inp.split('\n\n')[0];
 
   let rules = {};
   _rules
     .split('\n')
     .forEach((line) => {
       let [name, rest] = line.split('{');
-      rest = rest.slice(0, -1);
 
-      let r = rest.split(',').map((l) => {
+      rules[name] = rest
+        .slice(0, -1)
+        .split(',')
+        .map((l) => {
         if (l[1] === '<' || l[1] === '>') {
           let [r, target] = l.split(':');
           return [l[0], l[1], +r.slice(2), target];
@@ -96,7 +86,6 @@ function part2(inp) {
           return l;
         }
       });
-      rules[name] = r;
     });
 
   let stack = [
@@ -113,7 +102,7 @@ function part2(inp) {
       continue;
     }
     if (ruleName === 'A') {
-      totals.push( applyLimitations(limitations))
+      totals.push(applyLimitations(limitations));
       continue;
     }
 
