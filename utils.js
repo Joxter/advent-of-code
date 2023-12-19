@@ -119,6 +119,10 @@ export function sum(arr) {
   return arr.reduce((a, b) => a + b, 0);
 }
 
+export function prod(arr) {
+  return arr.reduce((a, b) => a * b, 1);
+}
+
 export function allNeibs8(i, j) {
   return [
     [i, j + 1],
