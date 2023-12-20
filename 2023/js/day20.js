@@ -8,14 +8,14 @@ import { runDay } from '../../utils.js';
 // %c -> inv
 // &inv -> a`), [32000000]);
 
-console.log(part1(`broadcaster -> a
-%a -> inv, con
-&inv -> b
-%b -> con
-&con -> output`), [11687500]);
+// console.log(part1(`broadcaster -> a
+// %a -> inv, con
+// &inv -> b
+// %b -> con
+// &con -> output`), [11687500]);
 
 runDay(2023, 20)
-  // .part(1, part1) // 262188725922 high
+  .part(1, part1)
   // .part(2, part2)
   .end();
 
@@ -24,6 +24,10 @@ function part1(inp) {
     // name: [target]
   };
   let flipStatus = {}; // on/off
+  let mem = {
+    // todo init all [OFF]
+    // [name]: "on"|"off"[]
+  };
 
   inp
     .split('\n')
@@ -34,11 +38,27 @@ function part1(inp) {
       if (name[0] === '%') {
         flipStatus[name] = 'off';
       }
+      if (name[0] === '&') {
+        mem[name] = {}
+      }
     });
 
+  Object
+    .entries(modules)
+    .forEach(([sender, modules]) => {
+      modules.forEach((t) => {
+        if (mem[getName(t)]) {
+          mem[getName(t)][sender] = 'lo'
+        }
+      })
+    })
 
-  // let times = 1000;
-  let times = 1;
+  // console.log(JSON.stringify(mem, null, 2));
+  // return ;
+
+
+  let times = 1000;
+  // let times = 4;
 
   let cnt = { lo: 0, hi: 0 };
 
@@ -47,23 +67,23 @@ function part1(inp) {
     let signals = [['lo', 'broadcaster']]; // [lo|hi, target]
 
     let nextSignals = [];
-    let lim = 2000000;
+    let lim = 100;
 
-    console.log(['button', 'lo', 'broadcaster']);
+    // console.log('1', ['button', 'lo', 'broadcaster']);
     cnt.lo++;
 
     while (signals.length > 0 && lim--) {
+      // console.log({ signals });
       nextSignals = [];
+      // debugger
 
-      let mem = {
-        // [name]: "on"|"off"[]
-      };
+      let recc = [];
 
       signals.forEach(([power, senderName]) => {
         modules[senderName]
           .map(t => getName(t))
           .forEach((receiverName) => {
-            console.log([senderName, power, receiverName]);
+            // console.log('2', [senderName, power, receiverName]);
             if (power === 'lo') cnt.lo++;
             if (power === 'hi') cnt.hi++;
 
@@ -86,33 +106,37 @@ function part1(inp) {
               }
             }
 
+            // debugger
+
             if (receiverName[0] === "&") {
-              if (!mem[receiverName]) {
-                mem[receiverName] = [];
-              }
-              mem[receiverName].push(power);
+              mem[receiverName][senderName] = power;
+              recc.push(receiverName);
             }
           });
       });
 
+      // console.log(JSON.stringify(mem));
+      // return ;
       // Conjunction (remembers)
       //   - if all "hi" -> do "lo"
       //   - else -> do "hi"
-      Object.entries(mem).forEach(([target, powers]) => {
-        if (powers.every((p) => p === "hi")) {
-          nextSignals.push(["lo", target]);
+
+      // debugger
+      recc.forEach((r) => {
+        let history = mem[r]
+        // debugger
+        if (Object.values(history).every((p) => p === "hi")) {
+          nextSignals.push(["lo", r]);
           // console.log(['??', "lo", target]);
         } else {
-          nextSignals.push(["hi", target]);
+          nextSignals.push(["hi", r]);
           // console.log(['??', "hi", target]);
         }
       });
 
       signals = nextSignals;
     }
-
-
-    console.log(cnt);
+    // console.log(cnt);
   }
 
   function getName(short) {
