@@ -2,11 +2,11 @@ import { runDay } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/20
 
-console.log(part1(`broadcaster -> a, b, c
-%a -> b
-%b -> c
-%c -> inv
-&inv -> a`), [32000000]);
+// console.log(part1(`broadcaster -> a, b, c
+// %a -> b
+// %b -> c
+// %c -> inv
+// &inv -> a`), [32000000]);
 
 console.log(part1(`broadcaster -> a
 %a -> inv, con
@@ -15,7 +15,7 @@ console.log(part1(`broadcaster -> a
 &con -> output`), [11687500]);
 
 runDay(2023, 20)
-  // .part(1, part1)
+  // .part(1, part1) // 262188725922 high
   // .part(2, part2)
   .end();
 
@@ -37,8 +37,8 @@ function part1(inp) {
     });
 
 
-  let times = 1000;
-  // let times = 2;
+  // let times = 1000;
+  let times = 1;
 
   let cnt = { lo: 0, hi: 0 };
 
@@ -48,6 +48,8 @@ function part1(inp) {
 
     let nextSignals = [];
     let lim = 2000000;
+
+    console.log(['button', 'lo', 'broadcaster']);
     cnt.lo++;
 
     while (signals.length > 0 && lim--) {
@@ -61,20 +63,12 @@ function part1(inp) {
         modules[senderName]
           .map(t => getName(t))
           .forEach((receiverName) => {
-            // debugger
-            // if (receiverName === "inv") debugger
-
-            // if (senderName === 'broadcaster') {
-            //   nextSignals.push([power, receiverName]);
-            //   console.log([senderName, power, receiverName]);
-            //   return;
-            // }
-            // console.log([senderName, power, receiverName]);
+            console.log([senderName, power, receiverName]);
             if (power === 'lo') cnt.lo++;
             if (power === 'hi') cnt.hi++;
 
             if (receiverName[0] === '%') {
-              // flip-flop (OFF at the beginning)
+              // flip-flop
               //  - if "hi" -> do nothing
               //  - if "lo" ->
               //       if WAS "on"  -> do "lo", set "off"
@@ -96,44 +90,29 @@ function part1(inp) {
               if (!mem[receiverName]) {
                 mem[receiverName] = [];
               }
-              // if (flipStatus[senderName] === 'on') {
-              //   mem[receiverName].push('lo');
-              // } else if (flipStatus[senderName] === 'off') {
-              //   mem[receiverName].push('hi');
-              // } else {
               mem[receiverName].push(power);
-              // }
-            } else {
-              // nothing
             }
           });
       });
 
-      debugger
-
       // Conjunction (remembers)
       //   - if all "hi" -> do "lo"
       //   - else -> do "hi"
-
       Object.entries(mem).forEach(([target, powers]) => {
         if (powers.every((p) => p === "hi")) {
           nextSignals.push(["lo", target]);
-          // cnt.lo++;
-
           // console.log(['??', "lo", target]);
         } else {
           nextSignals.push(["hi", target]);
           // console.log(['??', "hi", target]);
-          // cnt.hi++;
         }
       });
 
       signals = nextSignals;
-
-      // console.log({ nextSignals });
     }
 
 
+    console.log(cnt);
   }
 
   function getName(short) {
@@ -153,3 +132,47 @@ function part1(inp) {
 function part2(inp) {
   return 123;
 }
+
+
+/*
+
+lll = 17
+hhh = 11
+
+1
+button -low-> broadcaster
+broadcaster -low-> a
+a -high-> inv
+a -high-> con
+inv -low-> b
+con -high-> output
+b -high-> con
+con -low-> output
+
+2
+button -low-> broadcaster
+broadcaster -low-> a
+a -low-> inv
+a -low-> con
+inv -high-> b
+con -high-> output
+
+3
+button -low-> broadcaster
+broadcaster -low-> a
+a -high-> inv
+a -high-> con
+inv -low-> b
+con -low-> output
+b -low-> con
+con -high-> output
+
+4
+button -low-> broadcaster
+broadcaster -low-> a
+a -low-> inv
+a -low-> con
+inv -high-> b
+con -high-> output
+
+*/
