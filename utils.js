@@ -287,3 +287,6 @@ export function ProitoryQueueArr() {
     }
   };
 }
+
+export const BLACK = "█";
+export const GREY = "░";
