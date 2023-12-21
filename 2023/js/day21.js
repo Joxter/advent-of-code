@@ -80,12 +80,13 @@ function part2(inp) {
   };
 
   let cash = {};
+  let boxHistory = {};
 
   // console.log(printGrid(grid));
   // console.log(possibleSteps);
 
   // 26501365
-  for (let step = 1; step <= 200; step++) {
+  for (let step = 1; step <= 2000; step++) {
     let newSteps = {};
     let boxIds = {};
 
@@ -126,11 +127,22 @@ function part2(inp) {
       });
 
       // console.log({ step }, step % 20);
-      if (cnt.new || step % 20 === 1) {
+      if (cnt.new || step % 50 === 1) {
         console.log("");
         console.log(step);
+        console.log('boxes:', Object.keys(boxIds).length, "possible steps:", Object.keys(possibleSteps).length);
         console.log({ cnt }, "cash size:", Object.keys(cash).length);
+
       }
+      // if (!cnt.new) {
+      //   console.log("");
+      //   console.log("break");
+      //   console.log(step);
+      //   console.log('boxes:', Object.keys(boxIds).length, "possible steps:", Object.keys(possibleSteps).length);
+      //   console.log({ cnt }, "cash size:", Object.keys(cash).length);
+      //   break;
+      // }
+
       // console.log(boxIds);
       // console.log(renderGrid([-0, size * 3], [-0, size * 3]));
       // console.log(renderGridByKey("0,0"));
@@ -144,13 +156,16 @@ function part2(inp) {
     // }
   }
 
+  console.log("DONE");
+
+
   // console.log(cash);
 
-  console.log('====== CASH:');
-  Object.entries(cash).forEach(([grid, steps]) => {
-    console.log('grid:', grid.replaceAll('\n','|'));
-    console.log('steps:', [steps.join(', ')]);
-  })
+  // console.log('====== CASH:');
+  // Object.entries(cash).forEach(([grid, steps]) => {
+  //   console.log('grid:', grid.replaceAll('\n','|'));
+  //   console.log('steps:', [steps.join(', ')]);
+  // })
 
   function renderGridByKey(gridKey) {
     let [i, j] = gridKey.split(",");
@@ -402,9 +417,7 @@ steps: [ '29' ]
 grid: ...........|.....░░░.░.|.░░░.░░..░.|..░.░...░..|0...░.░....|.░░..S░░░░.|0░░..░...░.|.0.0...░░..|0░░.░.░░░░.|.░░0.░░.░░.|0.0.0.0....
 steps: [ '29, 51, 73, 95, 117, 139, 161, 183' ]
 grid: 0.0........|.0...░░░.░.|0░░░.░░..░.|..░.░...░..|....░.░....|.░░..S░░░░.|.░░..░...░.|.......░░..|.░░.░.░░░░.|.░░..░░.░░.|...........
-steps: [
-  '29, 35, 51, 57, 73, 79, 95, 101, 117, 123, 139, 145, 161, 167, 183, 189'
-]
+steps: [ '29, 35, 51, 57, 73, 79, 95, 101, 117, 123, 139, 145, 161, 167, 183, 189' ]
 grid: .0.0.0.0.0.|0.0.0░░░0░0|.░░░.░░0.░.|0.░.░.0.░.0|.0.0░0░0.0.|0░░.0S░░░░0|.░░0.░.0.░.|0.0.0.0░░..|.░░0░0░░░░.|0░░.0░░.░░.|.0.0.0.....
 steps: [ '31, 53, 75, 97, 119, 141, 163, 185' ]
 grid: .0.0.0.0.0.|..0.0░░░0░0|.░░░.░░0.░.|..░.░.0.░.0|....░0░0.0.|.░░.0S░░░░0|.░░..░...░.|.......░░.0|.░░0░.░░░░.|.░░.0░░.░░0|.0.0.0.0.0.
@@ -556,4 +569,50 @@ steps: [ '57, 79, 101, 123, 145, 167, 189' ]
 grid: .0.0.0.0.0.|0.0.0░░░0░0|.░░░.░░0.░.|0.░.░.0.░.0|.0.0░0░0...|0░░.0S░░░░.|.░░0.░...░.|0.0.0.0░░..|.░░0░0░░░░.|0░░.0░░.░░.|.0.0.0.0.0.
 steps: [ '57, 79, 101, 123, 145, 167, 189' ]
 
+
+0.0........
+.0...░░░.░.
+0░░░.░░..░.
+..░.░...░..
+....░.░....
+.░░..S░░░░.
+.░░..░...░.
+.......░░..
+.░░.░.░░░░.
+.░░..░░.░░.
+...........
+
+57
+boxes: 76 possible steps: 2072
+{ cnt: { new: 2, old: 74 } } cash size: 179
+
+break
+59
+boxes: 76 possible steps: 2244
+{ cnt: { new: 0, old: 76 } } cash size: 179
+
+
+
+
+===============
+521
+boxes: 41 possible steps: 243580
+{ cnt: { new: 4, old: 37 } } cash size: 1878
+
+break
+523
+boxes: 41 possible steps: 245436
+{ cnt: { new: 0, old: 41 } } cash size: 1878
+DONE
+
 */
+
+function diff(arr) {
+  let res = [];
+
+  for (let i = 1; i < arr.length; i++) {
+    res.push(arr[i] - arr[i - 1]);
+  }
+
+  return res;
+}
