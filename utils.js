@@ -180,6 +180,10 @@ export function printGrid(grid) {
   return res;
 }
 
+export function makeGrid(inp) {
+  return inp.split('\n').map(line => line.split(''));
+}
+
 export function makeGridWithBorder(inp, border) {
   let lines = inp.split('\n');
 
