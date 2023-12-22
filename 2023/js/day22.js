@@ -1,4 +1,4 @@
-import { runDay } from "../../utils.js";
+import { printGrid, runDay } from "../../utils.js";
 
 // https://adventofcode.com/2023/day/22
 
@@ -11,7 +11,8 @@ console.log(part1(`1,0,1~1,2,1
 1,1,8~1,1,9`), [5]);
 
 runDay(2023, 22)
-  .part(1, part1, '395 low') // 395 low
+  .part(1, part1)
+  // .part(1, notMy, "notMy")
   // .part(2, part2)
   .end();
 
@@ -25,26 +26,21 @@ function part1(inp) {
         from: from.split(",").map(Number), // x,y,z
         to: to.split(",").map(Number),
       };
+    })
+    .sort((a, b) => {
+      return a.from[2] - b.from[2];
     });
-  // .sort((a, b) => {
-  //   return a.from[2] - b.from[2];
-  // });
-
 
   let fallen = doFalling(bricks);
-  /*
-[
-  { from: [ 1, 0, 1 ], to: [ 1, 2, 1 ] },
-  { from: [ 0, 0, 2 ], to: [ 2, 0, 2 ] },
-  { from: [ 0, 2, 2 ], to: [ 2, 2, 2 ] },
-  { from: [ 0, 0, 3 ], to: [ 0, 2, 3 ] },
-  { from: [ 2, 0, 3 ], to: [ 2, 2, 3 ] },
-  { from: [ 0, 1, 4 ], to: [ 2, 1, 4 ] },
-  { from: [ 1, 1, 5 ], to: [ 1, 1, 6 ] }
-]
-  */
 
   // console.log(fallen);
+  // console.log(bricks);
+  for (let i = 1; i <= 7; i++) {
+    // console.log(renderLayer(fallen, i, 3));
+    // console.log(renderLayer(bricks, i, 3));
+  }
+  // return 1111123;
+
   let canRemoveCnt = 0;
 
   fallen.forEach((brick, id) => {
@@ -52,9 +48,12 @@ function part1(inp) {
     // console.log("isStableWithout", brick);
     // console.log(isStableWithout(id, fallen));
 
-    if (isStableWithout(id, fallen)) {
+    if (isStableWithoutBrute(id, fallen)) {
       canRemoveCnt++;
     }
+    // if (isStableWithout(id, fallen)) {
+    //   canRemoveCnt++;
+    // }
   });
 
   function isStableWithout(brickId, bricks) {
@@ -84,23 +83,57 @@ function part1(inp) {
       tryToFall.to[2]--;
 
       let fallen = possibleGrounds.filter((ground) => {
-        return overlaps(tryToFall, ground); // пересекся -> значит поддерживал!
+        return overlaps(tryToFall, ground);
       }).length;
 
-      return fallen > 0; // осталась поддержка
+      return fallen > 0;
     });
-
-    // console.log({ hasGround });
 
     return hasGround.every(it => it === true);
   }
-
 
   return canRemoveCnt;
 }
 
 function part2(inp) {
   return 123;
+}
+
+function isStableWithoutBrute(id, bricks) {
+  let minusOne = deepCloneBricks(bricks)
+  minusOne.splice(id, 1);
+
+  let fallen = doFalling(deepCloneBricks(minusOne))
+
+  return compareBricks(fallen, minusOne)
+}
+
+function deepCloneBricks(bricks) {
+  return bricks.map((brick) => {
+    return {
+      from: [...brick.from],
+      to: [...brick.to],
+    };
+  });
+}
+
+function compareBricks(bricksA, bricksB) {
+  if (bricksA.length !== bricksB.length) return false;
+
+  for (let i = 0; i < bricksA.length; i++) {
+    let brickA = bricksA[i];
+    let brickB = bricksB[i];
+
+    if (brickA.from[0] !== brickB.from[0]) return false;
+    if (brickA.from[1] !== brickB.from[1]) return false;
+    if (brickA.from[2] !== brickB.from[2]) return false;
+
+    if (brickA.to[0] !== brickB.to[0]) return false;
+    if (brickA.to[1] !== brickB.to[1]) return false;
+    if (brickA.to[2] !== brickB.to[2]) return false;
+  }
+
+  return true;
 }
 
 function overlaps(brickA, brickB) {
@@ -130,7 +163,7 @@ function cloneBrick(brick) {
 function doFalling(bricks) {
   let fallen = [];
 
-  bricks.forEach((brick) => {
+  bricks.forEach((brick, i) => {
     let current = cloneBrick(brick);
 
     let limit = 1000;
