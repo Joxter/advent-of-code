@@ -4,7 +4,7 @@ import { printGrid, runDay } from "../../utils.js";
 
 runDay(2023, 22)
   .part(1, part1)
-  .part(2, part2)
+  // .part(2, part2)
   .end();
 
 function part1(inp) {
@@ -24,35 +24,19 @@ function part1(inp) {
 
   let fallen = doFalling(bricks);
 
-  // console.log(fallen);
-  // console.log(bricks);
-  for (let i = 1; i <= 7; i++) {
-    // console.log(renderLayer(fallen, i, 3));
-    // console.log(renderLayer(bricks, i, 3));
-  }
-  // return 1111123;
-
   let canRemoveCnt = 0;
-
-  fallen.forEach((brick, id) => {
-    // console.log("");
-    // console.log("isStableWithout", brick);
-    // console.log(isStableWithout(id, fallen));
-
-    if (isStableWithoutBrute(id, fallen)) {
+  for (let id = 0; id < fallen.length; id++) {
+    if (isStableWithout(id, fallen)) {
       canRemoveCnt++;
     }
-    // if (isStableWithout(id, fallen)) {
-    //   canRemoveCnt++;
-    // }
-  });
+  }
+
+  return canRemoveCnt;
 
   function isStableWithout(brickId, bricks) {
     let brick = bricks[brickId];
-    // debugger
-
     let higherBricks = bricks.filter((br) => {
-      return br.from[2] === brick.from[2] + 1;
+      return br.from[2] === brick.to[2] + 1;
     });
 
     let possibleGrounds = bricks.filter((br, i) => {
@@ -60,13 +44,6 @@ function part1(inp) {
     });
     if (higherBricks.length === 0) return true;
     if (possibleGrounds.length === 0) return false;
-
-    // console.log("--- higherBricks");
-    // console.log(higherBricks);
-    // console.log("--- possibleGrounds");
-    // console.log(possibleGrounds);
-
-    debugger
 
     let hasGround = higherBricks.map((br) => {
       let tryToFall = cloneBrick(br);
@@ -82,8 +59,6 @@ function part1(inp) {
 
     return hasGround.every(it => it === true);
   }
-
-  return canRemoveCnt;
 }
 
 function part2(inp) {
@@ -108,7 +83,6 @@ function part2(inp) {
   fallen.forEach((brick, id) => {
     let cnt = howManyFall(id, fallen);
 
-    console.log({ id, cnt });
     canRemoveCnt += cnt;
   });
 
@@ -127,10 +101,8 @@ function part2(inp) {
 function isStableWithoutBrute(id, bricks) {
   let minusOne = deepCloneBricks(bricks);
   minusOne.splice(id, 1);
-
   let fallen = doFalling(deepCloneBricks(minusOne));
-
-  return diffBricks(fallen, minusOne);
+  return diffBricks(fallen, minusOne) === 0;
 }
 
 function deepCloneBricks(bricks) {
