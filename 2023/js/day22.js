@@ -2,18 +2,9 @@ import { printGrid, runDay } from "../../utils.js";
 
 // https://adventofcode.com/2023/day/22
 
-console.log(part1(`1,0,1~1,2,1
-0,0,2~2,0,2
-0,2,3~2,2,3
-0,0,4~0,2,4
-2,0,5~2,2,5
-0,1,6~2,1,6
-1,1,8~1,1,9`), [5]);
-
 runDay(2023, 22)
   .part(1, part1)
-  // .part(1, notMy, "notMy")
-  // .part(2, part2)
+  .part(2, part2)
   .end();
 
 function part1(inp) {
@@ -96,16 +87,50 @@ function part1(inp) {
 }
 
 function part2(inp) {
-  return 123;
+  let bricks = inp
+    .split("\n")
+    .map((line) => {
+      let [from, to] = line.split("~");
+
+      return {
+        from: from.split(",").map(Number), // x,y,z
+        to: to.split(",").map(Number),
+      };
+    })
+    .sort((a, b) => {
+      return a.from[2] - b.from[2];
+    });
+
+  let fallen = doFalling(bricks);
+
+  let canRemoveCnt = 0;
+
+  fallen.forEach((brick, id) => {
+    let cnt = howManyFall(id, fallen);
+
+    console.log({ id, cnt });
+    canRemoveCnt += cnt;
+  });
+
+  function howManyFall(brickId, bricks) {
+    let minusOne = deepCloneBricks(bricks);
+    minusOne.splice(brickId, 1);
+
+    let fallen = doFalling(deepCloneBricks(minusOne));
+
+    return diffBricks(fallen, minusOne);
+  }
+
+  return canRemoveCnt;
 }
 
 function isStableWithoutBrute(id, bricks) {
-  let minusOne = deepCloneBricks(bricks)
+  let minusOne = deepCloneBricks(bricks);
   minusOne.splice(id, 1);
 
-  let fallen = doFalling(deepCloneBricks(minusOne))
+  let fallen = doFalling(deepCloneBricks(minusOne));
 
-  return compareBricks(fallen, minusOne)
+  return diffBricks(fallen, minusOne);
 }
 
 function deepCloneBricks(bricks) {
@@ -134,6 +159,43 @@ function compareBricks(bricksA, bricksB) {
   }
 
   return true;
+}
+
+function diffBricks(bricksA, bricksB) {
+  let diff = 0;
+
+  for (let i = 0; i < bricksA.length; i++) {
+    let brickA = bricksA[i];
+    let brickB = bricksB[i];
+
+    if (brickA.from[0] !== brickB.from[0]) {
+      diff++;
+      continue;
+    }
+    if (brickA.from[1] !== brickB.from[1]) {
+      diff++;
+      continue;
+    }
+    if (brickA.from[2] !== brickB.from[2]) {
+      diff++;
+      continue;
+    }
+
+    if (brickA.to[0] !== brickB.to[0]) {
+      diff++;
+      continue;
+    }
+    if (brickA.to[1] !== brickB.to[1]) {
+      diff++;
+      continue;
+    }
+    if (brickA.to[2] !== brickB.to[2]) {
+      diff++;
+      continue;
+    }
+  }
+
+  return diff;
 }
 
 function overlaps(brickA, brickB) {
