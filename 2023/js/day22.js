@@ -1,4 +1,4 @@
-import { runDay } from '../../utils.js';
+import { runDay } from "../../utils.js";
 
 // https://adventofcode.com/2023/day/22
 
@@ -11,55 +11,92 @@ console.log(part1(`1,0,1~1,2,1
 1,1,8~1,1,9`), [5]);
 
 runDay(2023, 22)
-  // .part(1, part1)
+  .part(1, part1, '395 low') // 395 low
   // .part(2, part2)
   .end();
 
 function part1(inp) {
   let bricks = inp
-    .split('\n')
+    .split("\n")
     .map((line) => {
-      let [from, to] = line.split('~');
+      let [from, to] = line.split("~");
 
       return {
-        from: from.split(',').map(Number), // x,y,z
-        to: to.split(',').map(Number),
+        from: from.split(",").map(Number), // x,y,z
+        to: to.split(",").map(Number),
       };
-    })
-    .sort((a, b) => {
-      return a.from[2] - b.from[2];
     });
+  // .sort((a, b) => {
+  //   return a.from[2] - b.from[2];
+  // });
 
 
-  // console.log(bricks);
-  /*
-    [
-    { from: [ 1, 0, 1 ], to: [ 1, 2, 1 ] },
-    { from: [ 0, 0, 2 ], to: [ 2, 0, 2 ] },
-    { from: [ 0, 2, 3 ], to: [ 2, 2, 3 ] },
-    { from: [ 0, 0, 4 ], to: [ 0, 2, 4 ] },
-    { from: [ 2, 0, 5 ], to: [ 2, 2, 5 ] },
-    { from: [ 0, 1, 6 ], to: [ 2, 1, 6 ] },
-    { from: [ 1, 1, 8 ], to: [ 1, 1, 9 ] }
-  ]
-  */
   let fallen = doFalling(bricks);
+  /*
+[
+  { from: [ 1, 0, 1 ], to: [ 1, 2, 1 ] },
+  { from: [ 0, 0, 2 ], to: [ 2, 0, 2 ] },
+  { from: [ 0, 2, 2 ], to: [ 2, 2, 2 ] },
+  { from: [ 0, 0, 3 ], to: [ 0, 2, 3 ] },
+  { from: [ 2, 0, 3 ], to: [ 2, 2, 3 ] },
+  { from: [ 0, 1, 4 ], to: [ 2, 1, 4 ] },
+  { from: [ 1, 1, 5 ], to: [ 1, 1, 6 ] }
+]
+  */
 
+  // console.log(fallen);
   let canRemoveCnt = 0;
 
-  fallen.forEach((brick, removeId) => {
-    console.log('canBeRemoved', removeId, stableWithout(removeId, fallen));
+  fallen.forEach((brick, id) => {
+    // console.log("");
+    // console.log("isStableWithout", brick);
+    // console.log(isStableWithout(id, fallen));
+
+    if (isStableWithout(id, fallen)) {
+      canRemoveCnt++;
+    }
   });
 
-  function stableWithout(brickId, bricks) {
-    // remove brickId
-    // check
-    //   whether at least ONE brick z-1 does NOT OVERLAP with ALL OTHER
-    //      -> UNSTALBE (return FALSE)
+  function isStableWithout(brickId, bricks) {
+    let brick = bricks[brickId];
+    // debugger
+
+    let higherBricks = bricks.filter((br) => {
+      return br.from[2] === brick.from[2] + 1;
+    });
+
+    let possibleGrounds = bricks.filter((br, i) => {
+      return i !== brickId && br.to[2] === brick.to[2];
+    });
+    if (higherBricks.length === 0) return true;
+    if (possibleGrounds.length === 0) return false;
+
+    // console.log("--- higherBricks");
+    // console.log(higherBricks);
+    // console.log("--- possibleGrounds");
+    // console.log(possibleGrounds);
+
+    debugger
+
+    let hasGround = higherBricks.map((br) => {
+      let tryToFall = cloneBrick(br);
+      tryToFall.from[2]--;
+      tryToFall.to[2]--;
+
+      let fallen = possibleGrounds.filter((ground) => {
+        return overlaps(tryToFall, ground); // пересекся -> значит поддерживал!
+      }).length;
+
+      return fallen > 0; // осталась поддержка
+    });
+
+    // console.log({ hasGround });
+
+    return hasGround.every(it => it === true);
   }
 
 
-  return 123;
+  return canRemoveCnt;
 }
 
 function part2(inp) {
