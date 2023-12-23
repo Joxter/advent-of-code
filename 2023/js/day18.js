@@ -53,15 +53,7 @@ function part1(inp) {
 
   let stack = [[-1, 1]]; // hardcode :(
 
-  let limit = 1000000;
-
   while (stack.length > 0) {
-    limit--;
-    if (!limit) {
-      console.log('LIMIT');
-      break;
-    }
-
     let [x, y] = stack.pop();
     if (!trench[x + ',' + y]) {
       trench[x + ',' + y] = 'x';

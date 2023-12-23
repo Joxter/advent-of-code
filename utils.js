@@ -232,7 +232,7 @@ export function forEachInGrid(grid, cb) {
   }
 }
 
-export function ProitoryQueue() {
+export function PriorityQueue() {
   // push(n, data) - add to the queue
   // pop() - returns "data" with the lowest "n"
 
@@ -254,7 +254,6 @@ export function ProitoryQueue() {
         min = key;
         break
       }
-      // console.log(min, map);
       let res = map[min].pop();
       if (map[min].length === 0) {
         delete map[min];
@@ -267,23 +266,6 @@ export function ProitoryQueue() {
     },
     isEmpty() {
       return size === 0;
-    }
-  };
-}
-
-export function ProitoryQueueArr() {
-  let arr = [];
-
-  return {
-    push(n, data) {
-      arr.push(data)
-    },
-    pop() {
-      let it = arr.shift()
-      return it;
-    },
-    isEmpty() {
-      return arr.length === 0;
     }
   };
 }
