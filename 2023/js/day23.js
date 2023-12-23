@@ -1,4 +1,4 @@
-import { BLACK, makeGrid, printGrid, printGridCb, runDay } from '../../utils.js';
+import { BLACK, GREY, makeGrid, printGrid, printGridCb, runDay } from '../../utils.js';
 
 // https://adventofcode.com/2023/day/23
 
@@ -28,7 +28,7 @@ console.log(part2(`#.#####################
 
 runDay(2023, 23)
   // .part(1, part1)
-  .part(2, part2, '1625 low')
+  // .part(2, part2, '1625 low')
   .end();
 
 function part1(inp) {
@@ -95,17 +95,77 @@ function part2(inp) {
 
   console.log(printGrid(grid));
 
-  let q = [[1, 1, [`1,1`]]];
+  let crosses = {
+    '1,1': {},
+    [`${grid.length - 2},${grid[0].length - 2}`]: {},
+  };
 
-  let maxPath = [];
+  let limit = 1000;
 
-  let limit = 100_000_000;
+  makeCrosses();
 
-  grid[0][1] = '#';
-  grid[grid.length - 2][grid[0].length - 2] = 'X';
+  function makeCrosses() {
+    for (let i = 1; i < grid.length - 1; i++) {
+      for (let j = 1; j < grid[0].length - 1; j++) {
+        let value = grid[i][j];
 
+        if (value !== '#') {
+          let free = [
+            [i, j - 1],
+            [i, j + 1],
+            [i - 1, j],
+            [i + 1, j],
+          ].filter(([i, j]) => {
+            return grid[i][j] !== '#';
+          });
+
+          if (free.length > 2) {
+            free.forEach((coord) => {
+              crosses[`${i},${j}`] = {};
+            });
+          }
+
+        }
+      }
+    }
+  }
+
+  // console.log(crosses);
+  // console.log(Object.keys(crosses).length);
+
+  for (let crossesKey in crosses) {
+    let [i, j] = crossesKey.split(',').map(Number);
+    makePath(crossesKey, i, j, [crossesKey]);
+  }
+  console.log(crosses);
+
+  function makePath(start, i, j, path) {
+    let value = grid[i][j];
+    if (value === '#') return;
+    if (path.length > 0 && path.lastIndexOf(path.at(-1)) !== path.indexOf(path.at(-1))) {
+      return;
+    }
+    if (`${i},${j}` !== start && crosses[`${i},${j}`]) {
+      crosses[start][`${i},${j}`] = path.length;
+      return;
+    }
+
+    [
+      [i, j - 1],
+      [i, j + 1],
+      [i - 1, j],
+      [i + 1, j],
+    ].forEach(([i, j]) => {
+      makePath(start, i, j, [...path, `${i},${j}`]);
+    });
+  }
+
+  let max = 0;
+  // go only by crosses
+
+  let q =[];
   while (q.length > 0 && limit--) {
-    // break
+    break;
     let [i, j, path] = q.shift();
     // console.log([i,j, path]);
     let value = grid[i][j];
@@ -117,9 +177,9 @@ function part2(inp) {
     }
 
     if (isFinal) {
-      console.log('final', [maxPath.length], {limit}, q.length);
+      console.log('final', [maxPath.length], { limit }, q.length);
       if (path.length > maxPath.length) {
-        maxPath = path
+        maxPath = path;
       }
     }
 
@@ -136,15 +196,14 @@ function part2(inp) {
   }
 
   console.log('');
-  console.log(printGridCb(grid, (cell, i,j) => {
-    if (maxPath.includes(`${i},${j}`)) return '0'
+  console.log(printGridCb(grid, (cell, i, j) => {
+    // if (maxPath.includes(`${i},${j}`)) return '0';
+    if (crosses[`${i},${j}`]) return GREY;
 
-    if (typeof cell === "number") return cell % 10;
+    // if (typeof cell === "number") return cell % 10;
     if (cell === '#') return BLACK;
     return cell;
   }));
 
-  console.log({limit});
-  return maxPath.length + 1;
+  return max + 1;
 }
-
