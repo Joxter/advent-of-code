@@ -2,27 +2,9 @@ import { runDay, sum } from "../../utils.js";
 
 // https://adventofcode.com/2023/day/24
 
-console.log(part2(`19, 13, 30 @ -2,  1, -2
-18, 19, 22 @ -1, -1, -2
-20, 25, 34 @ -2, -2, -4
-12, 31, 28 @ -1, -2, -1
-20, 19, 15 @  1, -5, -3`));
-
-// let shotLine = {
-//   start: [24, 13, 10],
-//   delta: [-3, 1, 2],
-// };
-// let line1 = { start: [19, 13, 30], delta: [-2, 1, -2] };
-// let line2 = { start: [18, 19, 22], delta: [-1, -1, -2] };
-// let line3 = { start: [18, 19, 22], delta: [-1, -1, 2] };
-
-// console.log(getCross(shotLine, line1), [5]);
-// console.log(getCross(shotLine, line2), [3]);
-// console.log(getCross(shotLine, line3), [null]);
-
 runDay(2023, 24)
-  // .part(1, part1)
-  .part(2, part2) // I gave up..
+  .part(1, part1)
+  // .part(2, part2) // I gave up..
   .end();
 
 function part1(inp, area = [200000000000000, 400000000000000]) {
@@ -53,23 +35,14 @@ function part1(inp, area = [200000000000000, 400000000000000]) {
       let isInFuture2 = cross[0] >= hail2.start[0] && hail2.delta[0] > 0
         || cross[0] <= hail2.start[0] && hail2.delta[0] < 0;
 
-      // console.log(hail1, hail2);
       if (Number.isFinite(cross[0]) && Number.isFinite(cross[1])) {
         if (isInArea(area, cross)) {
 
           if (isInFuture1 && isInFuture2) {
-            // console.log('inside future');
             cnt++;
-          } else {
-            // console.log('inside past');
           }
-        } else {
-          // console.log('outside');
         }
-      } else {
-        // console.log('parallel');
       }
-
     }
   }
 
@@ -96,11 +69,22 @@ function part2(inp) {
       return bSize - aSize;
     });
 
-  // console.log(hails);
-  // console.log(colleactData(hails));
+  let aaa = hails
+    .map((line) => {
+      let r = moveStartTo(line, 1_000_000_000_000);
+      // console.log('---');
+      // console.log(line.start);
+      // console.log(r.start);
+      return r;
+    })
+    .map(({ start }) => {
+      return "(" + start.map(it => (it / 1000000000000).toFixed(0)).join(",") + ")";
+    })
+    .join(",");
 
+  console.log(aaa);
 
-  // return;
+  return;
 
   for (let timeDiff = 1; timeDiff < 1_000_000; timeDiff++) {
     let simulated = 0;
