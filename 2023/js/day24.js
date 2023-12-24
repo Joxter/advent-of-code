@@ -1,18 +1,24 @@
-import { runDay, sum } from '../../utils.js';
+import { runDay, sum } from "../../utils.js";
 
 // https://adventofcode.com/2023/day/24
 
+// console.log(part2(`19, 13, 30 @ -2,  1, -2
+// 18, 19, 22 @ -1, -1, -2
+// 20, 25, 34 @ -2, -2, -4
+// 12, 31, 28 @ -1, -2, -1
+// 20, 19, 15 @  1, -5, -3`));
+
 runDay(2023, 24)
-  .part(1, part1)
-  // .part(2, part2) // I gave up..
+  // .part(1, part1)
+  .part(2, part2) // I gave up..
   .end();
 
 function part1(inp, area = [200000000000000, 400000000000000]) {
   let hails = inp
-    .split('\n')
+    .split("\n")
     .map((line) => {
       let [start, delta] = line
-        .split(' @ ')
+        .split(" @ ")
         .map(it => it.trim().split(/,\s+/g));
 
       return {
@@ -60,10 +66,10 @@ function part1(inp, area = [200000000000000, 400000000000000]) {
 
 function part2(inp) {
   let hails = inp
-    .split('\n')
+    .split("\n")
     .map((line) => {
       let [start, delta] = line
-        .split(' @ ')
+        .split(" @ ")
         .map(it => it.trim().split(/,\s+/g));
 
       return {
@@ -77,11 +83,21 @@ function part2(inp) {
     for (let j = 0; j < hails.length; j++) {
       if (i === j) continue;
 
-      for (let t1 = 1; t1 < 200; t1++) {
-        for (let t2 = t1 + 1; t2 < 201; t2++) {
-          // let ans = simulate(i, j, hails, t1, t2);
-          if (ans) {
-            return ans;
+      let timeLimit = 500;
+      for (let t1 = 1; t1 < timeLimit; t1++) {
+        for (let t2 = t1 + 1; t2 < timeLimit + 1; t2++) {
+
+          // if (t1 === 1 && t2 === 3) {
+          //   debugger
+          // }
+
+          let shootLine = getAim(i, j, hails, t1, t2);
+          if (shootLine) {
+            let ans = simulate(hails, shootLine);
+            if (ans) {
+              console.log(shootLine);
+              return sum(shootLine.start);
+            }
           }
         }
       }
@@ -89,7 +105,7 @@ function part2(inp) {
     }
   }
 
-  return 'NOT FOUND';
+  return "NOT FOUND";
 }
 
 function intersect(lineA, lineB) {
@@ -163,4 +179,63 @@ function moveStartTo(line, deltaTime) {
 
 function isIntegers(coords) {
   return coords.every(it => Number.isInteger(it));
+}
+
+// 1_000_000_000_000
+function getCross(lineA, lineB, limit = 1_000_000) {
+  let p1 = [...lineA.start];
+  let p2 = [...lineB.start];
+  let d = getDistance(p1, p2);
+
+  for (let i = 0; i < limit; i++) {
+    let newD = getDistance(p1, p2);
+    if (newD === 0) {
+      return i;
+    }
+    if (newD > d) {
+      return null;
+    }
+
+    p1 = [p1[0] + lineA.delta[0], p1[1] + lineA.delta[1], p1[2] + lineA.delta[2]];
+    p2 = [p2[0] + lineB.delta[0], p2[1] + lineB.delta[1], p2[2] + lineB.delta[2]];
+  }
+
+  throw new Error(`Limit ${limit} exceeded. \n` + JSON.stringify(lineA) + "\n" + JSON.stringify(lineB));
+  // return ;
+}
+
+function getDistance(pointA, pointB) {
+  return Math.abs(pointA[0] - pointB[0])
+    + Math.abs(pointA[1] - pointB[1])
+    + Math.abs(pointA[2] - pointB[2]);
+}
+
+function getAim(i, j, hails, t1, t2) {
+  let line = makeLineByDots(
+    pointInTime(hails[i], t1),
+    pointInTime(hails[j], t2),
+  );
+
+  line.delta = line.delta.map((it) => it / (t2 - t1));
+  if (!isIntegers(line.delta)) {
+    return null;
+  }
+
+  let moved = moveStartTo(line, -t1);
+  return moved;
+}
+
+function simulate(hails, shotLine) {
+  if (shotLine.start.join(",") === "24,13,10") {
+    // debugger
+    // console.log(shotLine);
+  }
+  // console.log(shotLine);
+  for (let i = 0; i < hails.length; i++) {
+    if (!getCross(shotLine, hails[i])) {
+      return false;
+    }
+  }
+
+  return true;
 }
