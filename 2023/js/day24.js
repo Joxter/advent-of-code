@@ -8,6 +8,19 @@ import { runDay, sum } from "../../utils.js";
 // 12, 31, 28 @ -1, -2, -1
 // 20, 19, 15 @  1, -5, -3`));
 
+
+// let shotLine = {
+//   start: [24, 13, 10],
+//   delta: [-3, 1, 2],
+// };
+// let line1 = { start: [19, 13, 30], delta: [-2, 1, -2] };
+// let line2 = { start: [18, 19, 22], delta: [-1, -1, -2] };
+// let line3 = { start: [18, 19, 22], delta: [-1, -1, 2] };
+
+// console.log(getCross(shotLine, line1), [5]);
+// console.log(getCross(shotLine, line2), [3]);
+// console.log(getCross(shotLine, line3), [null]);
+
 runDay(2023, 24)
   // .part(1, part1)
   .part(2, part2) // I gave up..
@@ -76,20 +89,17 @@ function part2(inp) {
         start: [+start[0], +start[1], +start[2]],
         delta: [+delta[0], +delta[1], +delta[2]],
       };
-    });
+    })
+    .slice(0, 10);
 
   for (let i = 0; i < hails.length; i++) {
     console.log(i, hails.length);
     for (let j = 0; j < hails.length; j++) {
       if (i === j) continue;
 
-      let timeLimit = 500;
+      let timeLimit = 10_000;
       for (let t1 = 1; t1 < timeLimit; t1++) {
         for (let t2 = t1 + 1; t2 < timeLimit + 1; t2++) {
-
-          // if (t1 === 1 && t2 === 3) {
-          //   debugger
-          // }
 
           let shootLine = getAim(i, j, hails, t1, t2);
           if (shootLine) {
@@ -135,26 +145,6 @@ function isInArea(area, dot) {
     && dot[1] >= area[0] && dot[1] <= area[1];
 }
 
-function intersect3(line1, line2) {
-  let tX = (line1.start[0] - line2.start[0]) / (line2.delta[0] - line1.delta[0]);
-  let tY = (line1.start[1] - line2.start[1]) / (line2.delta[1] - line1.delta[1]);
-  let tZ = (line1.start[2] - line2.start[2]) / (line2.delta[2] - line1.delta[2]);
-
-  let ts = [tX, tY, tZ].filter((x) => !Number.isNaN(x));
-
-  if (ts.every(it => it === ts[0])) {
-    return pointInTime(line1, tX);
-  }
-
-  return null;
-}
-
-function isInArea3(area, dot) {
-  return dot[0] >= area[0] && dot[0] <= area[1]
-    && dot[1] >= area[0] && dot[1] <= area[1]
-    && dot[2] >= area[0] && dot[2] <= area[1];
-}
-
 function pointInTime(line, time) {
   return [
     line.start[0] + line.delta[0] * time,
@@ -181,27 +171,18 @@ function isIntegers(coords) {
   return coords.every(it => Number.isInteger(it));
 }
 
-// 1_000_000_000_000
-function getCross(lineA, lineB, limit = 1_000_000) {
-  let p1 = [...lineA.start];
-  let p2 = [...lineB.start];
-  let d = getDistance(p1, p2);
+function getCross(lineA, lineB) {
+  let d0 = getDistance(lineA.start, lineB.start);
+  let d1 = getDistance(pointInTime(lineA, 1), pointInTime(lineB, 1));
 
-  for (let i = 0; i < limit; i++) {
-    let newD = getDistance(p1, p2);
-    if (newD === 0) {
-      return i;
-    }
-    if (newD > d) {
-      return null;
-    }
+  if (d1 > d0) return null;
 
-    p1 = [p1[0] + lineA.delta[0], p1[1] + lineA.delta[1], p1[2] + lineA.delta[2]];
-    p2 = [p2[0] + lineB.delta[0], p2[1] + lineB.delta[1], p2[2] + lineB.delta[2]];
+  let step = d0 / (d0 - d1);
+
+  if (getDistance(pointInTime(lineA, step), pointInTime(lineB, step)) === 0) {
+    return step;
   }
-
-  throw new Error(`Limit ${limit} exceeded. \n` + JSON.stringify(lineA) + "\n" + JSON.stringify(lineB));
-  // return ;
+  return null;
 }
 
 function getDistance(pointA, pointB) {
@@ -226,13 +207,8 @@ function getAim(i, j, hails, t1, t2) {
 }
 
 function simulate(hails, shotLine) {
-  if (shotLine.start.join(",") === "24,13,10") {
-    // debugger
-    // console.log(shotLine);
-  }
-  // console.log(shotLine);
   for (let i = 0; i < hails.length; i++) {
-    if (!getCross(shotLine, hails[i])) {
+    if (getCross(shotLine, hails[i]) === null) {
       return false;
     }
   }
