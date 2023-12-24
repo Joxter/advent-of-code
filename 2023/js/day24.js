@@ -2,12 +2,11 @@ import { runDay, sum } from "../../utils.js";
 
 // https://adventofcode.com/2023/day/24
 
-// console.log(part2(`19, 13, 30 @ -2,  1, -2
-// 18, 19, 22 @ -1, -1, -2
-// 20, 25, 34 @ -2, -2, -4
-// 12, 31, 28 @ -1, -2, -1
-// 20, 19, 15 @  1, -5, -3`));
-
+console.log(part2(`19, 13, 30 @ -2,  1, -2
+18, 19, 22 @ -1, -1, -2
+20, 25, 34 @ -2, -2, -4
+12, 31, 28 @ -1, -2, -1
+20, 19, 15 @  1, -5, -3`));
 
 // let shotLine = {
 //   start: [24, 13, 10],
@@ -78,6 +77,7 @@ function part1(inp, area = [200000000000000, 400000000000000]) {
 }
 
 function part2(inp) {
+
   let hails = inp
     .split("\n")
     .map((line) => {
@@ -89,33 +89,116 @@ function part2(inp) {
         start: [+start[0], +start[1], +start[2]],
         delta: [+delta[0], +delta[1], +delta[2]],
       };
-    })
-    .slice(0, 10);
+    }).sort((a, b) => {
+      let aSize = Math.abs(a.delta[0]) + Math.abs(a.delta[1]) + Math.abs(a.delta[2]);
+      let bSize = Math.abs(b.delta[0]) + Math.abs(b.delta[1]) + Math.abs(b.delta[2]);
 
-  for (let i = 0; i < hails.length; i++) {
-    console.log(i, hails.length);
-    for (let j = 0; j < hails.length; j++) {
-      if (i === j) continue;
+      return bSize - aSize;
+    });
 
-      let timeLimit = 10_000;
-      for (let t1 = 1; t1 < timeLimit; t1++) {
-        for (let t2 = t1 + 1; t2 < timeLimit + 1; t2++) {
+  // console.log(hails);
+  // console.log(colleactData(hails));
 
-          let shootLine = getAim(i, j, hails, t1, t2);
-          if (shootLine) {
-            let ans = simulate(hails, shootLine);
-            if (ans) {
-              console.log(shootLine);
-              return sum(shootLine.start);
-            }
+
+  // return;
+
+  for (let timeDiff = 1; timeDiff < 1_000_000; timeDiff++) {
+    let simulated = 0;
+    let all = 0;
+
+    for (let startTime = 1; startTime < 1000; startTime++) {
+
+      let res = forEachPairOfHails((h1, h2) => {
+        let shootLine = getShootLine(h1, h2, hails, startTime, startTime + timeDiff);
+        all++;
+
+        // if (all > 100) return
+
+        if (shootLine) {
+          let ans = simulate(hails, shootLine);
+          simulated++;
+          if (ans) {
+            console.log(shootLine);
+            return sum(shootLine.start);
           }
         }
-      }
+      });
 
+      if (res) return res;
     }
+
+    console.log(timeDiff, [
+      formatNumberAsMillions(simulated),
+      formatNumberAsMillions(all - simulated)
+    ]);
+
   }
 
   return "NOT FOUND";
+
+  function forEachPairOfHails(cb) {
+    for (let i = 0; i < hails.length; i++) {
+      for (let j = 0; j < hails.length; j++) {
+        if (i === j) continue;
+
+        let res = cb(hails[i], hails[j]);
+
+        if (res) return res;
+      }
+    }
+  }
+
+  return null;
+}
+
+function colleactData(hails) {
+  let area = [Infinity, -Infinity];
+  let maxSpeed = 0;
+
+  let averageDelta = [0, 0, 0];
+
+  hails.forEach(({ start, delta }) => {
+
+    averageDelta[0] += delta[0];
+    averageDelta[1] += delta[1];
+    averageDelta[2] += delta[2];
+
+    area[0] = Math.min(start[0], start[1], start[2], area[0]);
+    area[1] = Math.max(start[0], start[1], start[2], area[1]);
+    maxSpeed = Math.max(
+      Math.abs(delta[0]),
+      Math.abs(delta[1]),
+      Math.abs(delta[2]),
+      maxSpeed,
+    );
+  });
+
+  let allDistances = [];
+
+  for (let i = 0; i < hails.length - 1; i++) {
+    for (let j = i + 1; j < hails.length; j++) {
+      let d = getDistance(hails[i].start, hails[j].start);
+      allDistances.push(Math.sqrt(d));
+    }
+  }
+
+  let averageDist = sum(allDistances) / allDistances.length;
+
+  let size = area[1] - area[0];
+
+  let maxPossibleSpeed = size / hails.length;
+
+  return {
+    area: [
+      formatNumberAsMillions(area[0]),
+      formatNumberAsMillions(area[1])
+    ],
+    averageDist: formatNumberAsMillions(averageDist),
+    size: formatNumberAsMillions(size),
+    maxPossibleSpeed: formatNumberAsMillions(maxPossibleSpeed),
+    maxSpeed,
+    averageDelta
+  };
 }
 
 function intersect(lineA, lineB) {
@@ -191,10 +274,11 @@ function getDistance(pointA, pointB) {
     + Math.abs(pointA[2] - pointB[2]);
 }
 
-function getAim(i, j, hails, t1, t2) {
+function getShootLine(h1, h2, hails, t1, t2) {
+  // console.log([t1, t2]);
   let line = makeLineByDots(
-    pointInTime(hails[i], t1),
-    pointInTime(hails[j], t2),
+    pointInTime(h1, t1),
+    pointInTime(h2, t2),
   );
 
   line.delta = line.delta.map((it) => it / (t2 - t1));
@@ -214,4 +298,14 @@ function simulate(hails, shotLine) {
   }
 
   return true;
+}
+
+function formatNumberAsMillions(n) {
+  // 10,000,000 => 10m
+  // 13,000,000,000,000 => 13mm
+
+  if (n < 1_000_000) return n;
+  // if (n < 1_000_000_000_000) return (n / 1_000_000).toFixed(2) + 'm'
+
+  return (n / 1_000_000_000).toFixed(3) + "mm";
 }
