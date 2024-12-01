@@ -41,11 +41,11 @@ fetch(url, {
 function createTodayJs(day) {
   let content = `import { runDay } from '../../utils.js';
 
-// https://adventofcode.com/2023/day/${day}
+// https://adventofcode.com/${year}/day/${day}
 
 console.log(part1(\`test\`))
 
-runDay(2023, ${day})
+runDay(${year}, ${day})
   .part(1, part1)
   .part(2, part2)
   .end();
