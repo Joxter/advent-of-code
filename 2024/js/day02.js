@@ -2,7 +2,7 @@ import { runDay } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/2
 
-runDay(2024, 2, 1)
+runDay(2024, 2)
   //
   .part(1, part1)
   .part(2, part2)
@@ -43,15 +43,11 @@ function part2better(inp) {
   return lines.filter((level) => {
     let normalRes = isSafeBetter(level);
     if (normalRes === true) return true;
-    let noFirstRes = isSafeBetter(level.toSpliced(0, 1));
-    if (noFirstRes === true) return true;
 
-    let finalRes = isSafeBetter(
-      level.toSpliced(Math.max(normalRes, noFirstRes), 1),
+    return (
+      isSafeBetter(level.toSpliced(normalRes, 1)) === true ||
+      isSafeBetter(level.toSpliced(normalRes - 1, 1)) === true
     );
-    if (finalRes === true) return true;
-
-    return false;
   }).length;
 }
 
@@ -77,7 +73,7 @@ function isSafeBetter(level) {
   if (level[0] < level.at(-1)) {
     for (let i = 1; i < level.length; i++) {
       let prev = level[i - 1];
-      if (!(level[i] > prev && level[i] - prev <= 3)) {
+      if (level[i] <= prev || level[i] - prev > 3) {
         return i;
       }
     }
@@ -85,7 +81,7 @@ function isSafeBetter(level) {
   } else {
     for (let i = 1; i < level.length; i++) {
       let prev = level[i - 1];
-      if (!(level[i] < prev && prev - level[i] <= 3)) {
+      if (level[i] >= prev || prev - level[i] > 3) {
         return i;
       }
     }
