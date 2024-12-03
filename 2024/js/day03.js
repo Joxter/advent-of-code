@@ -2,11 +2,12 @@ import { runDay, sum } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/3
 
-runDay(2024, 3, 100)
+runDay(2024, 3)
   .part(1, part1)
   .part(1, part1better, "better")
   .part(2, part2)
   .part(2, part2better, "better")
+  .part(2, part2splits, "splits")
   .end();
 
 function part1(inp) {
@@ -64,4 +65,12 @@ function part2better(inp) {
   }
 
   return res;
+}
+
+function part2splits(inp) {
+  return sum(
+    inp.split("do()").map((DO) => {
+      return part1better(DO.split(`don't()`)[0]);
+    }),
+  );
 }
