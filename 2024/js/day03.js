@@ -11,8 +11,10 @@ runDay(2024, 3)
   .end();
 
 function part1(inp) {
+  let match = inp.match(/mul\(\d{1,3},\d{1,3}\)/g);
   return sum(
-    inp.matchAll(/mul\((\d{1,3}),(\d{1,3})\)/g).map(([, a, b]) => {
+    match.map((it) => {
+      let [a, b] = it.match(/\d+/g);
       return +a * +b;
     }),
   );
