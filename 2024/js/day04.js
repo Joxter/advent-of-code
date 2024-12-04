@@ -1,26 +1,8 @@
-import {
-  allNeibs8,
-  makeGrid,
-  makeGridWithBorder,
-  runDay,
-} from "../../utils.js";
+import { makeGridWithBorder, runDay } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/4
 
-// console.log(
-//   part2(`MMMSXXMASM
-// MSAMXMSMSA
-// AMXSXMAAMM
-// MSAMASMSMX
-// XMASAMXAMM
-// XXAMMXXAMA
-// SMSMSASXSS
-// SAXAMASAAA
-// MAMMMXMMMM
-// MXMXAXMASX`),
-// );
-
-runDay(2024, 4)
+runDay(2024, 4, 100)
   //
   .part(1, part1)
   .part(2, part2)
@@ -42,23 +24,15 @@ function part1(inp) {
   let res = 0;
   for (let i = 1; i < grid.length - 1; i++) {
     for (let j = 1; j < grid[i].length - 1; j++) {
-      dirs.forEach((dir) => {
-        let ii = i;
-        let jj = j;
-        let word = grid[i][j];
-
-        while ("XMAS".startsWith(word)) {
-          ii = ii + dir[0];
-          jj = jj + dir[1];
-
-          word += grid[ii][jj];
-
-          if (word === "XMAS") {
-            res++;
+      for (let dir of dirs) {
+        for (let k = 0; k <= 3; k++) {
+          if (grid[i + k * dir[0]][j + k * dir[1]] === "XMAS"[k]) {
+            if (k === 3) res++;
+          } else {
             break;
           }
         }
-      });
+      }
     }
   }
 
@@ -73,7 +47,6 @@ function part2(inp) {
     for (let j = 1; j < grid[i].length - 1; j++) {
       if (grid[i][j] === "A") {
         let a = grid[i - 1][j - 1] + grid[i + 1][j + 1];
-
         let b = grid[i - 1][j + 1] + grid[i + 1][j - 1];
 
         if ((a === "MS" || a === "SM") && (b === "MS" || b === "SM")) {
