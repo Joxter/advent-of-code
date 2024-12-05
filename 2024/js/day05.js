@@ -2,10 +2,10 @@ import { runDay, sum } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/5
 
-runDay(2024, 5)
+runDay(2024, 5, 100)
   //
-  .part(1, part1)
-  .part(2, part2)
+  .part(1, part1) // 259
+  .part(2, part2) // 1.689
   .end();
 
 function part1(inp) {
@@ -17,20 +17,15 @@ function part1(inp) {
 
   let n = updates
     .split("\n")
-    .map((l) => {
-      return l.split(",").map((n) => +n);
-    })
+    .map((l) => l.split(",").map((n) => +n))
     .filter((nums) => {
-      return rules.every(([l, r]) => {
-        if (nums.includes(l) && nums.includes(r)) {
-          return nums.indexOf(l) <= nums.indexOf(r);
-        }
-        return true;
+      return rules.every((rule) => {
+        return nums.includes(rule[0]) && nums.includes(rule[1])
+          ? nums.indexOf(rule[0]) <= nums.indexOf(rule[1])
+          : true;
       });
     })
-    .map((it) => {
-      return it[Math.floor(it.length / 2)];
-    });
+    .map((it) => it[it.length >> 1]);
 
   return sum(n);
 }
@@ -44,9 +39,7 @@ function part2(inp) {
 
   let n = updates
     .split("\n")
-    .map((l) => {
-      return l.split(",").map((n) => +n);
-    })
+    .map((l) => l.split(",").map((n) => +n))
     .filter((nums) => {
       let a = nums.join(",");
       nums.sort((a, b) => {
@@ -56,9 +49,7 @@ function part2(inp) {
 
       return nums.join(",") !== a;
     })
-    .map((it) => {
-      return it[Math.floor(it.length / 2)];
-    });
+    .map((it) => it[it.length >> 1]);
 
   return sum(n);
 }
