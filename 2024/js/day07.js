@@ -3,10 +3,10 @@ import { runDay, sum } from "../../utils.js";
 // https://adventofcode.com/2024/day/7
 
 runDay(2024, 7, 100)
-  .part(1, part1) // 0.350 (100 iters)
-  .part(1, part1rev, "rev") // 0.078 (100 iters)
+  .part(1, part1) // 0.340 (100 iters)
+  .part(1, part1rev, "rev") // 0.076 (100 iters)
   .part(2, part2) // 22.557 (100 iters)
-  .part(2, part2rev, "rev") // 0.150 (100 iters)
+  .part(2, part2rev, "rev") // 0.108 (100 iters)
   .end();
 
 function part1(inp) {
@@ -31,11 +31,9 @@ function trySum(total, nums) {
   return ok;
 
   function go(total, nums, i, sum) {
-    if (sum > total || ok) return;
+    if (ok || sum > total) return;
     if (i === nums.length) {
-      if (sum === total) {
-        ok = true;
-      }
+      if (sum === total) ok = true;
       return;
     }
     let n = nums[i];
@@ -53,9 +51,7 @@ function trySum2(total, nums) {
   function go(total, nums, i, sum) {
     if (sum > total || ok) return;
     if (i === nums.length) {
-      if (sum === total) {
-        ok = true;
-      }
+      if (sum === total) ok = true;
       return;
     }
     let n = nums[i];
@@ -73,14 +69,11 @@ function trySumReverse(total, nums) {
 
   function go(total, nums, i) {
     if (ok) return;
-    if (total < 0) return;
-    if (total === 0 && i >= 0) return;
-    if (i < 0) {
-      if (total === 0) {
-        ok = true;
-      }
+    if (total === 0) {
+      if (i === -1) ok = true;
       return;
     }
+    if (i < 0) return;
     let n = nums[i];
 
     let a = total / n;
@@ -100,14 +93,11 @@ function trySum2reverse(total, nums) {
 
   function go(total, nums, i) {
     if (ok) return;
-    if (total < 0) return;
-    if (total === 0 && i >= 0) return;
-    if (i < 0) {
-      if (total === 0) {
-        ok = true;
-      }
+    if (total === 0) {
+      if (i === -1) ok = true;
       return;
     }
+    if (i < 0) return;
     let n = nums[i];
 
     go(total - n, nums, i - 1);
@@ -117,7 +107,7 @@ function trySum2reverse(total, nums) {
       go(a, nums, i - 1);
     }
 
-    let b = (total - n) / tens[Math.floor(Math.log10(n)) + 1];
+    let b = (total - n) / tens[n >= 100 ? 3 : n >= 10 ? 2 : 1];
     if (Number.isInteger(b)) {
       go(b, nums, i - 1);
     }
