@@ -47,7 +47,6 @@ function part1(inp) {
         path.add(current[0] + "," + current[1]);
         current[0] += dir[0];
         current[1] += dir[1];
-        // console.log(current);
       }
       if (grid[current[0]][current[1]] === "@") break;
       current[0] -= dir[0];
@@ -102,8 +101,7 @@ function part2(inp) {
       current[0] -= dir[0];
       current[1] -= dir[1];
 
-      d++;
-      d %= 4;
+      d = (d + 1) % 4;
     }
   } catch {}
 
@@ -121,22 +119,22 @@ function part2(inp) {
         let dir = dirs[d];
 
         while (grid[current[0]][current[1]] === ".") {
-          let key = current[0] + "," + current[1] + "," + d;
-          if (path.has(key)) {
-            res++;
-            grid[cratePosition[0]][cratePosition[1]] = ".";
-            return;
-          }
-          path.add(key);
           current[0] += dir[0];
           current[1] += dir[1];
         }
         if (!grid[current[0]][current[1]]) break;
+
+        let key = current[0] + "," + current[1] + "," + d;
+        if (path.has(key)) {
+          res++;
+          break;
+        }
+        path.add(key);
+
         current[0] -= dir[0];
         current[1] -= dir[1];
 
-        d++;
-        d %= 4;
+        d = (d + 1) % 4;
       }
 
       grid[cratePosition[0]][cratePosition[1]] = ".";
