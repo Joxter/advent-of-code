@@ -14,33 +14,31 @@ function part1(inp) {
       .trim()
       .split("\n")
       .map((line) => {
-        let [total, nums] = line.split(": ");
+        let [_total, _nums] = line.split(": ");
 
-        return [+total, nums.split(" ").map(Number)];
-      })
-      .map(([total, nums]) => {
+        let total = +_total;
+        let nums = _nums.split(" ").map(Number);
+
         let res = {};
-
-        let [a, ...rest] = nums;
-        trySum(total, rest, a, res);
+        trySum(total, nums, 1, nums[0], res);
 
         return res.ok ? total : 0;
       }),
   );
 }
 
-function trySum(total, nums, sum, ref) {
-  if (ref.ok) return;
-  if (nums.length === 0) {
+function trySum(total, nums, i, sum, ref) {
+  if (ref.ok || sum > total) return;
+  if (i === nums.length) {
     if (sum === total) {
       ref.ok = true;
     }
     return;
   }
-  let [n, ...rest] = nums;
+  let n = nums[i];
 
-  trySum(total, rest, n + sum, ref);
-  trySum(total, rest, n * sum, ref);
+  trySum(total, nums, i + 1, n + sum, ref);
+  trySum(total, nums, i + 1, n * sum, ref);
 }
 
 function part2(inp) {
@@ -49,32 +47,30 @@ function part2(inp) {
       .trim()
       .split("\n")
       .map((line) => {
-        let [total, nums] = line.split(": ");
+        let [_total, _nums] = line.split(": ");
 
-        return [+total, nums.split(" ").map(Number)];
-      })
-      .map(([total, nums]) => {
+        let total = +_total;
+        let nums = _nums.split(" ").map(Number);
+
         let res = {};
-
-        let [a, ...rest] = nums;
-        trySum2(total, rest, a, res);
+        trySum2(total, nums, 1, nums[0], res);
 
         return res.ok ? total : 0;
       }),
   );
 }
 
-function trySum2(total, nums, sum, ref) {
-  if (ref.ok) return;
-  if (nums.length === 0) {
+function trySum2(total, nums, i, sum, ref) {
+  if (ref.ok || sum > total) return;
+  if (i === nums.length) {
     if (sum === total) {
       ref.ok = true;
     }
     return;
   }
-  let [n, ...rest] = nums;
+  let n = nums[i];
 
-  trySum2(total, rest, n + sum, ref);
-  trySum2(total, rest, n * sum, ref);
-  trySum2(total, rest, +`${sum}${n}`, ref);
+  trySum2(total, nums, i + 1, n + sum, ref);
+  trySum2(total, nums, i + 1, n * sum, ref);
+  trySum2(total, nums, i + 1, +`${sum}${n}`, ref);
 }
