@@ -55,6 +55,8 @@ export function runDay(year, day, iters = 1) {
     console.log(`                    best      total`);
   }
 
+  let answers = [];
+
   let runner = {
     part(part, fn, label = "") {
       let answer = part === 1 ? part1 : part2;
@@ -78,6 +80,7 @@ export function runDay(year, day, iters = 1) {
 
       if (!answer) {
         console.log(`      ❓  part${part} ${res} [${time}] ${label}`);
+        answers[part] = res;
       } else {
         if (res === answer) {
           console.log(`      ✅  part${part} [${time}]${totalTime} ${label}`);
@@ -89,8 +92,17 @@ export function runDay(year, day, iters = 1) {
       }
       return runner;
     },
-    end() {
-      // nothing
+    end(saveCorrectAns) {
+      if (saveCorrectAns) {
+        fs.writeFileSync(
+          path.join(ansFolder, `day${DD}-part1.txt`),
+          part1 || answers[1],
+        );
+        fs.writeFileSync(
+          path.join(ansFolder, `day${DD}-part2.txt`),
+          part2 || answers[2],
+        );
+      }
     },
   };
 

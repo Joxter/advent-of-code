@@ -1,23 +1,9 @@
-import { makeGrid, runDay } from "../../utils.js";
+import { makeGrid, printGridCb, runDay } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/8
 
-console.log(
-  part2(`............
-........0...
-.....0......
-.......0....
-....0.......
-......A.....
-............
-............
-........A...
-.........A..
-............
-............`),
-);
-
 runDay(2024, 8)
+  //
   .part(1, part1)
   .part(2, part2)
   .end();
@@ -45,7 +31,7 @@ function part1(inp) {
         let a = coords[i];
         let b = coords[j];
 
-        let delta = [b[0] - a[0], b[1] - a[1]]; // a + delta -> b
+        let delta = [b[0] - a[0], b[1] - a[1]];
 
         if (grid[a[0] - delta[0]]?.[a[1] - delta[1]]) {
           antipodes[`${a[0] - delta[0]},${a[1] - delta[1]}`] = "#";
@@ -82,19 +68,19 @@ function part2(inp) {
       for (let j = i + 1; j < coords.length; j++) {
         let a = coords[i];
         let b = coords[j];
-        // console.log(a);
+        antipodes[`${a[0]},${a[1]}`] = name;
+        antipodes[`${b[0]},${b[1]}`] = name;
 
         let delta = [b[0] - a[0], b[1] - a[1]]; // a + delta -> b
-
         let aa = [a[0] - delta[0], a[1] - delta[1]];
         while (grid[aa[0]]?.[aa[1]]) {
-          antipodes[`${a[0] - delta[0]},${a[1] - delta[1]}`] = "#";
+          antipodes[`${aa[0]},${aa[1]}`] = name;
           aa = [aa[0] - delta[0], aa[1] - delta[1]];
         }
 
         let bb = [b[0] + delta[0], b[1] + delta[1]];
         while (grid[bb[0]]?.[bb[1]]) {
-          antipodes[`${b[0] + delta[0]},${b[1] + delta[1]}`] = "#";
+          antipodes[`${bb[0]},${bb[1]}`] = name;
           bb = [bb[0] + delta[0], bb[1] + delta[1]];
         }
       }
