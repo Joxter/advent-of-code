@@ -25,14 +25,13 @@ function part1(inp) {
 
   let antipodes = {};
 
-  Object.entries(antenas).forEach(([name, coords]) => {
-    for (let i = 0; i < coords.length - 1; i++) {
-      for (let j = i + 1; j < coords.length; j++) {
-        let a = coords[i];
-        let b = coords[j];
+  Object.values(antenas).forEach((antenna) => {
+    for (let i = 0; i < antenna.length - 1; i++) {
+      for (let j = i + 1; j < antenna.length; j++) {
+        let a = antenna[i];
+        let b = antenna[j];
 
         let delta = [b[0] - a[0], b[1] - a[1]];
-
         if (grid[a[0] - delta[0]]?.[a[1] - delta[1]]) {
           antipodes[`${a[0] - delta[0]},${a[1] - delta[1]}`] = "#";
         }
@@ -63,24 +62,23 @@ function part2(inp) {
 
   let antipodes = {};
 
-  Object.entries(antenas).forEach(([name, coords]) => {
-    for (let i = 0; i < coords.length - 1; i++) {
-      for (let j = i + 1; j < coords.length; j++) {
-        let a = coords[i];
-        let b = coords[j];
-        antipodes[`${a[0]},${a[1]}`] = name;
-        antipodes[`${b[0]},${b[1]}`] = name;
+  Object.values(antenas).forEach((antenna) => {
+    for (let i = 0; i < antenna.length - 1; i++) {
+      for (let j = i + 1; j < antenna.length; j++) {
+        let a = antenna[i];
+        let b = antenna[j];
 
-        let delta = [b[0] - a[0], b[1] - a[1]]; // a + delta -> b
-        let aa = [a[0] - delta[0], a[1] - delta[1]];
+        let delta = [b[0] - a[0], b[1] - a[1]];
+
+        let aa = [...a];
         while (grid[aa[0]]?.[aa[1]]) {
-          antipodes[`${aa[0]},${aa[1]}`] = name;
+          antipodes[`${aa[0]},${aa[1]}`] = "#";
           aa = [aa[0] - delta[0], aa[1] - delta[1]];
         }
 
-        let bb = [b[0] + delta[0], b[1] + delta[1]];
+        let bb = [...b];
         while (grid[bb[0]]?.[bb[1]]) {
-          antipodes[`${bb[0]},${bb[1]}`] = name;
+          antipodes[`${bb[0]},${bb[1]}`] = "#";
           bb = [bb[0] + delta[0], bb[1] + delta[1]];
         }
       }
