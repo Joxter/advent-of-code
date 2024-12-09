@@ -49,6 +49,7 @@ function createTodayJs(day) {
 console.log(part1(\`test\`))
 
 runDay(${year}, ${day})
+  //
   .part(1, part1)
   .part(2, part2)
   .end();
