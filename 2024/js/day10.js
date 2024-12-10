@@ -2,7 +2,7 @@ import { makeGridWithBorder, runDay } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/10
 
-runDay(2024, 10)
+runDay(2024, 10, 100)
   //
   .part(1, part1)
   .part(2, part2)
@@ -10,13 +10,13 @@ runDay(2024, 10)
 
 function part1(inp) {
   let grid = makeGridWithBorder(inp, "#");
+  let minusOne = String.fromCharCode("0".charCodeAt(0) - 1);
 
   let res = 0;
   for (let i = 1; i < grid.length - 1; i++) {
     for (let j = 1; j < grid[i].length - 1; j++) {
       if (grid[i][j] === "0") {
-        let score = dfs(i, j);
-        res += score;
+        res += dfs(i, j);
       }
     }
   }
@@ -24,21 +24,16 @@ function part1(inp) {
   return res;
 
   function dfs(i, j) {
-    let ends = {};
-    // console.log("start");
-    go(i, j, -1);
-    // console.log("end", ends, Object.keys(ends));
+    let ends = new Set();
+    go(i, j, minusOne);
 
-    return Object.keys(ends).length;
+    return ends.size;
 
     function go(i, j, prevH) {
-      // console.log(i, j, prevH);
       let h = grid[i][j];
-      if (h === "#") return;
-
-      if (+prevH + 1 !== +h) return;
+      if (prevH.charCodeAt(0) + 1 !== h.charCodeAt(0)) return;
       if (h === "9") {
-        ends[`${i},${j}`] = true;
+        ends.add((i << 6) + j);
         return;
       }
 
@@ -52,38 +47,35 @@ function part1(inp) {
 
 function part2(inp) {
   let grid = makeGridWithBorder(inp, "#");
+  let minusOne = String.fromCharCode("0".charCodeAt(0) - 1);
 
   let res = 0;
   for (let i = 1; i < grid.length - 1; i++) {
     for (let j = 1; j < grid[i].length - 1; j++) {
       if (grid[i][j] === "0") {
-        let score = dfs(i, j);
-        res += score;
+        res += dfs(i, j);
       }
     }
   }
-
   return res;
 
   function dfs(i, j) {
-    let ends = [];
-    go(i, j, -1);
-    return ends.length;
+    return go(i, j, minusOne);
 
     function go(i, j, prevH) {
       let h = grid[i][j];
-      if (h === "#") return;
-
-      if (+prevH + 1 !== +h) return;
+      if (prevH.charCodeAt(0) + 1 !== h.charCodeAt(0)) return 0;
       if (h === "9") {
-        ends.push([`${i},${j}`]);
-        return;
+        return 1;
       }
 
-      go(i - 1, j, h);
-      go(i + 1, j, h);
-      go(i, j - 1, h);
-      go(i, j + 1, h);
+      return (
+        go(i - 1, j, h) +
+        //
+        go(i + 1, j, h) +
+        go(i, j - 1, h) +
+        go(i, j + 1, h)
+      );
     }
   }
 }
