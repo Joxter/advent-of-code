@@ -6,6 +6,7 @@ runDay(2024, 11)
   //
   .part(1, part1)
   .part(2, part2)
+  .part(2, part2notMy, "not my (recursion + cache)")
   .end();
 
 function part1(inp) {
@@ -57,4 +58,34 @@ function part2(inp) {
   }
 
   return sum(Object.values(stones));
+}
+
+function part2notMy(inp) {
+  const cache = new Map();
+  const numbers = inp.split(" ").map(Number);
+
+  const blink = (number, blinks) => {
+    const cacheKey = `${number}-${blinks}`;
+    if (cache.has(cacheKey)) return cache.get(cacheKey);
+
+    let result;
+    if (blinks === 0) result = 1;
+    else if (number === 0) result = blink(1, blinks - 1);
+    else if (("" + number).length % 2 === 0) {
+      const str = "" + number;
+      const firstHalf = +str.substring(0, str.length / 2);
+      const secondHalf = +str.substring(str.length / 2);
+      result = blink(firstHalf, blinks - 1) + blink(secondHalf, blinks - 1);
+    } else {
+      result = blink(number * 2024, blinks - 1);
+    }
+
+    cache.set(cacheKey, result);
+    return result;
+  };
+
+  return numbers.reduce(
+    (numberCount, number) => numberCount + blink(number, 75),
+    0,
+  );
 }
