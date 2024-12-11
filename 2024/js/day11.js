@@ -12,8 +12,6 @@ function part1(inp) {
   let stones = inp.split(" ").map((it) => +it);
 
   for (let i = 0; i < 25; i++) {
-    // console.log(i, stones.join(" "));
-
     let toAdd = [];
 
     stones = stones.map((stone) => {
@@ -21,16 +19,14 @@ function part1(inp) {
       if (ss.length % 2 === 0) {
         let a = ss.slice(0, ss.length / 2);
         let b = ss.slice(ss.length / 2);
-        // console.log(ss, [a, b]);
         toAdd.push(+b);
         return +a;
       } else {
         return stone ? stone * 2024 : 1;
       }
     });
-    // console.log("toAdd", toAdd  );
 
-    stones.push(...toAdd);
+    stones = stones.concat(toAdd);
   }
 
   return stones.length;
@@ -40,35 +36,24 @@ function part2(inp) {
   let stones = Object.fromEntries(inp.split(" ").map((it) => [it, 1]));
 
   for (let i = 0; i < 75; i++) {
-    let toAdd = [];
-    let toRemove = [];
+    let newStones = {};
 
     Object.entries(stones).forEach(([stone, cnt]) => {
       if (stone.length % 2 === 0) {
         let a = +stone.slice(0, stone.length / 2);
         let b = +stone.slice(stone.length / 2);
 
-        toAdd.push([String(a), cnt]);
-        toAdd.push([String(b), cnt]);
+        newStones[a] = (newStones[a] || 0) + cnt;
+        newStones[b] = (newStones[b] || 0) + cnt;
       } else {
         if (stone === "0") {
-          toAdd.push(["1", cnt]);
+          newStones["1"] = (newStones["1"] || 0) + cnt;
         } else {
-          toAdd.push([String(stone * 2024), cnt]);
+          newStones[stone * 2024] = (newStones[stone * 2024] || 0) + cnt;
         }
       }
-      toRemove.push(stone);
     });
-    toRemove.forEach((stone) => {
-      delete stones[stone];
-    });
-    toAdd.forEach(([stone, cnt]) => {
-      if (stones[stone]) {
-        stones[stone] += cnt;
-      } else {
-        stones[stone] = cnt;
-      }
-    });
+    stones = newStones;
   }
 
   return sum(Object.values(stones));
