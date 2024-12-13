@@ -2,29 +2,10 @@ import { runDay, sum } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/13
 
-console.log(
-  part2(`Button A: X+94, Y+34
-Button B: X+22, Y+67
-Prize: X=8400, Y=5400
-
-Button A: X+26, Y+66
-Button B: X+67, Y+21
-Prize: X=12748, Y=12176
-
-Button A: X+17, Y+86
-Button B: X+84, Y+37
-Prize: X=7870, Y=6450
-
-Button A: X+69, Y+23
-Button B: X+27, Y+71
-Prize: X=18641, Y=10279`),
-  [480],
-);
-
 runDay(2024, 13)
   //
-  // .part(1, part1)
-  // .part(2, part2)
+  .part(1, part1)
+  .part(2, part2)
   .end();
 
 function part1(inp) {
@@ -42,9 +23,8 @@ function part1(inp) {
     });
 
   return sum(
-    machines.map(({ a, b, fin }, i) => {
+    machines.map(({ a, b, fin }) => {
       let tokens = Infinity;
-      console.log(i);
 
       for (let i = 1; i <= 100; i++) {
         for (let j = 1; j <= 100; j++) {
@@ -66,4 +46,29 @@ function part1(inp) {
 }
 
 function part2(inp) {
+  let machines = inp
+    .trim()
+    .split("\n\n")
+    .map((rawM) => {
+      let [rawA, rawB, res] = rawM.split("\n");
+
+      return {
+        a: [...rawA.matchAll(/(\d+)/g)].map((it) => +it[0]),
+        b: [...rawB.matchAll(/(\d+)/g)].map((it) => +it[0]),
+        fin: [...res.matchAll(/(\d+)/g)].map((it) => +it[0] + 10000000000000),
+      };
+    });
+
+  return sum(
+    machines.map(({ a, b, fin }) => {
+      let A = (fin[0] * b[1] - fin[1] * b[0]) / (a[0] * b[1] - a[1] * b[0]);
+
+      if (Number.isInteger(A)) {
+        let B = (fin[0] - a[0] * A) / b[0];
+        return A * 3 + B;
+      }
+
+      return 0;
+    }),
+  );
 }
