@@ -139,6 +139,10 @@ export function sortNum(arr) {
   return arr.slice().sort((a, b) => a - b);
 }
 
+export function ints(str) {
+  return str.match(/[-+]?\d+/g).map(Number);
+}
+
 export function sum(arr) {
   return arr.reduce((a, b) => a + b, 0);
 }
