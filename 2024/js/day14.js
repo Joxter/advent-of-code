@@ -2,11 +2,12 @@ import { ints, printGrid, runDay } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/14
 
-runDay(2024, 14)
+runDay(2024, 14, 1)
   //
   .part(1, part1)
   .part(1, part1opt, "optimal")
-  // .part(2, part2)
+  .part(2, part2)
+  .part(2, part2better, "better")
   .end();
 
 function part1(inp) {
@@ -136,4 +137,30 @@ function part1opt(inp) {
   });
 
   return q1 * q2 * q3 * q4;
+}
+
+function part2better(inp) {
+  let robots = inp.split("\n").map((line) => {
+    let [a, b, c, d] = ints(line);
+    return { pos: [a, b], v: [c, d] };
+  });
+
+  let mapX = 101;
+  let mapY = 103;
+
+  let i = 1;
+  while (true) {
+    robots.forEach(({ pos, v }, i) => {
+      robots[i].pos[0] = (mapX + pos[0] + v[0]) % mapX;
+      robots[i].pos[1] = (mapY + pos[1] + v[1]) % mapY;
+    });
+
+    if (noOverlap(robots)) return i;
+    i++;
+  }
+
+  function noOverlap(robots) {
+    let s = new Set(robots.map(({ pos }) => pos[0] * mapX + pos[1]));
+    return s.size === robots.length;
+  }
 }
