@@ -5,7 +5,8 @@ import { ints, printGrid, runDay } from "../../utils.js";
 runDay(2024, 14)
   //
   .part(1, part1)
-  .part(2, part2)
+  .part(1, part1opt, "optimal")
+  // .part(2, part2)
   .end();
 
 function part1(inp) {
@@ -104,4 +105,35 @@ function printMap(robots, map) {
   });
 
   return printGrid(res);
+}
+
+function part1opt(inp) {
+  let map = [101, 103];
+  let steps = 100;
+
+  let ii = Math.floor(map[0] / 2);
+  let jj = Math.ceil(map[1] / 2) - 1;
+
+  let q1 = 0;
+  let q2 = 0;
+  let q3 = 0;
+  let q4 = 0;
+
+  inp.split("\n").forEach((line) => {
+    let [px, py, vx, vy] = ints(line);
+
+    let i = (map[0] * steps + px + vx * steps) % map[0];
+    let j = (map[1] * steps + py + vy * steps) % map[1];
+
+    if (i < ii) {
+      if (j < jj) q1++;
+      if (j > jj) q4++;
+    }
+    if (i > ii) {
+      if (j < jj) q2++;
+      if (j > jj) q3++;
+    }
+  });
+
+  return q1 * q2 * q3 * q4;
 }
