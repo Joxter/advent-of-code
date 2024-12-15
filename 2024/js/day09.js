@@ -2,7 +2,7 @@ import { runDay, sum } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/9
 
-runDay(2024, 9)
+runDay(2024, 9, 1)
   //
   .part(1, part1)
   .part(2, part2)
@@ -26,16 +26,18 @@ function part1(inp) {
       file = !file;
     });
 
-  while (disk.includes(".")) {
-    let ind = disk.indexOf(".");
-    disk[ind] = disk.pop();
+  let from = 0;
+  while (true) {
+    let ind = disk.indexOf(".", from);
+    if (ind >= 0) {
+      disk[ind] = disk.pop();
+      from = ind;
+    } else {
+      break;
+    }
   }
 
-  return sum(
-    disk.map((n, i) => {
-      return n * i;
-    }),
-  );
+  return sum(disk.map((n, i) => n * i));
 }
 
 function part2(inp) {
@@ -48,54 +50,69 @@ function part2(inp) {
     .split("")
     .forEach((n) => {
       if (file) {
-        disk.push([+n, String(id)]);
+        disk.push([+n, id]);
         id++;
       } else {
-        disk.push([+n, "."]);
+        disk.push([+n, null]);
       }
       file = !file;
     });
 
-  let checked = disk.length;
-  while (checked > 0) {
-    let toMoveInd = disk.findLastIndex(([cnt, it], i) => {
-      return i < checked && it !== ".";
-    });
+  let checkedL = 0;
+  let checkedR = disk.length;
+  let maxFreeSpace = 10;
+
+  while (true) {
+    let toMoveInd = -1;
+    for (let i = checkedR - 1; i >= checkedL; i--) {
+      if (disk[i][1] !== null && disk[i][0] <= maxFreeSpace) {
+        toMoveInd = i;
+        break;
+      }
+    }
+    if (toMoveInd === -1) break;
+
     let toMove = disk[toMoveInd];
-    checked = toMoveInd;
+    checkedR = toMoveInd;
 
-    if (!toMove) break;
+    let firstFreeInd = -1;
+    let max = 0;
+    for (let i = checkedL; i < checkedR; i++) {
+      if (disk[i][1] === null) {
+        if (max < disk[i][0]) max = disk[i][0];
+        if (disk[i][0] >= toMove[0]) {
+          firstFreeInd = i;
+          if (toMove[0] === 1) {
+            checkedL = firstFreeInd;
+          }
+          break;
+        }
+      }
+    }
 
-    let firstFreeInd = disk.findIndex(([cnt, it], i) => {
-      return i < checked && cnt >= toMove[0] && it === ".";
-    });
+    if (firstFreeInd === -1) {
+      maxFreeSpace = max;
+      continue;
+    }
 
     let firstFree = disk[firstFreeInd];
-    if (!firstFree) continue;
 
-    disk.splice(toMoveInd, 1, [toMove[0], "."]);
+    disk[toMoveInd] = [toMove[0], null];
     if (toMove[0] === firstFree[0]) {
-      disk.splice(firstFreeInd, 1, toMove);
+      disk[firstFreeInd] = toMove;
     } else {
-      disk.splice(firstFreeInd, 1, toMove, [firstFree[0] - toMove[0], "."]);
+      disk.splice(firstFreeInd, 1, toMove, [firstFree[0] - toMove[0], null]);
     }
-    // for (let i = 1; i < disk.length; i++) {
-    //   let it = disk[i];
-    //   let prev = disk[i - 1];
-    //   if (prev[1] === "." && it[1] === ".") {
-    //     disk.splice(i - 1, 2, [prev[0] + it[0], "."]);
-    //     i -= 3;
-    //   }
-    // }
   }
 
   return sum(
     disk
+      .slice(0, disk.findLastIndex((a) => a[1] !== null) + 1)
       .flatMap(([n, ch]) => {
-        if (ch === ".") {
+        if (ch === null) {
           return new Array(n).fill(0);
         }
-        return new Array(n).fill(+ch);
+        return new Array(n).fill(ch);
       })
       .map((n, i) => {
         return n * i;
