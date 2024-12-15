@@ -17,50 +17,25 @@ function part1(inp) {
   grid = makeGrid(grid);
   moves = moves.trim().replaceAll(/\s/g, "").split("");
 
-  let move = {
-    "^": [-1, 0],
-    v: [1, 0],
-    "<": [0, -1],
-    ">": [0, 1],
-  };
-
-  let pos = [0, 0];
-  for (let i = 0; i < grid.length; i++) {
-    for (let j = 0; j < grid[i].length; j++) {
-      if (grid[i][j] === ROBOT) {
-        pos = [i, j];
-        break;
-      }
-    }
-  }
+  let move = { "^": [-1, 0], v: [1, 0], "<": [0, -1], ">": [0, 1] };
+  let pos = findInGrid(grid, ROBOT);
 
   for (let m of moves) {
     let dir = move[m];
 
     let tryPos = [pos[0] + dir[0], pos[1] + dir[1]];
     let fin = null;
-    // console.log("-------- dir", dir);
 
-    let limit = 1000;
     while (true) {
-      if (limit-- < 0) {
-        return console.log("EXIT");
-      }
-      // console.log(tryPos, grid[tryPos[0]][tryPos[1]]);
-
       if (grid[tryPos[0]][tryPos[1]] === "#") {
         fin = null;
         break;
       } else if (grid[tryPos[0]][tryPos[1]] === ".") {
         fin = tryPos;
         break;
-      } else if (grid[tryPos[0]][tryPos[1]] === BOX) {
-        //
       }
       tryPos = [tryPos[0] + dir[0], tryPos[1] + dir[1]];
     }
-    // console.log(printGrid(grid));
-    // console.log(dir);
 
     if (fin) {
       let newPos = [pos[0] + dir[0], pos[1] + dir[1]];
@@ -73,21 +48,9 @@ function part1(inp) {
       grid[pos[0]][pos[1]] = ".";
       pos = newPos;
     }
-
-    // printGrid(grid);
   }
 
-  // all boxes
-  let res = 0;
-  for (let i = 0; i < grid.length; i++) {
-    for (let j = 0; j < grid[i].length; j++) {
-      if (grid[i][j] === BOX) {
-        res += i * 100 + j;
-      }
-    }
-  }
-
-  return res;
+  return getRes(grid, BOX);
 }
 
 function part2(inp) {
@@ -98,13 +61,12 @@ function part2(inp) {
 
   grid1 = makeGrid(grid1);
   let grid = [];
-
   for (let i = 0; i < grid1.length; i++) {
     let row = [];
     for (let j = 0; j < grid1[i].length; j++) {
       if (grid1[i][j] === ".") row.push(".", ".");
       if (grid1[i][j] === "#") row.push("#", "#");
-      if (grid1[i][j] === "@") row.push("@", ".");
+      if (grid1[i][j] === ROBOT) row.push(ROBOT, ".");
       if (grid1[i][j] === BOX) row.push("[", "]");
     }
     grid.push(row);
@@ -112,66 +74,30 @@ function part2(inp) {
 
   moves = moves.trim().replaceAll(/\s/g, "").split("");
 
-  let move = {
-    "^": [-1, 0],
-    v: [1, 0],
-    "<": [0, -1],
-    ">": [0, 1],
-  };
-
-  let pos = [0, 0];
-  for (let i = 0; i < grid.length; i++) {
-    for (let j = 0; j < grid[i].length; j++) {
-      if (grid[i][j] === ROBOT) {
-        pos = [i, j];
-        break;
-      }
-    }
-  }
+  let move = { "^": [-1, 0], v: [1, 0], "<": [0, -1], ">": [0, 1] };
+  let pos = findInGrid(grid, ROBOT);
 
   for (let m of moves) {
     let dir = move[m];
-    // console.log(m, dir);
 
     let nextGrid = cloneGrid(grid);
     let tryPos = [pos[0] + dir[0], pos[1] + dir[1]];
 
-    if (m === "<" || m === ">") {
-      // debugger;
-      let r = tryMoveHor(nextGrid, tryPos, dir);
-      // console.log({ r });
-      if (r) {
-        nextGrid[pos[0]][pos[1]] = ".";
-        pos = [...tryPos];
-        nextGrid[pos[0]][pos[1]] = "@";
+    let r =
+      m === "<" || m === ">"
+        ? tryMoveHor(nextGrid, tryPos, dir)
+        : tryMoveVert(nextGrid, tryPos, dir);
 
-        grid = nextGrid;
-      }
-    }
-    if (m === "^" || m === "v") {
-      let r = tryMoveVert(nextGrid, tryPos, dir);
-      // console.log({ r });
-      if (r) {
-        nextGrid[pos[0]][pos[1]] = ".";
-        pos = [...tryPos];
-        nextGrid[pos[0]][pos[1]] = "@";
+    if (r) {
+      nextGrid[pos[0]][pos[1]] = ".";
+      pos = [...tryPos];
+      nextGrid[pos[0]][pos[1]] = ROBOT;
 
-        grid = nextGrid;
-      }
-    }
-
-  }
-
-  let res = 0;
-  for (let i = 0; i < grid.length; i++) {
-    for (let j = 0; j < grid[i].length; j++) {
-      if (grid[i][j] === "[") {
-        res += i * 100 + j;
-      }
+      grid = nextGrid;
     }
   }
 
-  return res;
+  return getRes(grid, "[");
 }
 
 function cloneGrid(grid) {
@@ -185,30 +111,27 @@ function cloneGrid(grid) {
 function tryMoveHor(grid, pos, dir) {
   let cell = grid[pos[0]][pos[1]];
 
-  let res = false;
   if (cell === ".") {
-    res = true;
+    return true;
   } else if (cell === "#") {
-    res = false;
-  } else if (cell === "]" || cell === "[") {
-    res = tryMoveHor(grid, [pos[0], pos[1] + dir[1]], dir);
+    return false;
+  } else {
+    let res = tryMoveHor(grid, [pos[0], pos[1] + dir[1]], dir);
     if (res) {
       grid[pos[0]][pos[1] + dir[1]] = cell;
       grid[pos[0]][pos[1]] = ".";
     }
+    return res;
   }
-
-  return res;
 }
 
 function tryMoveVert(grid, pos, dir) {
   let cell = grid[pos[0]][pos[1]];
 
-  let res = false;
   if (cell === ".") {
-    res = true;
+    return true;
   } else if (cell === "#") {
-    res = false;
+    return false;
   } else if (cell === "[") {
     let res1 = tryMoveVert(grid, [pos[0] + dir[0], pos[1]], dir);
     let res2 = tryMoveVert(grid, [pos[0] + dir[0], pos[1] + 1], dir);
@@ -229,6 +152,29 @@ function tryMoveVert(grid, pos, dir) {
       grid[pos[0]][pos[1] - 1] = ".";
     }
     return res1 && res2;
+  }
+}
+
+function findInGrid(grid, char) {
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      if (grid[i][j] === char) {
+        return [i, j];
+      }
+    }
+  }
+
+  return null;
+}
+
+function getRes(grid, ch) {
+  let res = 0;
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      if (grid[i][j] === ch) {
+        res += i * 100 + j;
+      }
+    }
   }
 
   return res;
