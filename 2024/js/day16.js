@@ -10,9 +10,9 @@ import {
 
 runDay(2024, 16, 1)
   //
-  .part(1, part1) // (0:32 min)
-  .part(1, part1dijkstra, "Dijkstra rock!") // (0:00.066 min)
-  .part(2, part2) // 516 (1:05 min)
+  // .part(1, part1) // (0:32 min)
+  // .part(1, part1dijkstra, "Dijkstra rock!") // (0:00.066 min)
+  .part(2, part2) // 516 (1:05 min) (optimised to 13sec)
   // .part(2, part2dijkstra) // TODO
   .end();
 
@@ -82,13 +82,20 @@ function part2(inp) {
   let maxpoins = {};
   let bestTies = {};
 
+  const dirs = [
+    [0, 1],
+    [0, -1],
+    [1, 0],
+    [-1, 0],
+  ];
+
   function dfs(position, score, visited, dir) {
     let [i, j] = position;
     let k = `${i},${j}`;
 
     if (!maxpoins[k]) maxpoins[k] = score;
 
-    if (score > maxpoins[k] + 2000) return Infinity;
+    if (score > maxpoins[k] + 1001) return Infinity;
     if (score < maxpoins[k]) maxpoins[k] = score;
 
     if (grid[i][j] === "#") return Infinity;
@@ -103,19 +110,12 @@ function part2(inp) {
       }
       return score;
     }
-    if (score > best + 10) return Infinity;
+    if (score > best) return Infinity;
 
     let res = Infinity;
-
-    const dirs = [
-      [0, 1],
-      [0, -1],
-      [1, 0],
-      [-1, 0],
-    ];
-
     for (const d of dirs) {
-      let add = d.join(",") === dir.join(",") ? 1 : 1001;
+      let add = d === dir ? 1 : 1001;
+      if (d[0] === -dir[0] && d[1] === -dir[1]) continue;
 
       let ll = dfs([i + d[0], j + d[1]], score + add, [...visited, k], d);
       res = Math.min(res, ll);
@@ -156,12 +156,8 @@ function part1dijkstra(inp) {
     if (i === finish[0] && j === finish[1]) return score;
 
     let k = `${i},${j}`;
-    if (!visited[k]) {
-      visited[k] = score;
-    } else {
-      if (visited[k] < score) continue;
-      visited[k] = score;
-    }
+    if (visited[k] && visited[k] < score) continue;
+    visited[k] = score;
 
     for (const d of dirs) {
       let add = d === dir ? 1 : 1001;
@@ -201,15 +197,12 @@ function part2dijkstra(inp) {
     }
 
     let k = `${i},${j}`;
-    if (!visited[k]) {
-      visited[k] = score;
-    } else {
-      if (visited[k] < score) continue;
-      visited[k] = score;
-    }
+    if (visited[k] && visited[k] < score) continue;
+    visited[k] = score;
 
     for (const d of dirs) {
       let add = d === dir ? 1 : 1001;
+      visited[k] = score;
 
       q.push(score + add, [[i + d[0], j + d[1]], score + add, d, [...path, k]]);
     }
