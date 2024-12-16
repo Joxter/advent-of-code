@@ -1,12 +1,20 @@
-import { findInGrid, makeGrid, printGridCb, runDay } from "../../utils.js";
+import {
+  findInGrid,
+  makeGrid,
+  printGridCb,
+  runDay,
+  PriorityQueue,
+} from "../../utils.js";
 
 // https://adventofcode.com/2024/day/16
 
-runDay(2024, 16)
+runDay(2024, 16, 1)
   //
-  .part(1, part1) // 99488 (0:32 min)
-  .part(2, part2) // 516 (1:05 min)
-  .end(true);
+  // .part(1, part1) // (0:32 min)
+  .part(1, part1dijkstra, "Dijkstra rock!") // (0:00.066 min)
+  // .part(2, part2) // 516 (1:05 min)
+  // .part(2, part2dijkstra) // (1:05 min)
+  .end();
 
 function part1(inp) {
   let grid = makeGrid(inp.trim());
@@ -120,3 +128,46 @@ function part2(inp) {
 
   return Object.keys(bestTies).length + 1;
 }
+
+function part1dijkstra(inp) {
+  let grid = makeGrid(inp.trim());
+
+  let start = findInGrid(grid, "S");
+  let finish = findInGrid(grid, "E");
+
+  let visited = {};
+  let q = new PriorityQueue();
+
+  q.push(0, [start, 0, [], [0, 1]]);
+
+  const dirs = [
+    [0, 1],
+    [0, -1],
+    [1, 0],
+    [-1, 0],
+  ];
+
+  while (!q.isEmpty()) {
+    let [position, score, dir] = q.pop();
+
+    let [i, j] = position;
+    if (grid[i][j] === "#") continue;
+
+    if (i === finish[0] && j === finish[1]) return score;
+
+    let k = `${i},${j}`;
+    if (!visited[k]) {
+      visited[k] = score;
+    } else {
+      if (visited[k] < score) continue;
+      visited[k] = score;
+    }
+
+    for (const d of dirs) {
+      let add = d === dir ? 1 : 1001;
+
+      q.push(score + add, [[i + d[0], j + d[1]], score + add, d]);
+    }
+  }
+}
+
