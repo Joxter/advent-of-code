@@ -10,9 +10,9 @@ import {
 
 runDay(2024, 16, 1)
   //
-  // .part(1, part1) // (0:32 min)
-  // .part(1, part1dijkstra, "Dijkstra rock!") // (0:00.066 min)
-  .part(2, part2) // 516 (1:05 min) (optimised to 13sec)
+  .part(1, part1) // (32 sec) -> (optimised to 0.390 sec)
+  .part(1, part1dijkstra, "Dijkstra rock!") // (0:00.066 min)
+  .part(2, part2) // (1:05 min) -> (optimised to 6.8sec)
   // .part(2, part2dijkstra) // TODO
   .end();
 
@@ -25,51 +25,45 @@ function part1(inp) {
 
   let maxpoins = {};
 
-  function dfs(position, score, visited, dir) {
-    if (score > max) return Infinity;
+  const dirs = [
+    [0, 1],
+    [0, -1],
+    [1, 0],
+    [-1, 0],
+  ];
+
+  let q = [[start, 0, [], [0, 1]]];
+
+  while (q.length > 0) {
+    let [position, score, visited, dir] = q.shift();
+
+    if (score > max) continue;
 
     let [i, j] = position;
     let k = `${i},${j}`;
 
     if (!maxpoins[k]) maxpoins[k] = score;
 
-    if (score > maxpoins[k]) return Infinity;
+    if (score > maxpoins[k]) continue;
     if (score < maxpoins[k]) maxpoins[k] = score;
 
-    if (grid[i][j] === "#") return Infinity;
-    if (visited.includes(k)) return Infinity;
+    if (grid[i][j] === "#") continue;
+    if (visited.includes(k)) continue;
 
     if (i === finish[0] && j === finish[1]) {
       if (max > score) max = score;
-      return score;
+      continue;
     }
-
-    let res = Infinity;
-
-    const dirs = [
-      [0, 1],
-      [0, -1],
-      [1, 0],
-      [-1, 0],
-    ];
 
     for (const d of dirs) {
-      let add = d.join(",") === dir.join(",") ? 1 : 1001;
+      let add = d === dir ? 1 : 1001;
+      if (d[0] === -dir[0] && d[1] === -dir[1]) continue;
 
-      let ll = dfs(
-        //
-        [i + d[0], j + d[1]],
-        score + add,
-        [...visited, k],
-        d,
-      );
-      res = Math.min(res, ll);
+      q.push([[i + d[0], j + d[1]], score + add, [...visited, k], d]);
     }
-
-    return res;
   }
 
-  return dfs(start, 0, [], [0, 1]);
+  return max;
 }
 
 function part2(inp) {
@@ -77,7 +71,7 @@ function part2(inp) {
 
   let start = findInGrid(grid, "S");
   let finish = findInGrid(grid, "E");
-  let best = 99488;
+  let best = part1(inp);
 
   let maxpoins = {};
   let bestTies = {};
@@ -89,17 +83,22 @@ function part2(inp) {
     [-1, 0],
   ];
 
-  function dfs(position, score, visited, dir) {
+  let q = [[start, 0, [], [0, 1]]];
+
+  while (q.length > 0) {
+    let [position, score, visited, dir] = q.shift();
+
     let [i, j] = position;
     let k = `${i},${j}`;
 
+    if (grid[i][j] === "#") continue;
+
     if (!maxpoins[k]) maxpoins[k] = score;
 
-    if (score > maxpoins[k] + 1001) return Infinity;
+    if (score > maxpoins[k] + 1001) continue;
     if (score < maxpoins[k]) maxpoins[k] = score;
 
-    if (grid[i][j] === "#") return Infinity;
-    if (visited.includes(k)) return Infinity;
+    if (visited.includes(k)) continue;
 
     if (i === finish[0] && j === finish[1]) {
       if (best === score) {
@@ -108,23 +107,17 @@ function part2(inp) {
           ...Object.fromEntries(visited.map((it) => [it, it])),
         };
       }
-      return score;
+      continue;
     }
-    if (score > best) return Infinity;
+    if (score > best) continue;
 
-    let res = Infinity;
     for (const d of dirs) {
       let add = d === dir ? 1 : 1001;
       if (d[0] === -dir[0] && d[1] === -dir[1]) continue;
 
-      let ll = dfs([i + d[0], j + d[1]], score + add, [...visited, k], d);
-      res = Math.min(res, ll);
+      q.push([[i + d[0], j + d[1]], score + add, [...visited, k], d]);
     }
-
-    return res;
   }
-
-  dfs(start, 0, [], [0, 1]);
 
   return Object.keys(bestTies).length + 1;
 }
