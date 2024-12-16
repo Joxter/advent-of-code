@@ -212,6 +212,18 @@ export function makeGrid(inp) {
   return inp.split("\n").map((line) => line.split(""));
 }
 
+export function findInGrid(grid, char) {
+  for (let i = 0; i < grid.length; i++) {
+    for (let j = 0; j < grid[i].length; j++) {
+      if (grid[i][j] === char) {
+        return [i, j];
+      }
+    }
+  }
+
+  return null;
+}
+
 export function makeGridWithBorder(inp, border) {
   let lines = inp.split("\n");
 
