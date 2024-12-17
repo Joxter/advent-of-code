@@ -23,7 +23,7 @@ import { ints, runDay } from "../../utils.js";
 
 runDay(2024, 17)
   //
-  .part(1, part1)
+  // .part(1, part1)
   .part(2, part2)
   .end();
 
@@ -101,17 +101,33 @@ function part2(inp) {
     throw new Error("Invalid combo operand");
   }
 
+  /*
+35184372104207n 2,4,1,2,7 { A: 1073741824n, B: 4294967303n, C: 4294967297n }
+{ max: 6 }
+35184372104207n 2,4,1,2,7,5 { A: 134217728n, B: 268435461n, C: 268435456n }
+{ max: 7 }
+35184373480463n 2,4,1,2,7,5,0 { A: 16777216n, B: 1048576n, C: 1048576n }
+{ max: 8 }
+*/
   debugger;
 
   // let aa = 10_000_000_000; // 28_704_000_000
-  // let aa = 1;
-  let aa = 14190000000n; //  14_190_000_000n
+  // let aa = 14190000000n; //  21_350_000_000n
+
+  // let aa = 281_474_976_710_656n; //      62_300_000_000n +8
+  // let aa = 281488600000000n;
+  let aa = 8n ** 17n;
+  // let aa = 1n;
+  // let aa = 1n;
+  //                 281_474_976_710_656
   // A = 117440;
+
+  let max = 0;
   while (true) {
     reg = { A: aa, B: 0, C: 0 };
     let output = [];
 
-    if (aa % 10_000_000n === 0n) {
+    if (aa % 100_000_000n === 0n) {
       console.log("aa", aa);
     }
     let i = 0;
@@ -119,6 +135,7 @@ function part2(inp) {
     reg["A"] = aa;
 
     let lim = 100000;
+
     while (lim-- > 0) {
       reg["B"] = reg["A"] % 8n ^ 2n;
       reg["C"] = reg["A"] / 2n ** reg["B"];
@@ -131,17 +148,52 @@ function part2(inp) {
 
       if (!program.startsWith(o)) break;
       if (program === o) return aa;
+
+      if (max < output.length) {
+        max = output.length;
+        console.log({ max });
+        console.log(aa, output.join(","), reg);
+      }
+
+      if (output.length > 10) {
+        console.log("------", aa, output.join(","), reg);
+      }
     }
+    // console.log(aa, output, reg);
 
     /*
 
-invalid
-{ A: 14680, B: 29365, C: 29360 }
-5
 
-valid
-{ A: 14680, B: 0, C: 0 }
-0
+{ max: 1 }
+7n 2 { A: 0n, B: 2n, C: 0n } (3)
+{ max: 2 }
+15n 2,4 { A: 0n, B: 4n, C: 0n } (4)
+{ max: 3 }
+1039n 2,4,1 { A: 2n, B: 1n, C: 4n }  (10)
+{ max: 4 }
+8177n 2,4,1,2 { A: 1n, B: 2n, C: 0n } (13)
+
+{ max: 6 }
+15375n 2,4,1,2,7,5 { A: 0n, B: 5n, C: 0n } (13.9)
+{ max: 7 }
+1391631n 2,4,1,2,7,5,0 { A: 0n, B: 0n, C: 0n } (20.5)
+{ max: 8 }
+13974543n 2,4,1,2,7,5,0,3 { A: 0n, B: 3n, C: 0n } (23.7)
+{ max: 9 }
+24132623n 2,4,1,2,7,5,0,3,4 { A: 0n, B: 4n, C: 0n }
+^C
+
+
+
+{ max: 6 }
+2251799813700623n 2,4,1,2,7,5 { A: 8589934592n, B: 17179869189n, C: 17179869184n }
+{ max: 7 }
+2251799815076879n 2,4,1,2,7,5,0 { A: 1073741824n, B: 67108864n, C: 67108864n }
+{ max: 8 }
+2251799827659791n 2,4,1,2,7,5,0,3 { A: 134217728n, B: 67108867n, C: 67108864n }
+{ max: 9 }
+2251799837817871n 2,4,1,2,7,5,0,3,4 { A: 16777216n, B: 16777220n, C: 16777216n }
+
 
   117440
   117441
@@ -153,7 +205,7 @@ valid
   117447
   + 2.097.152
   */
-    aa++;
+    aa += 1n;
   }
 
   // console.log("END", reg, output.join(","));
@@ -164,51 +216,17 @@ valid
 
 /*
 
-0,3    5,4    3,0
+           1 2   3 4   5 6   7 8   9 10 11 12 13 14 15 16
+  Program: 2,4   1,2   7,5   0,3   4,7   1,7   5,5   3,0
 
-/reg["A"] = Math.floor(reg["A"] / 8)
-/out.push(reg["B"] % 8)
-
-
-
-*/
-
-/*
-
-Register A: 30878003
-Register B: 0
-Register C: 0
-
-Program: 2,4   1,2   7,5   0,3   4,7   1,7   5,5   3,0
-                                             /out.push(reg["B"] % 8)
-                                       /reg["B"] = reg["B"] ^ 7
-                                /reg["B"] = reg["B"] ^ reg["C"]
-                          /reg["A"] = Math.floor(reg["A"] / 8)
-                     /reg["C"] = floor(reg["A"] / 2 ** reg["B"])
-               /reg["B"] = reg["B"] ^ 2;
-         /reg["B"] = reg["A"] % 8;
-
-
-
-  reg["A"] = aa;
-
-  /reg["B"] = (reg["A"] % 8) ^ 2;
-  /reg["C"] = floor(reg["A"] / 2 ** reg["B"])
-  /reg["A"] = Math.floor(reg["A"] / 8)
-  /reg["B"] = (reg["B"] ^ reg["C"]) ^ 7
-  /out.push(reg["B"] % 8)
-
-
-
-
-  reg["A"] = aa;
-  reg["B"] = (reg["A"] % 8) ^ 2;
-  reg["C"] = floor(reg["A"] / (2**reg["B"]) )
-
- /out.push(((reg["B"] ^ reg["C"]) ^ 7) % 8)
-
-  reg["A"] = Math.floor(reg["A"] / 8)
-
+// в начале каждого цикла можно обнулять "B" и "C" регистры
+  reg["B"] = reg["A"] % 8n;
+  reg["B"] = reg["B"] ^ 2;
+  reg["C"] = reg["A"] / 2n ** reg["B"];
+  reg["A"] = reg["A"] / 8;
+  reg["B"] = reg["B"] ^ reg["C"];
+  reg["B"] = reg["B"] ^ 7;
+  output.push(reg["B"] % 8)
 
 
 117440
@@ -219,7 +237,7 @@ Program: 2,4   1,2   7,5   0,3   4,7   1,7   5,5   3,0
 117445
 117446
 117447
-+ 2.097.152
++ 2.097.152 = 8^7 (program 0,3,5,4,3,0)
 2214592
 2214593
 2214594
@@ -241,5 +259,7 @@ Program: 2,4   1,2   7,5   0,3   4,7   1,7   5,5   3,0
 
 
 
+8 ** 8   16777216
+8 ** 16  281_474_976_710_656
 
 */
