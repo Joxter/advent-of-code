@@ -2,34 +2,9 @@ import { ints, runDay } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/17
 
-// console.log(
-//   part1(`Register A: 2024
-// Register B: 0
-// Register C: 0
-//
-// Program: 0,3,5,4,3,0
-// `),
-//   [117440],
-// );
-// console.log(
-//   part2(`Register A: 2024
-// Register B: 0
-// Register C: 0
-//
-// Program: 0,3,5,4,3,0
-// `),
-//   [117440],
-// );
-
-notMy(`Register A: 30878003
-Register B: 0
-Register C: 0
-
-Program: 2,4,1,2,7,5,0,3,4,7,1,7,5,5,3,0`);
-
 runDay(2024, 17)
   //
-  // .part(1, part1)
+  .part(1, part1)
   .part(2, part2)
   .end();
 
@@ -95,47 +70,20 @@ function part2(inp) {
 
   let program = prog.split(" ")[1];
   prog = ints(prog.split(" ")[1]);
-  console.log(program);
 
-  // let aa = 190384113204239n;
   let aa = 1n;
-  // let aa = 25997599819840n;
-  // WIN! 207976299400113n
-  // WIN! 207976299314191n
-  // WIN! 207976299248655n high
-  //   ... nothing
-  //       29710494914302
-  // (     25997037424972n)
-  // ... 25997599819840 checker
 
-  // WIN!      207976299248655n high
-  // correct = 190384113204239
-
-  // correct = 190_384_113_204_239
-
-  let limit = 10_000_000_000;
-  while (limit-- > 0) {
+  while (true) {
     let res = calculate(prog, aa);
 
-    // 207976299248655
-    // 101 111 010 010 011 101 000 001 011 100 000 011 110 000 001 111
-    if (limit % 5_000_000 === 0) {
-      console.log(limit, aa);
-    }
-
     if (program === res) {
-      console.log("WIN!", aa);
-      // aa *= 8n;
       return aa;
     } else if (program.endsWith(res)) {
-      console.log("endsWith", aa, res);
-      // aa *= 8n;
-      // aa /= 7n;
+      aa *= 8n;
+      aa -= 7n;
     }
     aa++;
   }
-  console.log("----- end");
-  console.log(limit);
 }
 
 function calculate(prog, a) {
@@ -157,14 +105,12 @@ function calculate(prog, a) {
 }
 
 function notMy(inp) {
+  // original: https://topaz.github.io/paste/#XQAAAQCpBgAAAAAAAAA0m0pnuFI8c9Ax53b7qCU52PeXXOG1YE1u32XZcqyQQ3YMAMNGtXMFfC38y1oNFIRt5VfBqHASi2HtSrpkdq6PDuPmRn/L+lE0q+njLOBtuFmDeYuhU6p7LvXmoy5AjFZXSPQ/pZnLGOMb2zotxm+38Cdy+dBQr21Q8jcFXDyGFOKVYDaTDIrglIJ17Fev+58up3NuIRRHlYq8MSeGFJhYv3R+Uo2E0oxGzmJnqfLZooinR3ZLkkgLNLglOqTKq25OQ+GRaIilnUP8cu03h7tqZ1ROgrLA/vz9+zYSYdXQ78R3SnBinLFieRJlwHz1ViCmQbKQV1vW3/tTHKNZ+28KF7ek6pvnB4ByF/CfaHQHCz4ksRJadYKzkykYQLtdPSVOUnV+R8o03N78KOsK714y1ibtQM1MJqS3PC7dvb1HXV9lOJU2MG2tjPHYURpRcSuFx9UWjL2TIlqLvxX9qmViGpD48A34KAE6EYR4K6ijJDu72lhzlIJWV3j+M7JaA2t/d3agptqfvC+TsqAj3ubIINx9P5RTrmDOxeEnQ7rDy5jLsuKK56slfFHef5hkHGLb277AOmEP3TNKn4zKGewep4Yt3HaW//HUL6CzvlpeiGJcunOh5uFYVMStUDd4u+PkOFwdpV5nJ3z2ZbCyRrRPmThRv6t4cygbVLBZOd5sZj4IhZG342fzSinFT9/2nXRTN5jD9dJFXaCssvVJjuK2kM6X5BZyD9gsz9W6tcYnVHh9Pp9eS/CqyhyUmopSUpJ4mw3CCOeJMnKINQ9FyRsW9dbikhSPK4S/BKEndVmEdqRrAXEIxL7oeywcLc8ZVjUF63lzYkYV2X4u3GMGBW5W6RxV9lT3MNwbH9O6Ygt0oI1sKAbM4kNlT7pU8bN+P/wL9zIL2DPW4pf+maKo
   const [A, B, C, ...program] = inp.match(/\d+/gm).map(Number);
 
   const mod = (n, m) => ((n % m) + m) % m;
 
-  let cnt = 0;
-
   const run = (A, B, C, program) => {
-    cnt++;
     let ptr = 0;
     const out = [];
     while (program[ptr] !== undefined) {
@@ -198,24 +144,26 @@ function notMy(inp) {
   console.log("A", run(A, B, C, program));
 
   const Q = [];
-  Q.push({ result: "", len: 0 });
+  Q.push({ result: 0, len: 0 });
   while (Q.length) {
     const q = Q.shift();
     if (q.len === program.length) {
-      console.log("B", parseInt(q.result, 2));
+      console.log("B", q.result);
+      console.log("OK", q.result === 190384113204239);
       break;
     }
-    const from = parseInt(q.result + "000", 2);
-    const to = parseInt(q.result + "111", 2);
+    let res = q.result;
+
+    const from = res * 8;
+    const to = res * 8 + 7;
+
     const expect = program.slice((q.len + 1) * -1).join(",");
-    console.log(from);
-    console.log(expect);
+
     for (let a = from; a <= to; a++) {
       const r = run(a, B, C, program);
       if (r === expect) {
-        Q.push({ result: a.toString(2), len: q.len + 1 });
+        Q.push({ result: a, len: q.len + 1 });
       }
     }
   }
-  console.log(cnt);
 }
