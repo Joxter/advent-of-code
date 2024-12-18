@@ -21,6 +21,12 @@ import { ints, runDay } from "../../utils.js";
 //   [117440],
 // );
 
+notMy(`Register A: 30878003
+Register B: 0
+Register C: 0
+
+Program: 2,4,1,2,7,5,0,3,4,7,1,7,5,5,3,0`);
+
 runDay(2024, 17)
   //
   // .part(1, part1)
@@ -91,22 +97,40 @@ function part2(inp) {
   prog = ints(prog.split(" ")[1]);
   console.log(program);
 
-  let aa = 1n; // 207976299400113n high
+  // let aa = 190384113204239n;
+  let aa = 1n;
+  // let aa = 25997599819840n;
+  // WIN! 207976299400113n
+  // WIN! 207976299314191n
+  // WIN! 207976299248655n high
+  //   ... nothing
+  //       29710494914302
+  // (     25997037424972n)
+  // ... 25997599819840 checker
 
-  let limit = 100_000_000;
+  // WIN!      207976299248655n high
+  // correct = 190384113204239
+
+  // correct = 190_384_113_204_239
+
+  let limit = 10_000_000_000;
   while (limit-- > 0) {
     let res = calculate(prog, aa);
 
-    if (limit % 10_000_000 === 0) {
-      console.log(limit);
+    // 207976299248655
+    // 101 111 010 010 011 101 000 001 011 100 000 011 110 000 001 111
+    if (limit % 5_000_000 === 0) {
+      console.log(limit, aa);
     }
 
     if (program === res) {
       console.log("WIN!", aa);
+      // aa *= 8n;
       return aa;
     } else if (program.endsWith(res)) {
       console.log("endsWith", aa, res);
-      aa *= 8n;
+      // aa *= 8n;
+      // aa /= 7n;
     }
     aa++;
   }
@@ -126,58 +150,72 @@ function calculate(prog, a) {
     reg["A"] = reg["A"] / 8n;
     reg["B"] = reg["B"] ^ reg["C"];
     reg["B"] = reg["B"] ^ 7n;
-    output.push(reg["B"] % 8n);
+    output.push(reg["B"] & 7n);
   }
 
   return output.join(",");
 }
 
-/*
+function notMy(inp) {
+  const [A, B, C, ...program] = inp.match(/\d+/gm).map(Number);
 
-           1 2   3 4   5 6   7 8   9 10 11 12 13 14 15 16
-  Program: 2,4   1,2   7,5   0,3   4,7   1,7   5,5   3,0
+  const mod = (n, m) => ((n % m) + m) % m;
 
-// в начале каждого цикла можно обнулять "B" и "C" регистры
-  reg["B"] = reg["A"] % 8n;
-  reg["B"] = reg["B"] ^ 2;
-  reg["C"] = reg["A"] / 2n ** reg["B"];
-  reg["A"] = reg["A"] / 8;
-  reg["B"] = reg["B"] ^ reg["C"];
-  reg["B"] = reg["B"] ^ 7;
-  output.push(reg["B"] % 8)
+  let cnt = 0;
 
+  const run = (A, B, C, program) => {
+    cnt++;
+    let ptr = 0;
+    const out = [];
+    while (program[ptr] !== undefined) {
+      const code = program[ptr];
+      const operand = program[ptr + 1];
+      let combo;
+      if ([0, 1, 2, 3].includes(operand)) combo = operand;
+      if (operand === 4) combo = A;
+      if (operand === 5) combo = B;
+      if (operand === 6) combo = C;
 
-117440
-117441
-117442
-117443
-117444
-117445
-117446
-117447
-+ 2.097.152 = 8^7 (program 0,3,5,4,3,0)
-2214592
-2214593
-2214594
-2214595
-2214596
-2214597
-2214598
-2214599
+      if (code === 0) A = Math.floor(A / Math.pow(2, combo));
+      if (code === 1) B = (B ^ operand) >>> 0; //js xor unsigned
+      if (code === 2) B = mod(combo, 8);
 
-+ 2.097.152
-4311744
-4311745
-4311746
-4311747
-4311748
-4311749
-4311750
-4311751
+      let jumped = false;
+      if (code === 3 && A !== 0) {
+        ptr = operand;
+        jumped = true;
+      }
+      if (code === 4) B = (B ^ C) >>> 0;
+      if (code === 5) out.push(mod(combo, 8));
+      if (code === 6) B = Math.floor(A / Math.pow(2, combo));
+      if (code === 7) C = Math.floor(A / Math.pow(2, combo));
 
+      if (!jumped) ptr += 2;
+    }
+    return out.join(",");
+  };
 
+  console.log("A", run(A, B, C, program));
 
-8 ** 8   16777216
-8 ** 16  281_474_976_710_656
-
-*/
+  const Q = [];
+  Q.push({ result: "", len: 0 });
+  while (Q.length) {
+    const q = Q.shift();
+    if (q.len === program.length) {
+      console.log("B", parseInt(q.result, 2));
+      break;
+    }
+    const from = parseInt(q.result + "000", 2);
+    const to = parseInt(q.result + "111", 2);
+    const expect = program.slice((q.len + 1) * -1).join(",");
+    console.log(from);
+    console.log(expect);
+    for (let a = from; a <= to; a++) {
+      const r = run(a, B, C, program);
+      if (r === expect) {
+        Q.push({ result: a.toString(2), len: q.len + 1 });
+      }
+    }
+  }
+  console.log(cnt);
+}
