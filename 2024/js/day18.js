@@ -1,6 +1,10 @@
-import { printGrid, runDay } from "../../utils.js";
+import { forEachInGrid, lcm, printGrid, runDay } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/18
+
+// todo:
+//  possible optimisation p2:
+//
 
 runDay(2024, 18)
   //
@@ -20,7 +24,7 @@ function part1(inp) {
     .trim()
     .split("\n")
     .slice(0, bytes)
-    .forEach((line, i) => {
+    .forEach((line) => {
       let [x, y] = line.split(",");
       grid[+y][+x] = "#";
     });
@@ -48,29 +52,50 @@ function part2(inp) {
     .split("\n")
     .map((l) => l.split(","));
 
-  for (let b = bytes.length; b > 0; b--) {
-    let grid = Array(size + 1)
-      .fill(".")
-      .map(() => Array(size + 1).fill("."));
+  // let visited = [[0, 0], "+"];
 
-    bytes.slice(0, b).forEach(([x, y]) => {
-      grid[+y][+x] = "#";
-    });
+  let grid = Array(size + 1)
+    .fill(".")
+    .map(() => Array(size + 1).fill("."));
 
-    if (find(grid) !== ".") return bytes[b];
+  bytes.forEach(([x, y]) => {
+    grid[+y][+x] = "#";
+  });
+
+  find(grid, [0, 0]);
+  console.log(printGrid(grid));
+
+  for (let b = bytes.length - 1; b > 0; b--) {
+    let [x, y] = bytes[b];
+    grid[+y][+x] = ".";
+
+    if (
+      grid[x + 1]?.[y] === "+" ||
+      grid[x - 1]?.[y] === "+" ||
+      grid[x]?.[y + 1] === "+" ||
+      grid[x]?.[y - 1] === "+"
+    ) {
+      console.log([+x, +y]);
+      if (find(grid, [+x, +y]) === "+") return bytes[b];
+      console.log(b);
+      console.log(printGrid(grid));
+      // if (b < 3445) return;
+      return;
+    }
+    console.log(b);
+    return;
   }
 
-  function find(grid) {
-    let q = [[[0, 0], 0]];
-
+  function find(grid, start) {
+    let q = [start];
     while (q.length > 0) {
-      let [[x, y], len] = q.shift();
+      let [x, y] = q.shift();
       if (grid[y]?.[x] === ".") {
-        grid[y][x] = len;
-        q.push([[x + 1, y], len + 1]);
-        q.push([[x - 1, y], len + 1]);
-        q.push([[x, y + 1], len + 1]);
-        q.push([[x, y - 1], len + 1]);
+        grid[y][x] = "+";
+        q.push([x + 1, y]);
+        q.push([x - 1, y]);
+        q.push([x, y + 1]);
+        q.push([x, y - 1]);
       }
     }
 
