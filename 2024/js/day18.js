@@ -6,6 +6,7 @@ runDay(2024, 18)
   //
   .part(1, part1)
   .part(2, part2)
+  .part(2, part2better, "better")
   .end();
 
 function part1(inp) {
@@ -42,6 +43,49 @@ function part1(inp) {
 }
 
 function part2(inp) {
+  let size = 70;
+  let bytes = inp
+    .trim()
+    .split("\n")
+    .map((l) => l.split(","));
+
+  let last = "";
+  for (let b = 0; b < bytes.length; b++) {
+    let grid = Array(size + 1)
+      .fill(".")
+      .map(() => Array(size + 1).fill("."));
+
+    bytes.slice(0, b).forEach(([x, y]) => {
+      grid[+y][+x] = "#";
+    });
+
+    if (find(grid) === ".") {
+      return last;
+    }
+    last = bytes[b];
+  }
+
+  function find(grid) {
+    let q = [[[0, 0], 0]];
+
+    while (q.length > 0) {
+      let [[x, y], len] = q.shift();
+      if (grid[y]?.[x] === ".") {
+        grid[y][x] = len;
+        q.push([[x + 1, y], len + 1]);
+        q.push([[x - 1, y], len + 1]);
+        q.push([[x, y + 1], len + 1]);
+        q.push([[x, y - 1], len + 1]);
+      }
+    }
+
+    return grid.at(-1).at(-1);
+  }
+
+  return "none";
+}
+
+function part2better(inp) {
   let size = 70;
   let bytes = inp
     .trim()
