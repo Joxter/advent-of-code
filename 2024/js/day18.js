@@ -1,10 +1,6 @@
-import { forEachInGrid, lcm, printGrid, runDay } from "../../utils.js";
+import { ints, runDay } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/18
-
-// todo:
-//  possible optimisation p2:
-//
 
 runDay(2024, 18)
   //
@@ -50,24 +46,21 @@ function part2(inp) {
   let bytes = inp
     .trim()
     .split("\n")
-    .map((l) => l.split(","));
-
-  // let visited = [[0, 0], "+"];
+    .map((l) => ints(l));
 
   let grid = Array(size + 1)
     .fill(".")
     .map(() => Array(size + 1).fill("."));
 
   bytes.forEach(([x, y]) => {
-    grid[+y][+x] = "#";
+    grid[x][y] = "#";
   });
 
   find(grid, [0, 0]);
-  console.log(printGrid(grid));
 
   for (let b = bytes.length - 1; b > 0; b--) {
     let [x, y] = bytes[b];
-    grid[+y][+x] = ".";
+    grid[x][y] = ".";
 
     if (
       grid[x + 1]?.[y] === "+" ||
@@ -75,23 +68,18 @@ function part2(inp) {
       grid[x]?.[y + 1] === "+" ||
       grid[x]?.[y - 1] === "+"
     ) {
-      console.log([+x, +y]);
-      if (find(grid, [+x, +y]) === "+") return bytes[b];
-      console.log(b);
-      console.log(printGrid(grid));
-      // if (b < 3445) return;
-      return;
+      if (find(grid, [+x, +y]) === "+") {
+        return bytes[b];
+      }
     }
-    console.log(b);
-    return;
   }
 
   function find(grid, start) {
     let q = [start];
     while (q.length > 0) {
       let [x, y] = q.shift();
-      if (grid[y]?.[x] === ".") {
-        grid[y][x] = "+";
+      if (grid[x]?.[y] === ".") {
+        grid[x][y] = "+";
         q.push([x + 1, y]);
         q.push([x - 1, y]);
         q.push([x, y + 1]);
