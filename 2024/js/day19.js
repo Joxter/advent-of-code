@@ -37,16 +37,32 @@ function possible(str, towels) {
 
   let vars = [""];
 
-  while (vars.length > 0) {
-    let pref = vars.shift();
-    for (const towel of towels) {
-      if (pref + towel === str) return true;
+  let visitedFalse = new Set();
 
-      if (str.startsWith(pref + towel)) {
-        vars.push(pref + towel);
-      }
+  // console.log(str, str.length);
+  let i = 0;
+  while (vars.length > 0) {
+    // if (i++ % 1000_000 === 0) {
+    //   console.log(
+    //     i,
+    //     vars.length,
+    //     Math.floor(vars.reduce((a, b) => a + b.length, 0) / vars.length),
+    //     Math.max(...vars.map((v) => v.length)),
+    //     Math.min(...vars.map((v) => v.length)),
+    //   );
+    //   // avg length of vars:
+    // }
+    let pref = vars.pop();
+    if (pref === str) return true;
+    if (!str.startsWith(pref) || visitedFalse.has(pref)) {
+      continue;
+    } else {
+      visitedFalse.add(pref);
     }
-    vars = uniq(vars);
+
+    for (const towel of towels) {
+      vars.push(pref + towel);
+    }
   }
 
   return false;
