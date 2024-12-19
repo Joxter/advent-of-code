@@ -2,24 +2,12 @@ import { runDay, sum, uniq } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/19
 
-// console.log(
-//   part1(`r, wr, b, g, bwu, rb, gb, br
-//
-// brwrr
-// bggr
-// gbbr
-// rrbgbr
-// ubwu
-// bwurrg
-// brgr
-// bbrgwb`),
-// );
-
 runDay(2024, 19)
   //
   .part(1, part1) // 230 msec
-  .part(1, part1better) // 60 msec
-  // .part(2, part2) // 17 sec
+  .part(1, part1better) // 61 msec
+  .part(2, part2) // 17 sec
+  .part(2, part2better) // 61 sec
   .end();
 
 function part1(inp) {
@@ -132,4 +120,39 @@ function possibleBetter(str, towels) {
   });
 
   return arr.at(-1) !== 0;
+}
+
+function part2better(inp) {
+  let [towels, stripes] = inp.split("\n\n");
+
+  towels = towels.split(", ");
+  stripes = stripes.split("\n");
+
+  return sum(
+    stripes.map((str) => {
+      return possible(str, towels);
+    }),
+  );
+
+  function possible(str, towels) {
+    let arr = Array(str.length + 1).fill(0);
+
+    for (const towel of towels) {
+      if (str.startsWith(towel)) {
+        arr[towel.length]++;
+      }
+    }
+
+    arr.forEach((v, i) => {
+      if (v > 0) {
+        for (const towel of towels) {
+          if (str.startsWith(towel, i)) {
+            arr[towel.length + i] += v;
+          }
+        }
+      }
+    });
+
+    return arr.at(-1);
+  }
 }
