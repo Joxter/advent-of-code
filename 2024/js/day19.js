@@ -18,6 +18,7 @@ import { runDay, sum, uniq } from "../../utils.js";
 runDay(2024, 19)
   //
   .part(1, part1) // 230 msec
+  .part(1, part1better) // 60 msec
   // .part(2, part2) // 17 sec
   .end();
 
@@ -27,9 +28,8 @@ function part1(inp) {
   towels = towels.split(", ");
   stripes = stripes.split("\n");
 
-  //.slice(7, 8)
   return stripes.filter((str, i) => {
-    return possibleFast(str, towels);
+    return possible(str, towels);
   }).length;
 }
 
@@ -54,45 +54,6 @@ function possible(str, towels) {
       vars.push(pref + towel);
     }
   }
-
-  return false;
-}
-
-function possibleFast(str, towels) {
-  if (!str) return true;
-
-  let arr = Array(str.length + 1).fill(0);
-
-  let ok = false;
-  for (const towel of towels) {
-    if (str.startsWith(towel)) {
-      arr[towel.length] = 1;
-      ok = true;
-    }
-  }
-
-  let it = 0;
-  while (ok) {
-    if (arr.at(-1) !== 0) {
-      return true;
-    }
-
-    ok = false;
-    let next = it + 1;
-    arr.forEach((v, i) => {
-      if (v > it) {
-        for (const towel of towels) {
-          if (str.startsWith(towel, i)) {
-            arr[towel.length + i] = next;
-            ok = true;
-          }
-        }
-      }
-    });
-    it++;
-  }
-  // console.log(str);
-  // console.log(arr.join(""));
 
   return false;
 }
@@ -138,4 +99,37 @@ function part2(inp) {
 
     return cnt;
   }
+}
+
+function part1better(inp) {
+  let [towels, stripes] = inp.split("\n\n");
+
+  towels = towels.split(", ");
+  stripes = stripes.split("\n");
+
+  return stripes.filter((str, i) => {
+    return possibleBetter(str, towels);
+  }).length;
+}
+
+function possibleBetter(str, towels) {
+  let arr = Array(str.length + 1).fill(0);
+
+  for (const towel of towels) {
+    if (str.startsWith(towel)) {
+      arr[towel.length] = 1;
+    }
+  }
+
+  arr.forEach((v, i) => {
+    if (v === 1) {
+      for (const towel of towels) {
+        if (str.startsWith(towel, i)) {
+          arr[towel.length + i] = 1;
+        }
+      }
+    }
+  });
+
+  return arr.at(-1) !== 0;
 }
