@@ -2,10 +2,23 @@ import { runDay, sum, uniq } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/19
 
+// console.log(
+//   part1(`r, wr, b, g, bwu, rb, gb, br
+//
+// brwrr
+// bggr
+// gbbr
+// rrbgbr
+// ubwu
+// bwurrg
+// brgr
+// bbrgwb`),
+// );
+
 runDay(2024, 19)
   //
   .part(1, part1) // 230 msec
-  .part(2, part2) // 17 sec
+  // .part(2, part2) // 17 sec
   .end();
 
 function part1(inp) {
@@ -14,8 +27,9 @@ function part1(inp) {
   towels = towels.split(", ");
   stripes = stripes.split("\n");
 
-  return stripes.filter((str) => {
-    return possible(str, towels);
+  //.slice(7, 8)
+  return stripes.filter((str, i) => {
+    return possibleFast(str, towels);
   }).length;
 }
 
@@ -40,6 +54,42 @@ function possible(str, towels) {
       vars.push(pref + towel);
     }
   }
+
+  return false;
+}
+
+function possibleFast(str, towels) {
+  if (!str) return true;
+
+  let arr = Array(str.length + 1).fill(0);
+
+  let ok = false;
+  for (const towel of towels) {
+    if (str.startsWith(towel)) {
+      arr[towel.length] = 1;
+      ok = true;
+    }
+  }
+
+  let i = 0;
+  while (ok) {
+    i++
+    if (arr.at(-1) !== 0) return true;
+    let newArr = Array(str.length + 1).fill(0);
+    ok = false;
+    arr.forEach((v, i) => {
+      if (v) {
+        for (const towel of towels) {
+          if (str.startsWith(towel, i)) {
+            newArr[towel.length + i] = 1;
+            ok = true;
+          }
+        }
+      }
+    });
+    arr = newArr;
+  }
+  console.log(i);
 
   return false;
 }
