@@ -71,25 +71,28 @@ function possibleFast(str, towels) {
     }
   }
 
-  let i = 0;
+  let it = 0;
   while (ok) {
-    i++
-    if (arr.at(-1) !== 0) return true;
-    let newArr = Array(str.length + 1).fill(0);
+    if (arr.at(-1) !== 0) {
+      return true;
+    }
+
     ok = false;
+    let next = it + 1;
     arr.forEach((v, i) => {
-      if (v) {
+      if (v > it) {
         for (const towel of towels) {
           if (str.startsWith(towel, i)) {
-            newArr[towel.length + i] = 1;
+            arr[towel.length + i] = next;
             ok = true;
           }
         }
       }
     });
-    arr = newArr;
+    it++;
   }
-  console.log(i);
+  // console.log(str);
+  // console.log(arr.join(""));
 
   return false;
 }
