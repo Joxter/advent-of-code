@@ -5,9 +5,12 @@ import { runDay, sum, uniq } from "../../utils.js";
 runDay(2024, 19)
   //
   .part(1, part1) // 230 msec
-  .part(1, part1better) // 61 msec
+  .part(1, part1better, "better") // 61 msec
   .part(2, part2) // 17 sec
-  .part(2, part2better) // 61 sec
+  .part(2, part2better, "better") // 61 sec
+  .part(2, notMy1p2, "not my, cache+recur") // 157 msec
+  .part(2, notMy2p2, "not my 2, cache+recur") // 83 msec
+  .part(2, notMy3p2, "not my 3, similar as my 'better'") // 120 msec
   .end();
 
 function part1(inp) {
@@ -155,4 +158,104 @@ function part2better(inp) {
 
     return arr.at(-1);
   }
+}
+
+function notMy1p2(inp) {
+  // https://www.reddit.com/r/adventofcode/comments/1hhlb8g/comment/m2w1lff/
+  const [towels, designs] = inp
+    .split("\n\n")
+    .map((s, i) =>
+      i === 0 ? s.split(",").map((s) => s.trim()) : s.split("\n"),
+    );
+
+  const walkDef = (design, towels) =>
+    design === ""
+      ? 1
+      : towels
+          .map((towel) =>
+            design.startsWith(towel)
+              ? walk(design.slice(towel.length), towels)
+              : 0,
+          )
+          .reduce((acc, cur) => acc + cur);
+
+  const cache = new Map();
+
+  function walk(design, towels) {
+    return cache.has(design)
+      ? cache.get(design)
+      : (() => {
+          const result = walkDef(design, towels);
+          cache.set(design, result);
+          return result;
+        })();
+  }
+
+  return designs
+    .map((cur) => walk(cur, towels))
+    .reduce((acc, cur) => acc + cur, 0);
+}
+
+function notMy2p2(inp) {
+  // https://github.com/yolocheezwhiz/adventofcode/blob/main/2024/day19.js
+  const input = inp.split("\n\n");
+  const towels = input[0].split(", ");
+  const patterns = input[1].split("\n");
+  let answerp2 = 0;
+
+  // DFS - Cache results
+  function memoize(partialPattern, towels, memo) {
+    // If we've already matched this partial pattern, return its count
+    if (memo.has(partialPattern)) return memo.get(partialPattern);
+    // We've successfully matched the entire pattern
+    if (!partialPattern.length) return 1;
+    // This is the first time we get this pattern
+    // Find the towels that can be added next
+    const count = towels
+      .filter((towel) => partialPattern.startsWith(towel))
+      // Recurse and sum
+      .reduce(
+        (sum, towel) =>
+          sum + memoize(partialPattern.slice(towel.length), towels, memo),
+        0,
+      );
+    // cache result for this partial pattern and return it
+    memo.set(partialPattern, count);
+    return count;
+  }
+
+  // Solve one pattern at a time
+  patterns.forEach((pattern) => {
+    const totalCount = memoize(pattern, towels, new Map());
+    // P2: Sum possible ways to build the pattern
+    answerp2 += totalCount;
+  });
+
+  return answerp2;
+}
+
+function notMy3p2(inp) {
+  // https://www.reddit.com/r/adventofcode/comments/1hhlb8g/comment/m2s43j6/
+  let [_towels, messages] = inp.split("\n\n");
+  _towels = _towels.split(", ");
+  let towels = {};
+  for (let t of _towels) {
+    towels[t] = true;
+  }
+
+  messages = messages.split("\n");
+  let ret2 = 0;
+
+  for (let line of messages) {
+    let valids = [1];
+    for (let i = 0; i < line.length; i++) {
+      if (!valids[i]) continue;
+      for (let j = i + 1; j <= line.length; j++) {
+        if (i == 0) valids[j] = 0;
+        if (towels[line.substring(i, j)]) valids[j] += valids[i];
+      }
+    }
+    ret2 += valids[line.length];
+  }
+  return ret2;
 }
