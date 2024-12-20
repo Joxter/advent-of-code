@@ -11,28 +11,10 @@ import {
 
 // https://adventofcode.com/2024/day/20
 
-console.log(
-  part2(`###############
-#...#...#.....#
-#.#.#.#.#.###.#
-#S#...#.#.#...#
-#######.#.#.###
-#######.#.#...#
-#######.#.###.#
-###..E#...#...#
-###.#######.###
-#...###...#...#
-#.#####.#.###.#
-#.#...#.#.#...#
-#.#.#.#.#.#.###
-#...#...#...###
-###############`),
-);
-
 runDay(2024, 20)
   //
-  // .part(1, part1)
-  // .part(2, part2) // 43993437 high
+  .part(1, part1)
+  .part(2, part2)
   .end();
 
 function part1(inp) {
@@ -49,14 +31,12 @@ function part1(inp) {
     [1, 0],
     [-1, 0],
   ];
-  console.log(start, end);
   grid[start[0]][start[1]] = ".";
   grid[end[0]][end[1]] = ".";
 
   while (q.length > 0) {
     let [[x, y], n] = q.shift();
     let val = grid[x][y];
-    // console.log([x, y], n, q.length);
 
     if (val === ".") {
       grid[x][y] = n;
@@ -65,12 +45,6 @@ function part1(inp) {
       }
     }
   }
-  // console.log(printGrid(grid));
-  // console.log(
-  //   printGridCb(grid, (cell) =>
-  //     cell === "#" ? "###" : String(cell).padStart(3, " "),
-  //   ),
-  // );
 
   let cloneGrid = grid.map((row) => row.slice());
 
@@ -100,14 +74,6 @@ function part1(inp) {
       }
     }
   });
-  console.log(a);
-  console.log(res);
-
-  console.log(
-    printGridCb(cloneGrid, (cell) =>
-      cell === "#" ? "###" : String(cell).padStart(3, " "),
-    ),
-  );
 
   return res;
 }
@@ -126,7 +92,6 @@ function part2(inp) {
     [1, 0],
     [-1, 0],
   ];
-  console.log(start, end);
   grid[start[0]][start[1]] = ".";
   grid[end[0]][end[1]] = ".";
 
@@ -135,7 +100,6 @@ function part2(inp) {
   while (q.length > 0) {
     let [[x, y], n] = q.shift();
     let val = grid[x][y];
-    // console.log([x, y], n, q.length);
 
     if (val === ".") {
       grid[x][y] = n;
@@ -145,12 +109,6 @@ function part2(inp) {
       }
     }
   }
-  console.log(printGrid(grid));
-  console.log(
-    printGridCb(grid, (cell) =>
-      cell === "#" ? "###" : String(cell).padStart(3, " "),
-    ),
-  );
 
   let aaa = {};
   for (let k = 0; k < steps.length - 1; k++) {
@@ -161,39 +119,12 @@ function part2(inp) {
 
       let saved = l - k - distance;
 
-      if (saved >= 100) {
-        // console.log([k, l], saved);
-
+      if (saved >= 100 && distance <= 20) {
         if (!aaa[saved]) aaa[saved] = 0;
         aaa[saved]++;
       }
     }
   }
-  console.log(aaa);
-
-  // console.log(
-  //   printGridCb(cloneGrid, (cell) =>
-  //     cell === "#" ? "###" : String(cell).padStart(3, " "),
-  //   ),
-  // );
 
   return sum(Object.values(aaa));
 }
-
-/*
-#############################################
-###  2  3  4### 10 11 12### 26 27 28 29 30###
-###  1###  5###  9### 13### 25######### 31###
-###  0###  6  7  8### 14### 24### 34 33 32###
-##################### 15### 23### 35#########
-##################### 16### 22### 36 37 38###
-##################### 17### 21######### 39###
-######### 82 83 84### 18 19 20### 42 41 40###
-######### 81##################### 43#########
-### 78 79 80######### 60 59 58### 44 45 46###
-### 77############### 61### 57######### 47###
-### 76### 70 69 68### 62### 56### 50 49 48###
-### 75### 71### 67### 63### 55### 51#########
-### 74 73 72### 66 65 64### 54 53 52#########
-#############################################
-*/
