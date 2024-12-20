@@ -6,6 +6,7 @@ import {
   printGrid,
   printGridCb,
   runDay,
+  sum,
 } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/20
@@ -31,7 +32,7 @@ console.log(
 runDay(2024, 20)
   //
   // .part(1, part1)
-  // .part(2, part2)
+  // .part(2, part2) // 43993437 high
   .end();
 
 function part1(inp) {
@@ -129,6 +130,8 @@ function part2(inp) {
   grid[start[0]][start[1]] = ".";
   grid[end[0]][end[1]] = ".";
 
+  let steps = [];
+
   while (q.length > 0) {
     let [[x, y], n] = q.shift();
     let val = grid[x][y];
@@ -136,103 +139,45 @@ function part2(inp) {
 
     if (val === ".") {
       grid[x][y] = n;
+      steps[n] = [x, y];
       for (let [dx, dy] of dirs) {
         q.push([[x + dx, y + dy], n + 1]);
       }
     }
   }
-  // console.log(printGrid(grid));
-  // console.log(
-  //   printGridCb(grid, (cell) =>
-  //     cell === "#" ? "###" : String(cell).padStart(3, " "),
-  //   ),
-  // );
-
-  let cloneGrid = grid.map((row) => row.slice());
-
-  let cheats = {};
-  let aaaa = {};
-
-  let res = 0;
-  forEachInGrid(grid, (cell, i, j) => {
-    if (cell !== "#") return;
-
-    let top = 1;
-    while (grid[i - top]?.[j] === "#") {
-      top++;
-    }
-    let down = 1;
-    while (grid[i + down]?.[j] === "#") {
-      down++;
-    }
-    let left = 1;
-    while (grid[i][j - left] === "#") {
-      left++;
-    }
-    let right = 1;
-    while (grid[i][j + right] === "#") {
-      right++;
-    }
-
-    let nums = [
-      [grid[i - top]?.[j], top],
-      [grid[i + down]?.[j], down],
-      [grid[i][j - left], left],
-      [grid[i][j + right], right],
-    ].filter(([x]) => x !== undefined && x !== "#");
-    if (nums.length >= 2) {
-      console.log([i, j], { top, left, down, right }, nums);
-    }
-
-    for (let k = 0; k < nums.length - 1; k++) {
-      for (let l = k + 1; l < nums.length; l++) {
-        let diff = Math.abs(nums[k][0] - nums[l][0]);
-        let cost = nums[k][1] + nums[l][1];
-
-        let min = Math.min(nums[k][0], nums[l][0]);
-        let max = Math.max(nums[k][0], nums[l][0]);
-
-        if (!cheats[min + "," + max]) cheats[min + "," + max] = [];
-        cheats[min + "," + max].push(cost);
-
-        // console.log(nums[k], nums[l]);
-        // console.log({ diff, cost });
-        if (diff >= 50 && cost < 20 && diff > cost) {
-          if (!aaaa[diff]) aaaa[diff] = 0;
-          aaaa[diff]++;
-
-          // if (diff >= 100) {
-          // cloneGrid[i][j] = diff;
-          res += 1;
-          // }
-        }
-      }
-    }
-  });
-  console.log(aaaa);
-  console.log(cheats);
-  // console.log(res);
-
-  let ss = {};
-
-  let ress = Object.entries(cheats).filter(([key, cost]) => {
-    let [min, max] = ints(key);
-
-    if (max - min >= 50) {
-      if (!ss[max - min]) ss[max - min] = [];
-      ss[max - min].push(key);
-    }
-  });
-
-  console.log(ss);
-
+  console.log(printGrid(grid));
   console.log(
-    printGridCb(cloneGrid, (cell) =>
+    printGridCb(grid, (cell) =>
       cell === "#" ? "###" : String(cell).padStart(3, " "),
     ),
   );
 
-  return res;
+  let aaa = {};
+  for (let k = 0; k < steps.length - 1; k++) {
+    for (let l = k + 1; l < steps.length; l++) {
+      let distance =
+        Math.abs(steps[k][0] - steps[l][0]) +
+        Math.abs(steps[k][1] - steps[l][1]);
+
+      let saved = l - k - distance;
+
+      if (saved >= 100) {
+        // console.log([k, l], saved);
+
+        if (!aaa[saved]) aaa[saved] = 0;
+        aaa[saved]++;
+      }
+    }
+  }
+  console.log(aaa);
+
+  // console.log(
+  //   printGridCb(cloneGrid, (cell) =>
+  //     cell === "#" ? "###" : String(cell).padStart(3, " "),
+  //   ),
+  // );
+
+  return sum(Object.values(aaa));
 }
 
 /*
