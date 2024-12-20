@@ -1,13 +1,4 @@
-import {
-  findInGrid,
-  forEachInGrid,
-  ints,
-  makeGrid,
-  printGrid,
-  printGridCb,
-  runDay,
-  sum,
-} from "../../utils.js";
+import { findInGrid, forEachInGrid, makeGrid, runDay } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/20
 
@@ -35,20 +26,15 @@ function part1(inp) {
   grid[end[0]][end[1]] = ".";
 
   while (q.length > 0) {
-    let [[x, y], n] = q.shift();
-    let val = grid[x][y];
+    let [[x, y], n] = q.pop();
 
-    if (val === ".") {
+    if (grid[x][y] === ".") {
       grid[x][y] = n;
       for (let [dx, dy] of dirs) {
         q.push([[x + dx, y + dy], n + 1]);
       }
     }
   }
-
-  let cloneGrid = grid.map((row) => row.slice());
-
-  let a = {};
 
   let res = 0;
   forEachInGrid(grid, (cell, i, j) => {
@@ -62,15 +48,7 @@ function part1(inp) {
     for (let k = 0; k < nums.length - 1; k++) {
       for (let l = k + 1; l < nums.length; l++) {
         let diff = Math.abs(nums[k] - nums[l]) - 2;
-        if (diff > 0) {
-          if (!a[diff]) a[diff] = 0;
-          a[diff]++;
-
-          if (diff >= 100) {
-            cloneGrid[i][j] = diff;
-            res += 1;
-          }
-        }
+        if (diff >= 100) res += 1;
       }
     }
   });
@@ -96,12 +74,10 @@ function part2(inp) {
   grid[end[0]][end[1]] = ".";
 
   let steps = [];
-
   while (q.length > 0) {
     let [[x, y], n] = q.shift();
-    let val = grid[x][y];
 
-    if (val === ".") {
+    if (grid[x][y] === ".") {
       grid[x][y] = n;
       steps[n] = [x, y];
       for (let [dx, dy] of dirs) {
@@ -110,21 +86,18 @@ function part2(inp) {
     }
   }
 
-  let aaa = {};
-  for (let k = 0; k < steps.length - 1; k++) {
-    for (let l = k + 1; l < steps.length; l++) {
+  let res = 0;
+  for (let s = 0; s < steps.length - 1; s++) {
+    for (let ss = s + 1; ss < steps.length; ss++) {
       let distance =
-        Math.abs(steps[k][0] - steps[l][0]) +
-        Math.abs(steps[k][1] - steps[l][1]);
+        Math.abs(steps[s][0] - steps[ss][0]) +
+        Math.abs(steps[s][1] - steps[ss][1]);
 
-      let saved = l - k - distance;
+      if (distance > 20) continue;
 
-      if (saved >= 100 && distance <= 20) {
-        if (!aaa[saved]) aaa[saved] = 0;
-        aaa[saved]++;
-      }
+      if (ss - s - distance >= 100) res++;
     }
   }
 
-  return sum(Object.values(aaa));
+  return res;
 }
