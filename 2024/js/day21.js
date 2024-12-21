@@ -15,8 +15,8 @@ import { findInGrid, makeGrid, runDay, sum, uniq } from "../../utils.js";
 
 runDay(2024, 21)
   //
-  .part(1, part1)
-  // .part(2, part2)
+  // .part(1, part1)
+  .part(2, part2)
   .end();
 
 function part1(inp) {
@@ -59,6 +59,17 @@ function part1(inp) {
       numpadPaths[start + end] = generateAllPaths(numpad, start, end);
     }
   }
+
+  arrPaths = {
+    ...arrPaths,
+    //
+    "A<": ["v<<"],
+    ">^": ["^<"],
+    "^>": ["v>"],
+    "<A": [">>^"],
+    vA: [">^"],
+    Av: ["<v"],
+  };
 
   let codes = inp.split("\n");
 
@@ -131,17 +142,35 @@ function part2(inp) {
 
   let codes = inp.split("\n");
 
-  let memo = {};
+  arrPaths = {
+    ...arrPaths,
+    //
+    "A<": ["v<<"],
+    ">^": ["^<"],
+    "^>": ["v>"],
+    "<A": [">>^"],
+    vA: [">^"],
+    Av: ["<v"],
+  };
+  console.log();
 
   let complexity = codes.map((code) => {
     let p1 = getPath1("A" + code, numpadPaths);
 
-    // console.log(p1);
-    let p2 = calc(p1);
-    let p3 = calc(p2);
+    let prev = p1;
+    let last;
+    for (let i = 1; i <= 25; i++) {
+      console.log(i);
+      last = calc(prev);
+      console.log(last.length, last[0].length);
+      // throw 123;
+      // console.log(last);
+      // console.log(last.length);
+      prev = last;
+    }
 
     let min = Infinity;
-    getMin(p3).forEach((p) => {
+    getMin(last).forEach((p) => {
       min = Math.min(p.length, min);
     });
 
@@ -156,11 +185,12 @@ function part2(inp) {
       p2.push(...getPath1("A" + p, arrPaths));
     });
 
-    return getMin(p2);
+    return p2;
   }
 }
 
 function getMin(p2) {
+  return p2;
   let min = Math.min(...new Set(p2.map((p) => p.length)));
   p2 = p2.filter((p) => p.length === min);
   return p2;
