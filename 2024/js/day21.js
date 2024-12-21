@@ -15,8 +15,8 @@ import { findInGrid, makeGrid, runDay, sum, uniq } from "../../utils.js";
 
 runDay(2024, 21)
   //
-  // .part(1, part1)
-  .part(2, part2)
+  .part(1, part1)
+  // .part(2, part2) // high 638563429049266400
   .end();
 
 function part1(inp) {
@@ -79,10 +79,7 @@ function part1(inp) {
     let p2 = calc(p1);
     let p3 = calc(p2);
 
-    let min = Infinity;
-    getMin(p3).forEach((p) => {
-      min = Math.min(p.length, min);
-    });
+    let min = Math.min(...p3.map((p) => p.length));
 
     return +code.slice(0, 3) * min;
   });
@@ -149,43 +146,63 @@ function part2(inp) {
     vA: [">^"],
     Av: ["<v"],
   };
-  console.log();
 
   let complexity = codes.map((code) => {
-    let p1 = getPath1("A" + code, numpadPaths);
+    console.log(code);
+    let p1 = getPath1("A" + code, numpadPaths).map((code) => {
+      return toPairs(code);
+    });
 
     let prev = p1;
     let last;
-    for (let i = 1; i <= 25; i++) {
-      console.log(i);
+    for (let i = 1; i <= 2; i++) {
       last = calc(prev);
-      console.log(last.length, last[0].length);
-      // throw 123;
-      // console.log(last);
-      // console.log(last.length);
       prev = last;
     }
 
-    let min = Infinity;
-    getMin(last).forEach((p) => {
-      min = Math.min(p.length, min);
-    });
+    // let min = Math.min(...last.map((p) => p.length));
+    /*
 
-    return +code.slice(0, 3) * min;
+    (2 steps) min
+    286A 68
+    480A 74
+    140A 70
+    413A 70
+    964A 72
+    */
+    return +code.slice(0, 3) * 123;
   });
 
   return sum(complexity);
 
   function calc(p1) {
-    return p1.map((p) => getPathOne("A" + p, arrPaths));
+    // it does not work:(
+    return p1.map((p) => getPathPair(p));
   }
-}
 
-function getMin(p2) {
-  return p2;
-  let min = Math.min(...new Set(p2.map((p) => p.length)));
-  p2 = p2.filter((p) => p.length === min);
-  return p2;
+  function getPathPair(pairs) {
+    let newPairs = {};
+    // console.log("-------------");
+    // console.log(pairs);
+
+    Object.entries(pairs).forEach(([oldP, oldCnt]) => {
+      let [l, r] = oldP.split("");
+      let newL = arrPaths["A" + l][0] + "A";
+      let newR = arrPaths["A" + r][0] + "A";
+
+      // console.log(oldP, [newL + newR]);
+
+      Object.entries(toPairs(newL + newR)).forEach(([newP, newCnt]) => {
+        // console.log({ newP, newCnt });
+        if (!newPairs[newP]) newPairs[newP] = 0;
+        newPairs[newP] += oldCnt * newCnt;
+      });
+    });
+    // console.log(newPairs);
+    // throw 123;
+
+    return newPairs;
+  }
 }
 
 function generateAllPaths(grid, start, end) {
@@ -243,13 +260,26 @@ function getPath1(code, paths) {
   return p;
 }
 
-function getPathOne(code, paths) {
+function getPathOne(code, paths, n) {
   let p = "";
 
   for (let i = 0; i < code.length - 1; i++) {
     let pair = code.slice(i, i + 2);
     let possiblePath = paths[pair][0];
     p += possiblePath + "A";
+  }
+
+  return p;
+}
+
+function toPairs(code) {
+  let p = {};
+
+  for (let i = 0; i < code.length - 1; i++) {
+    let pair = code.slice(i, i + 2);
+
+    if (!p[pair]) p[pair] = 0;
+    p[pair]++;
   }
 
   return p;
