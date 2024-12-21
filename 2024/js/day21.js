@@ -1,4 +1,4 @@
-import { makeGrid, runDay, sum } from "../../utils.js";
+import { findInGrid, makeGrid, runDay, sum, uniq } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/21
 
@@ -15,7 +15,7 @@ console.log(
 
 runDay(2024, 21)
   //
-  .part(1, part1) // 160098 low:(, 164230 high
+  .part(1, part1) // 163086 ok
   // .part(2, part2) // low
   .end();
 
@@ -69,93 +69,59 @@ ok:  <v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A
     "^": [-1, 0],
   };
 
-  function generatePaths(grid) {
-    let paths = {};
-    for (let i = 0; i < grid.length; i++) {
-      for (let j = 0; j < grid[i].length; j++) {
-        let num = grid[i][j];
-        if (num === "#") continue;
-        let q = [[i, j, ""]];
-        let visited = new Set();
+  function generateAllPaths(grid, start, end) {
+    let paths = [];
 
-        while (q.length > 0) {
-          let [x, y, path] = q.shift();
+    let q = [[findInGrid(grid, start), "", ""]];
 
-          if (grid[x][y] === "#") continue;
-          if (visited.has(`${x},${y}`)) continue;
-          visited.add(`${x},${y}`);
+    while (q.length > 0) {
+      let [pos, path, pathCell] = q.shift();
 
-          // console.log("----------- path", path);
-          // console.log(path.split().sort().join(""));
-          if (!paths[`${num}${grid[x][y]}`]) {
-            paths[`${num}${grid[x][y]}`] = path;
-            // continue
-            // .split("")
-            // .toSorted()
-            // .join("");
-          }
-          // paths[`${num}${grid[x][y]}`] = path;
+      let [i, j] = pos;
+      let cell = grid[i]?.[j];
+      if (cell === "#") continue;
 
-          if (path) {
-            let lastPath = path.at(-1);
-            let dirs2 = [
-              //
-              [...dirToXY[lastPath], path.at(-1)],
-              ...dirs.filter(([, , d]) => d !== lastPath),
-            ];
-            // console.log(path, lastPath, dirs2);
+      if (cell === end) {
+        paths.push(path);
+        continue;
+      }
 
-            for (let [dx, dy, dir] of dirs2) {
-              q.push([x + dx, y + dy, path + dir]);
-            }
-          } else {
-            for (let [dx, dy, dir] of dirs) {
-              q.push([x + dx, y + dy, path + dir]);
-            }
-          }
+      for (let [dx, dy, dir] of dirs) {
+        let [x, y] = [i + dx, j + dy];
+        if (!pathCell.includes(cell)) {
+          q.push([[x, y], path + dir, pathCell + cell]);
         }
       }
     }
-    // console.log("------");
-    // console.log(paths);
+    let min = Math.min(...paths.map((p) => p.length));
+
+    paths = paths.filter((p) => p.length === min);
+
     return paths;
   }
 
-  let numpadPaths = {
-    ...generatePaths(numpad),
-    AA: "",
-    A0: "<",
-    A3: "^",
-    A2: "<^",
-    A6: "^^",
-    A5: "<^^",
-    A1: "^<<",
-    A9: "^^^",
-    A8: "<^^^",
-    A4: "^^<<",
-    A7: "^^^<<",
-  };
-  let arrPaths = {
-    ...generatePaths(arrpad),
-    "A<": "v<<",
-    "<<": "",
-    "<v": ">",
-    "<>": ">>",
-    "<^": ">^",
-    "<A": ">>^",
-    vv: "",
-    "v>": ">",
-    "v<": "<",
-    "v^": "^",
-    vA: ">^",
-    ">>": "",
-    ">v": "<",
-    ">A": "^",
-    "><": "<<",
-    ">^": "<^",
-  };
+  let arrPaths = {};
+  let nums = "A<>v^";
+  for (let i = 0; i < nums.length; i++) {
+    for (let j = 0; j < nums.length; j++) {
+      let start = nums[i];
+      let end = nums[j];
+      arrPaths[start + end] = generateAllPaths(arrpad, start, end);
+    }
+  }
+
+  let numpadPaths = {};
+  let nums2 = "0123456789A";
+  for (let i = 0; i < nums2.length; i++) {
+    for (let j = 0; j < nums2.length; j++) {
+      let start = nums2[i];
+      let end = nums2[j];
+      numpadPaths[start + end] = generateAllPaths(numpad, start, end);
+    }
+  }
 
   // console.log(numpadPaths);
+  // return  23;
   // console.log(arrPaths);
 
   let codes = inp.split("\n");
@@ -163,30 +129,52 @@ ok:  <v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A
   let complexity = codes.map((code) => {
     // console.log(code);
     let p1 = getPath1("A" + code, numpadPaths);
-    // console.log("p1: ", p1);
+    console.log("p1", p1);
+    // throw 123;
 
-    let p2 = getPath1("A" + p1, arrPaths);
-    // console.log("p2: ", p2);
+    let p2 = [];
 
-    let p3 = getPath1("A" + p2, arrPaths);
-    // console.log("p3: ", p3);
+    p1.forEach((p) => {
+      p2.push(...getPath1("A" + p, arrPaths));
+    });
+    console.log("p2", p2.length);
+    // console.log("p2", uniq(p2).length);
+    // throw 123;
+
+    let p3 = [];
+    let min = Infinity;
+    p2.forEach((p) => {
+      getPath1("A" + p, arrPaths).forEach((aaa) => {
+        min = Math.min(aaa.length, min);
+      });
+    });
+
+    // console.log("p3: ", p3.length);
+    // throw 123;
 
     // console.log(code + ": " + p3);
 
     // console.log(code.slice(0, 3));
-    return +code.slice(0, 3) * p3.length;
+    return +code.slice(0, 3) * min;
   });
 
   return sum(complexity);
 
   function getPath1(code, paths) {
-    let path1 = [];
+    let p = [""];
     for (let i = 0; i < code.length - 1; i++) {
       let pair = code.slice(i, i + 2);
-      // console.log(pair);
-      path1.push(paths[pair] + "A");
+
+      let newP = [];
+      paths[pair].forEach((possiblePath) => {
+        p.forEach((pp) => {
+          newP.push(pp + possiblePath + "A");
+        });
+      });
+      p = newP;
     }
-    return path1.join("");
+
+    return p;
   }
 
   /*
