@@ -3,20 +3,20 @@ import { findInGrid, makeGrid, runDay, sum, uniq } from "../../utils.js";
 // https://adventofcode.com/2024/day/21
 
 // console.log(part1(`456A`));
-// console.log(part1(`029A`));
-console.log(
-  part1(`029A
-980A
-179A
-456A
-379A`),
-  [126384],
-);
+// console.log(part2(`029A`));
+// console.log(
+//   part1(`029A
+// 980A
+// 179A
+// 456A
+// 379A`),
+//   [126384],
+// );
 
 runDay(2024, 21)
   //
-  .part(1, part1) // 163086 ok
-  // .part(2, part2) // low
+  .part(1, part1)
+  // .part(2, part2)
   .end();
 
 function part1(inp) {
@@ -30,21 +30,6 @@ function part1(inp) {
 #####
 `.trim(),
   );
-  /*
-
-<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A
-v<<A>>^A<A>AvA<^AA>A<vAAA>^A
-<A^A>^^AvvvA
-029A
-
-
-456A
-p1:  ^^<<A>A>AvvA
-p2:  <AAv<AA^>>AvA^AvA^Av<AA^>A
-p3:  v<<A^>>AAv<A<A^>>AA<Av>AA^Av<A^>A<A>Av<A^>A<A>Av<A<A^>>AA<Av>A^A
-ok:  <v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A
-
-*/
 
   let arrpad = makeGrid(
     `
@@ -61,13 +46,6 @@ ok:  <v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A
     [1, 0, "v"],
     [-1, 0, "^"],
   ];
-
-  let dirToXY = {
-    ">": [0, 1],
-    "<": [0, -1],
-    v: [1, 0],
-    "^": [-1, 0],
-  };
 
   function generateAllPaths(grid, start, end) {
     let paths = [];
@@ -120,41 +98,31 @@ ok:  <v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A
     }
   }
 
-  // console.log(numpadPaths);
-  // return  23;
-  // console.log(arrPaths);
-
   let codes = inp.split("\n");
+
+  function getMin(p2) {
+    let min = Math.min(...new Set(p2.map((p) => p.length)));
+    p2 = p2.filter((p) => p.length === min);
+    return p2;
+  }
 
   let complexity = codes.map((code) => {
     // console.log(code);
-    let p1 = getPath1("A" + code, numpadPaths);
-    console.log("p1", p1);
-    // throw 123;
+    let p1 = getMin(getPath1("A" + code, numpadPaths));
 
     let p2 = [];
 
     p1.forEach((p) => {
       p2.push(...getPath1("A" + p, arrPaths));
     });
-    console.log("p2", p2.length);
-    // console.log("p2", uniq(p2).length);
-    // throw 123;
 
-    let p3 = [];
     let min = Infinity;
-    p2.forEach((p) => {
+    getMin(p2).forEach((p) => {
       getPath1("A" + p, arrPaths).forEach((aaa) => {
         min = Math.min(aaa.length, min);
       });
     });
 
-    // console.log("p3: ", p3.length);
-    // throw 123;
-
-    // console.log(code + ": " + p3);
-
-    // console.log(code.slice(0, 3));
     return +code.slice(0, 3) * min;
   });
 
@@ -176,38 +144,6 @@ ok:  <v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A
 
     return p;
   }
-
-  /*
-
-029A
-p1:  <A^A>^^AvvvA
-p2:  <v<A>>^A<A>AvA<^AA>A<vAAA>^A
-     v<<A>>^A<A>AvA<^AA>A<vAAA>^A
-p3:  <v<A>A<A>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A
-9
-
-<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A
-v<<A>>^A<A>AvA<^AA>A<vAAA>^A
-<A^A>^^AvvvA
-029A
-
-029A: <vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A
-980A: <v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A
-179A: <v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A
-456A: <v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A
-379A: <v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A
-
-
-my:
-029A: <<vAA>A>^AvAA<^A>A<<vA>>^AvA^A<vA>^A<<vA>^A>AAvA^A<<vA>A>^AAAvA<^A>A
-980A: <<vA>>^AAAvA^A<<vAA>A>^AvAA<^A>A<<vA>A>^AAAvA<^A>A<vA>^A<A>A
-179A: <<vAA>A>^AAvA<^A>AvA^A<<vA>>^AAvA^A<vA>^AA<A>A<<vA>A>^AAAvA<^A>A
-456A: <<vAA>A>^AAvA<^A>AAvA^A<vA>^A<A>A<vA>^A<A>A<<vA>A>^AAvA<^A>A
-379A: <<vA>>^AvA^A<<vAA>A>^AAvA<^A>AAvA^A<vA>^AA<A>A<<vA>A>^AAAvA<^A>A
-
-
-*/
-  return 123;
 }
 
 function part2(inp) {
