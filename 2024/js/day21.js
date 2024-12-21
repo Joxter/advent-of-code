@@ -15,8 +15,8 @@ import { findInGrid, makeGrid, runDay, sum, uniq } from "../../utils.js";
 
 runDay(2024, 21)
   //
-  .part(1, part1)
-  // .part(2, part2) // high 638563429049266400
+  // .part(1, part1)
+  .part(2, part2) // high 638563429049266400
   .end();
 
 function part1(inp) {
@@ -149,16 +149,18 @@ function part2(inp) {
 
   let complexity = codes.map((code) => {
     console.log(code);
-    let p1 = getPath1("A" + code, numpadPaths).map((code) => {
-      return toPairs(code);
+    let p1 = getPath1("A" + code, numpadPaths);
+
+    let last = p1.map((p) => {
+      let memo = {};
+
+      let res = getPathNew("A" + p, 2, memo);
+      // console.log(memo);
+      return res;
     });
 
-    let prev = p1;
-    let last;
-    for (let i = 1; i <= 2; i++) {
-      last = calc(prev);
-      prev = last;
-    }
+    // console.log(memo);
+    console.log(last);
 
     // let min = Math.min(...last.map((p) => p.length));
     /*
@@ -175,33 +177,22 @@ function part2(inp) {
 
   return sum(complexity);
 
-  function calc(p1) {
-    // it does not work:(
-    return p1.map((p) => getPathPair(p));
-  }
+  function getPathNew(code, n, memo) {
+    if (n === 0) return code.length;
+    if (memo[code + ":" + n]) return memo[code + ":" + n];
 
-  function getPathPair(pairs) {
-    let newPairs = {};
-    // console.log("-------------");
-    // console.log(pairs);
+    let p = 0;
 
-    Object.entries(pairs).forEach(([oldP, oldCnt]) => {
-      let [l, r] = oldP.split("");
-      let newL = arrPaths["A" + l][0] + "A";
-      let newR = arrPaths["A" + r][0] + "A";
+    for (let i = 0; i < code.length - 1; i++) {
+      let pair = code.slice(i, i + 2);
+      let possiblePath = arrPaths[pair][0];
 
-      // console.log(oldP, [newL + newR]);
+      p += getPathNew(possiblePath + "A", n - 1, memo);
+    }
 
-      Object.entries(toPairs(newL + newR)).forEach(([newP, newCnt]) => {
-        // console.log({ newP, newCnt });
-        if (!newPairs[newP]) newPairs[newP] = 0;
-        newPairs[newP] += oldCnt * newCnt;
-      });
-    });
-    // console.log(newPairs);
-    // throw 123;
+    memo[code + ":" + n] = p;
 
-    return newPairs;
+    return p;
   }
 }
 
