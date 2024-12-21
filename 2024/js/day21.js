@@ -90,12 +90,9 @@ function part1(inp) {
   return sum(complexity);
 
   function calc(p1) {
-    let p2 = [];
-    p1.forEach((p) => {
-      p2.push(...getPath1("A" + p, arrPaths));
+    return p1.map((p) => {
+      return getPathOne("A" + p, arrPaths);
     });
-
-    return getMin(p2);
   }
 }
 
@@ -180,12 +177,7 @@ function part2(inp) {
   return sum(complexity);
 
   function calc(p1) {
-    let p2 = [];
-    p1.forEach((p) => {
-      p2.push(...getPath1("A" + p, arrPaths));
-    });
-
-    return p2;
+    return p1.map((p) => getPathOne("A" + p, arrPaths));
   }
 }
 
@@ -246,6 +238,18 @@ function getPath1(code, paths) {
       });
     });
     p = newP;
+  }
+
+  return p;
+}
+
+function getPathOne(code, paths) {
+  let p = "";
+
+  for (let i = 0; i < code.length - 1; i++) {
+    let pair = code.slice(i, i + 2);
+    let possiblePath = paths[pair][0];
+    p += possiblePath + "A";
   }
 
   return p;
