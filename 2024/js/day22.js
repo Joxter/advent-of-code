@@ -3,12 +3,12 @@ import { ints, runDay, sum } from "../../utils.js";
 // https://adventofcode.com/2024/day/22
 
 // console.log(part1(`123`));
-// console.log(
-//   part2(`1
-// 2
-// 3
-// 2024`),
-// );
+console.log(
+  part2(`1
+2
+3
+2024`),
+);
 
 runDay(2024, 22)
   //
@@ -73,10 +73,14 @@ function part2(inp) {
 
   for (let i = -9; i <= 9; i++) {
     for (let ii = -9; ii <= 9; ii++) {
-      console.log(i, ii);
+      if (Math.abs(sum([i, ii])) > 10) continue;
+      console.log(i, ii, best);
       for (let iii = -9; iii <= 9; iii++) {
+        if (Math.abs(sum([ii, iii])) > 10) continue;
         for (let iiii = -9; iiii <= 9; iiii++) {
           let seq = [i, ii, iii, iiii];
+
+          if (Math.abs(sum([iii, iiii])) > 10) continue;
 
           best = Math.max(
             sum(
@@ -86,38 +90,19 @@ function part2(inp) {
             ),
             best,
           );
-          // console.log(seq);
-          // let sell = ;
         }
       }
     }
   }
-
-  // console.log(history[0]);
-  // console.log(prices);
-
-  // let ind = history
-  //   .map((it) => String(it).padStart(2, " "))
-  //   .join(",")
-  //   .indexOf("-2, 1,-1, 3");
-  //
-  // return getSell(history, prices, [-2, 1, -1, 3]);
 
   return best;
 
   function getSell(h, p, seq) {
     let best = seq.map((it) => String(it).padStart(2, " ")).join(",");
 
-    // let h = history.map((it) => String(it).padStart(2, " ")).join(",");
-    // let p = prices.map((it) => String(it).padStart(2, " ")).join(",");
-
     let ind = h.indexOf(best);
 
-    // console.log(ind);
-
     if (ind > -1) {
-      //
-      // console.log(">>>>>>", [p.slice(ind + 9, ind + 11)]);
       return +p.slice(ind + 9, ind + 11).trim();
     }
     return 0;
