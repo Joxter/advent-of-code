@@ -93,11 +93,16 @@ export function runDay(year, day, iters = 1) {
       return runner;
     },
     end(saveCorrectAns) {
-      if (saveCorrectAns) {
+      if (!saveCorrectAns) return;
+
+      if (!part1 && answers[1]) {
         fs.writeFileSync(
           path.join(ansFolder, `day${DD}-part1.txt`),
-          part1 || answers[1],
+          answers[1],
         );
+      }
+
+      if (!part2 && answers[2]) {
         fs.writeFileSync(
           path.join(ansFolder, `day${DD}-part2.txt`),
           part2 || answers[2],
