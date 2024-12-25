@@ -2,7 +2,7 @@ import { makeGrid, rotateGrid90, runDay, uniq } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/25
 
-runDay(2024, 25)
+runDay(2024, 25, 100)
   //
   .part(1, part1)
   .part(1, part1bitmaps, "bitmaps")
@@ -48,33 +48,34 @@ function part1(inp) {
 }
 
 function part1bitmaps(inp) {
-  let locks = [];
-  let keys = [];
+  let locks = new Int32Array(250);
+  let ll = 0;
+  let keys = new Int32Array(250);
+  let kk = 0;
 
-  function schemaToNumber(it) {
+  let i = 6;
+  while (i < inp.length) {
     let res = 0;
-    let to = it.length - 6;
-    for (let i = 6; i < to; i++) {
+    let to = i + 30;
+    for (let k = i; k < to; k++) {
       res = res << 1;
-      if (it[i] === "#") res |= 1;
+      if (inp[k] === "#") res |= 1;
     }
-    return res;
+
+    if (inp[i - 2] === "#") {
+      locks[ll] = res;
+      ll++;
+    } else {
+      keys[kk] = res;
+      kk++;
+    }
+
+    i += 43;
   }
 
-  inp
-    .trim()
-    .split("\n\n")
-    .forEach((it) => {
-      if (it[0] === "#") {
-        locks.push(schemaToNumber(it));
-      } else {
-        keys.push(schemaToNumber(it));
-      }
-    });
-
   let res = 0;
-  for (let i = 0; i < locks.length; i++) {
-    for (let j = 0; j < keys.length; j++) {
+  for (let i = 0; i < 250; i++) {
+    for (let j = 0; j < 250; j++) {
       if ((locks[i] & keys[j]) === 0) res++;
     }
   }
