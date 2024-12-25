@@ -1,11 +1,11 @@
-import { makeGrid, rotateGrid90, runDay } from "../../utils.js";
+import { makeGrid, rotateGrid90, runDay, uniq } from "../../utils.js";
 
 // https://adventofcode.com/2024/day/25
-
 
 runDay(2024, 25)
   //
   .part(1, part1)
+  .part(1, part1bitmaps, "bitmaps")
   .end();
 
 function part1(inp) {
@@ -44,5 +44,39 @@ function part1(inp) {
     });
   });
 
-  return res
+  return res;
+}
+
+function part1bitmaps(inp) {
+  let locks = [];
+  let keys = [];
+
+  function schemaToNumber(it) {
+    let res = 0;
+    let to = it.length - 6;
+    for (let i = 6; i < to; i++) {
+      res = res << 1;
+      if (it[i] === "#") res |= 1;
+    }
+    return res;
+  }
+
+  inp
+    .trim()
+    .split("\n\n")
+    .forEach((it) => {
+      if (it[0] === "#") {
+        locks.push(schemaToNumber(it));
+      } else {
+        keys.push(schemaToNumber(it));
+      }
+    });
+
+  let res = 0;
+  for (let i = 0; i < locks.length; i++) {
+    for (let j = 0; j < keys.length; j++) {
+      if ((locks[i] & keys[j]) === 0) res++;
+    }
+  }
+  return res;
 }
