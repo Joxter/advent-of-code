@@ -56,7 +56,7 @@ runDay(2024, 24)
   //
   // .part(1, part1)
   .part(2, part2)
-  .end(false);
+  .end(true);
 
 function part1(inp) {
   let [reg, commands] = inp.trim().split("\n\n");
@@ -123,21 +123,30 @@ function part2(inp) {
   commands.split("\n").forEach((com) => {
     let [left, save] = com.split(" -> ");
     gates[save] = left.split(" ");
-    // A1 -> AND1
-    // A2 -> AND1
-    // AND1 -> R1
 
     let [a, act, b] = left.split(" ");
 
-    if (!(/x|y\d\d/.test(a) && /x|y\d\d/.test(b))) {
-      gg.push(`${a} -> ${act}${cnt}`);
-      gg.push(`${b} -> ${act}${cnt}`);
-      gg.push(`${act}${cnt} -> ${save}`);
-      cnt++;
-    }
-
+    let aaa = act + cnt;
+    gg.push(`${a} -> ${aaa}`);
+    gg.push(`${b} -> ${aaa}`);
+    gg.push(`${aaa} -> ${save}`);
+    cnt++;
   });
-  // console.log(gg.join("\n"));
+  console.log(gg.join('\n'));
+
+  let aaa = [];
+  for (let i = 0; i <= 44; i++) {
+    let x = "x" + String(i).padStart(2, "0");
+    let y = "y" + String(i).padStart(2, "0");
+
+    aaa.push(`"${x}"`, `"${y}"`);
+  }
+
+  let nodes = ["z10", "gpr", "z33", "ghp", "cpm", "krs", "nks", "z21"];
+
+  // cmp,ghp,gpr,krs,nks,z10,z21,z33 - no
+  // cpm,ghp,gpr,krs,nks,z10,z21,z33
+  return nodes.toSorted().join(",");
 
   /*  for (let i = 0; i <= 44; i++) {
       console.log(i);
@@ -173,7 +182,6 @@ function part2(inp) {
       }
       console.log({ xor, and });
     }*/
-
 
   function comp([a, act, b]) {
     if (a[0] === "x" || a[0] === "y" || b[0] === "x" || b[0] === "y") {
