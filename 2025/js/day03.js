@@ -2,7 +2,7 @@ import { runDay, sum } from "../../utils.js";
 
 // https://adventofcode.com/2025/day/3
 
-runDay(2025, 3)
+runDay(2025, 3, 1)
   //
   .part(1, part1)
   .part(2, part2)
@@ -37,9 +37,9 @@ function part2(inp) {
   let banks = inp.split("\n").map((b) => b.split("").map((j) => +j));
 
   function findMax(bank, from, to) {
-    let index = -1;
-    let max = 0;
-    for (let i = from; i < to; i++) {
+    let index = from;
+    let max = bank[index];
+    for (let i = from + 1; i < to; i++) {
       if (bank[i] > max) {
         max = bank[i];
         index = i;
