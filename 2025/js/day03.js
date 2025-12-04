@@ -6,6 +6,7 @@ runDay(2025, 3, 1)
   //
   .part(1, part1)
   .part(2, part2)
+  .part(2, part2stack, "stack")
   .end();
 
 function part1(inp) {
@@ -64,4 +65,33 @@ function part2(inp) {
       return joltage;
     }),
   );
+}
+
+function part2stack(inp) {
+  let banks = inp.split("\n").map((b) => b.split("").map((j) => +j));
+
+  return sum(
+    banks.map((bank) => {
+      return calcJoltage(bank);
+    }),
+  );
+
+  function calcJoltage(digits) {
+    let k = digits.length - 12;
+    const stack = [];
+
+    for (const d of digits) {
+      while (stack.length > 0 && stack[stack.length - 1] < d && k > 0) {
+        stack.pop();
+        k--;
+      }
+      stack.push(d);
+    }
+
+    let n = 0;
+    for (let i = 0; i < 12; i++) {
+      n = n * 10 + stack[i]
+    }
+    return n;
+  }
 }
