@@ -23,32 +23,25 @@ function part2(inp) {
   let ranges = inp
     .split("\n\n")[0]
     .split("\n")
-    .map((l) => {
-      return l.split("-").map((n) => +n);
-    })
-    .toSorted((a, b) => {
-      return a[0] - b[0];
-    });
+    .map((l) => l.split("-").map((n) => +n))
+    .toSorted((a, b) => a[0] - b[0]);
 
-  let from = ranges[0][0];
-  let to = ranges[0][1];
+  let [start, end] = ranges.shift();
   let total = 0;
 
-  let limit = 1000;
-  ranges.shift();
+  while (ranges.length > 0) {
+    let [from, to] = ranges.shift();
 
-  while (limit-- > 0 && ranges.length) {
-    let range = ranges.shift();
-
-    if (range[0] > to) {
-      total += to - from + 1;
-      from = range[0];
-      to = range[1];
+    if (from > end) {
+      total += end - start + 1;
+      start = from;
+      end = to;
     } else {
-      to = Math.max(range[1], to);
+      end = Math.max(to, end);
     }
   }
-  total += to - from + 1;
+
+  total += end - start + 1;
 
   return total;
 }
