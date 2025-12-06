@@ -4,9 +4,9 @@ import { ints, prod, rotateGrid90, runDay, sum } from "../../utils.js";
 
 runDay(2025, 6)
   //
-  // .part(1, part1)
-  .part(2, part2) // 12377436852367 low
-  //                 12377473011151
+  .part(1, part1)
+  .part(2, part2)
+  .part(2, part2original, "original")
   .end();
 
 function part1(inp) {
@@ -26,14 +26,11 @@ function part1(inp) {
 function part2(inp) {
   let grid = rotateGrid90(
     inp.split("\n").map((row, i, all) => {
-      // console.log(row.length);
       return row.padEnd(Math.max(...all.map((x) => x.length)), " ");
     }),
   )
     .map((r) => (r[0] + " " + r.slice(1).reverse().join("")).trim())
     .join("\n");
-  // console.log(grid.slice(-20));
-  // console.log(grid);
 
   return sum(
     grid.split("\n\n").map((eq) => {
@@ -46,29 +43,36 @@ function part2(inp) {
       }
     }),
   );
+}
 
-  let aaa = [];
+function part2original(inp) {
+  let grid = rotateGrid90(
+    inp.split("\n").map((row, i, all) => {
+      return row.padEnd(Math.max(...all.map((x) => x.length)), " ");
+    }),
+  );
 
-  let act = grid[0][0];
   let nums = [];
+  let act = grid[0][0];
+  let acc = [];
+  grid.push([""]);
 
   grid.forEach((row) => {
     act = row[0] === "*" ? "*" : row[0] === "+" ? "+" : act;
 
-    let n = +row.slice(1).join("").trim();
-    // console.log(act, n);
+    let n = +row.slice(1).reverse().join("").trim();
 
     if (n === 0) {
       if (act === "+") {
-        aaa.push(sum(nums));
+        nums.push(sum(acc));
       } else {
-        aaa.push(prod(nums));
+        nums.push(prod(acc));
       }
-      nums = [];
+      acc = [];
     } else {
-      nums.push(n);
+      acc.push(n);
     }
   });
 
-  return sum(aaa);
+  return sum(nums);
 }
