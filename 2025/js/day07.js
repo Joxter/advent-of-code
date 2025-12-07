@@ -2,59 +2,86 @@ import { findInGrid, makeGrid, runDay, sum } from "../../utils.js";
 
 // https://adventofcode.com/2025/day/7
 
-runDay(2025, 7)
+runDay(2025, 7, 1)
   //
   .part(1, part1)
   .part(2, part2)
+  .part(2, part2array, "array")
   .end();
 
 function part1(inp) {
   let grid = makeGrid(inp);
-  let [row, b] = findInGrid(grid, "S");
+  let b = grid[0].indexOf("S");
   let beams = [b];
   let split = 0;
 
-  for (let row = 1; row < grid.length; row++) {
+  grid.forEach((row) => {
     let newBeams = [];
 
-    for (let i = 0; i < grid[row].length; i++) {
-      if (grid[row][i] === "^" && beams.includes(i)) {
-        newBeams.push(i - 1, i + 1);
-        split++;
-      } else if (grid[row][i] === "." && beams.includes(i)) {
-        newBeams.push(i);
+    for (let i = 0; i < row.length; i++) {
+      if (beams.includes(i)) {
+        if (row[i] === "^") {
+          newBeams.push(i - 1, i + 1);
+          split++;
+        } else {
+          newBeams.push(i);
+        }
       }
     }
 
-    if (newBeams.length > 0) {
-      beams = newBeams;
-    }
-  }
+    beams = newBeams;
+  });
 
   return split;
 }
 
 function part2(inp) {
   let grid = makeGrid(inp);
-  let [row, b] = findInGrid(grid, "S");
+  let b = grid[0].indexOf("S");
   let beams = { [b]: 1 };
 
-  for (let row = 1; row < grid.length; row++) {
+  grid.forEach((row) => {
     let newBeams = {};
 
-    for (let i = 0; i < grid[row].length; i++) {
-      if (grid[row][i] === "^" && beams[i]) {
-        newBeams[i - 1] = (newBeams[i - 1] || 0) + beams[i];
-        newBeams[i + 1] = (newBeams[i + 1] || 0) + beams[i];
-      } else if (grid[row][i] === "." && beams[i]) {
-        newBeams[i] = (newBeams[i] || 0) + beams[i];
+    for (let i = 0; i < row.length; i++) {
+      if (beams[i]) {
+        if (row[i] === "^") {
+          newBeams[i - 1] = (newBeams[i - 1] || 0) + beams[i];
+          newBeams[i + 1] = (newBeams[i + 1] || 0) + beams[i];
+        } else {
+          newBeams[i] = (newBeams[i] || 0) + beams[i];
+        }
       }
     }
 
-    if (Object.keys(newBeams).length > 0) {
-      beams = newBeams;
-    }
-  }
+    beams = newBeams;
+  });
 
   return sum(Object.values(beams));
+}
+
+function part2array(inp) {
+  let grid = makeGrid(inp);
+  let b = grid[0].indexOf("S");
+  let beams = Array(grid[0].length).fill(0);
+  beams[b] = 1;
+
+  grid.forEach((row) => {
+    let newBeams = Array(row.length).fill(0);
+
+    for (let i = 0; i < row.length; i++) {
+      if (beams[i]) {
+        if (row[i] === "^") {
+          newBeams[i - 1] += beams[i];
+          newBeams[i + 1] += beams[i];
+        } else {
+          newBeams[i] += beams[i];
+        }
+      }
+    }
+
+    beams = newBeams;
+  });
+
+  return sum(beams);
 }
