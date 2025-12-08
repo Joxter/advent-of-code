@@ -319,5 +319,53 @@ export function PriorityQueue() {
   };
 }
 
+export class Heap {
+  constructor() {
+    this.data = [];
+  }
+
+  push(key, val) {
+    this.data.push([key, val]);
+    let i = this.data.length - 1;
+    while (i > 0) {
+      const parent = (i - 1) >> 1;
+      if (this.data[parent][0] <= this.data[i][0]) break;
+      [this.data[i], this.data[parent]] = [this.data[parent], this.data[i]];
+      i = parent;
+    }
+  }
+
+  pop() {
+    if (!this.data.length) return;
+    const val = this.data[0][1];
+    this.data[0] = this.data.pop();
+    if (!this.data.length) return val;
+    let i = 0;
+    while (true) {
+      const left = (i << 1) + 1;
+      const right = left + 1;
+      let smallest = i;
+      if (
+        left < this.data.length &&
+        this.data[left][0] < this.data[smallest][0]
+      )
+        smallest = left;
+      if (
+        right < this.data.length &&
+        this.data[right][0] < this.data[smallest][0]
+      )
+        smallest = right;
+      if (smallest === i) break;
+      [this.data[i], this.data[smallest]] = [this.data[smallest], this.data[i]];
+      i = smallest;
+    }
+    return val;
+  }
+
+  get size() {
+    return this.data.length;
+  }
+}
+
 export const BLACK = "█";
 export const GREY = "░";
