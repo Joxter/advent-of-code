@@ -8,60 +8,50 @@ runDay(2025, 10)
   // .part(2, part2)
   .end();
 
-function combinationsExact(n, exactOnes) {
-  const result = [];
-
-  for (let i = 0; i < 1 << n; i++) {
-    // Count ones
-    let onesCount = 0;
-    let temp = i;
-    while (temp > 0) {
-      onesCount += temp & 1;
-      temp >>= 1;
+function part1(inp) {
+  function applyButton(state, button) {
+    let mask = 0;
+    for (const index of button) {
+      mask |= 1 << index;
     }
-
-    // Only include if ones count == exactOnes
-    if (onesCount === exactOnes) {
-      const combo = [];
-      for (let j = 0; j < n; j++) {
-        combo.push((i >> j) & 1);
-      }
-      result.push(combo);
-    }
+    return state ^ mask;
   }
 
-  return result;
-}
-
-function part1(inp) {
-  function toggle(lights, buttons) {
-    let res = Array(lights.length).fill(0);
-
-    buttons.forEach((button) => {
-      button.forEach((bb) => {
-        res[bb]++;
-      });
-    });
-
-    return res.map((r) => (r % 2 === 1 ? "#" : ".")).join("");
+  function stringToInt(str) {
+    let result = 0;
+    for (let i = 0; i < str.length; i++) {
+      if (str[i] === "#") {
+        result |= 1 << i;
+      }
+    }
+    return result;
   }
 
   return sum(
-    inp.split("\n").map((l) => {
-      let [light, ...buttons] = l.split(" ");
+    inp.split("\n").map((line) => {
+      let [targetLight, ...buttons] = line.split(" ");
       buttons.pop();
-      light = light.slice(1, -1);
+      targetLight = targetLight.slice(1, -1);
       buttons = buttons.map((b) => ints(b));
 
-      for (let i = 1; i <= buttons.length; i++) {
-        let combs = combinationsExact(buttons.length, i);
+      const target = stringToInt(targetLight);
+      const startState = 0;
 
-        for (let comb of combs) {
-          let res = toggle(
-            light,
-            buttons.filter((b, i) => comb[i]),
-          );
-          if (light === res) return i;
+      const queue = [[startState, 0]];
+      const visited = new Set([startState]);
+
+      while (queue.length > 0) {
+        const [currentState, numPresses] = queue.shift();
+
+        if (currentState === target) return numPresses;
+
+        for (const button of buttons) {
+          const nextState = applyButton(currentState, button);
+
+          if (!visited.has(nextState)) {
+            visited.add(nextState);
+            queue.push([nextState, numPresses + 1]);
+          }
         }
       }
     }),
