@@ -337,9 +337,11 @@ export class Heap {
 
   pop() {
     if (!this.data.length) return;
+    if (this.data.length === 1) return this.data.pop()[1];
+
     const val = this.data[0][1];
     this.data[0] = this.data.pop();
-    if (!this.data.length) return val;
+
     let i = 0;
     while (true) {
       const left = (i << 1) + 1;
