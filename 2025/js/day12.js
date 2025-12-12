@@ -2,46 +2,9 @@ import { ints, runDay, sum } from "../../utils.js";
 
 // https://adventofcode.com/2025/day/12
 
-console.log(
-  part1(`0:
-###
-##.
-##.
-
-1:
-###
-##.
-.##
-
-2:
-.##
-###
-##.
-
-3:
-##.
-###
-##.
-
-4:
-###
-#..
-###
-
-5:
-###
-.#.
-###
-
-4x4: 0 0 0 0 2 0
-12x5: 1 0 1 0 2 2
-12x5: 1 0 1 0 3 2`),
-);
-
 runDay(2025, 12)
   //
-  .part(1, part1) // 463 low, 513 high 487??
-  // .part(2, part2)
+  .part(1, part1)
   .end();
 
 function part1(inp) {
@@ -66,8 +29,4 @@ function part1(inp) {
       return fit ? 1 : 0;
     }),
   );
-}
-
-function part2(inp) {
-  return 123;
 }
