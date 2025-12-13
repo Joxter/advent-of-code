@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AoC 2015 - Day XXXXX</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Courier New", monospace;
+        background: #0f0f23;
+        color: #cccccc;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      header {
+        margin-bottom: 30px;
+      }
+      h1 {
+        color: #00cc00;
+        margin-bottom: 10px;
+      }
+      a {
+        color: #009900;
+        text-decoration: none;
+      }
+      a:hover {
+        color: #99ff99;
+        text-decoration: underline;
+      }
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .input-section {
+        display: flex;
+        flex-direction: column;
+      }
+      .section-title {
+        color: #ffff66;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+      }
+      #input {
+        width: 100%;
+        height: 400px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        color: #cccccc;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        padding: 10px;
+        resize: vertical;
+      }
+      #input:focus {
+        outline: none;
+        border-color: #00cc00;
+      }
+      .results-section {
+        display: flex;
+        flex-direction: column;
+      }
+      .result-box {
+        padding: 15px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        margin-bottom: 15px;
+      }
+      .part-title {
+        color: #ffff66;
+        font-size: 1.1em;
+        margin-bottom: 10px;
+      }
+      .result {
+        color: #00cc00;
+        font-weight: bold;
+        font-size: 1.5em;
+      }
+      .viz-section {
+        margin-top: 30px;
+        padding-top: 10px;
+        background: #0a0a0a;
+        border: 1px solid #333;
+      }
+      #viz {
+        width: 100%;
+        height: 200px;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Advent of Code 2015 - Day XXXXX</h1>
+      <a href="https://adventofcode.com/2015/day/XXXXX" target="_blank">
+        → View problem on adventofcode.com
+      </a>
+    </header>
+
+    <div class="container">
+      <div class="input-section">
+        <div class="section-title">Input:</div>
+        <textarea id="input" placeholder="Paste your input here..."></textarea>
+      </div>
+
+      <div class="results-section">
+        <div class="section-title">Results:</div>
+
+        <div class="result-box">
+          <div class="part-title">Part 1:</div>
+          <div class="result" id="part1">-</div>
+        </div>
+
+        <div class="result-box">
+          <div class="part-title">Part 2:</div>
+          <div class="result" id="part2">-</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="viz-section">
+      <!-- todo -->
+    </div>
+
+    <script type="module">
+      const STORAGE_KEY = "aoc-20XXXXX-day0XXXXX";
+
+      // Solution functions
+      function part1(inp) {
+        //
+      }
+
+      function part2(inp) {
+        //
+      }
+
+      // UI elements
+      const inputEl = document.getElementById("input");
+      const part1El = document.getElementById("part1");
+      const part2El = document.getElementById("part2");
+      const svg = document.getElementById("viz");
+
+      // Visualization
+      function visualize(input) {
+        //
+      }
+
+      // Calculate and update results
+      function calculate() {
+        const input = inputEl.value;
+
+        if (!input.trim()) {
+          part1El.textContent = "-";
+          part2El.textContent = "-";
+          visualize("");
+          return;
+        }
+
+        try {
+          part1El.textContent = part1(input.trim());
+        } catch (error) {
+          part1El.textContent = "Error";
+          console.error(error);
+        }
+
+        try {
+          part2El.textContent = part2(input.trim());
+        } catch (error) {
+          part2El.textContent = "Error";
+          console.error(error);
+        }
+
+        visualize(input);
+      }
+
+      inputEl.addEventListener("input", (ev) => {
+        calculate();
+
+        localStorage.setItem(STORAGE_KEY, inputEl.value);
+      });
+
+      // Initialize
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          inputEl.value = saved;
+        }
+        calculate();
+      } catch (err) {
+        console.log(err);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AoC 2015 - Day 2</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Courier New", monospace;
+        background: #0f0f23;
+        color: #cccccc;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      header {
+        margin-bottom: 30px;
+      }
+      h1 {
+        color: #00cc00;
+        margin-bottom: 10px;
+      }
+      a {
+        color: #009900;
+        text-decoration: none;
+      }
+      a:hover {
+        color: #99ff99;
+        text-decoration: underline;
+      }
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .input-section {
+        display: flex;
+        flex-direction: column;
+      }
+      .section-title {
+        color: #ffff66;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+      }
+      #input {
+        width: 100%;
+        height: 400px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        color: #cccccc;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        padding: 10px;
+        resize: vertical;
+      }
+      #input:focus {
+        outline: none;
+        border-color: #00cc00;
+      }
+      .results-section {
+        display: flex;
+        flex-direction: column;
+      }
+      .result-box {
+        padding: 15px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        margin-bottom: 15px;
+      }
+      .part-title {
+        color: #ffff66;
+        font-size: 1.1em;
+        margin-bottom: 10px;
+      }
+      .result {
+        color: #00cc00;
+        font-weight: bold;
+        font-size: 1.5em;
+      }
+      .viz-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #0a0a0a;
+        border: 1px solid #333;
+      }
+      #viz {
+        /*width: 100%;*/
+        /*height: 600px;*/
+        display: block;
+        background: #0f0f23;
+        overflow: hidden;
+      }
+      .viz-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        align-items: center;
+      }
+      .viz-controls button {
+        background: #1a1a1a;
+        color: #00cc00;
+        border: 1px solid #333;
+        padding: 8px 16px;
+        font-family: "Courier New", monospace;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .viz-controls button:hover {
+        border-color: #00cc00;
+        background: #0a0a0a;
+      }
+      .viz-controls button:disabled {
+        color: #666;
+        cursor: not-allowed;
+        border-color: #222;
+      }
+      .viz-info {
+        color: #ffff66;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Advent of Code 2015 - Day 2</h1>
+      <a href="https://adventofcode.com/2015/day/2" target="_blank">
+        → View problem on adventofcode.com
+      </a>
+    </header>
+
+    <div class="container">
+      <div class="input-section">
+        <div class="section-title">Input:</div>
+        <textarea id="input" placeholder="Paste your input here..."></textarea>
+      </div>
+
+      <div class="results-section">
+        <div class="section-title">Results:</div>
+
+        <div class="result-box">
+          <div class="part-title">Part 1:</div>
+          <div class="result" id="part1">-</div>
+        </div>
+
+        <div class="result-box">
+          <div class="part-title">Part 2:</div>
+          <div class="result" id="part2">-</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="viz-section" style="display: none">
+      <div class="viz-controls">
+        <button id="startBtn">START</button>
+        <button id="stopBtn" disabled>STOP</button>
+        <button id="resetBtn">RESET</button>
+        <span class="viz-info" id="vizInfo">Ready</span>
+      </div>
+      <svg id="viz" width="700" height="400" viewBox="0 0 700 400"></svg>
+    </div>
+
+    <script type="module">
+      const STORAGE_KEY = "aoc-2015-day02";
+
+      // Visualization constants
+      const SVG_WIDTH = 700;
+      const SVG_HEIGHT = 400;
+      const GRID_COLS = 9;
+      const GRID_ROWS = 7;
+      const GRID_COUNT = GRID_COLS * GRID_ROWS;
+      const PADDING = 20;
+      const CUBE_SCALE = 1;
+      const ANIMATION_INTERVAL = 100; // milliseconds
+
+      const OPACITY_START_DELAY = 8000; // delay before opacity fade starts
+      const OPACITY_DURATION = 2000; // opacity fade duration
+
+      const MOVE_START_DELAY = 500; // delay before downward movement starts
+      const MOVE_DURATION = 10000; // downward movement duration
+
+      const FADE_DISTANCE = 20; // pixels to move down while fading
+
+      export function sum(arr) {
+        return arr.reduce((a, b) => a + b, 0);
+      }
+
+      export function ints(str) {
+        return str.match(/[-+]?\d+/g).map(Number);
+      }
+
+      // Solution functions
+      function part1(inp) {
+        return sum(
+          inp.split("\n").map((r) => {
+            let [l, w, h] = ints(r);
+
+            let parts = [l * w, w * h, h * l];
+            let extra = Math.min(...parts);
+
+            return sum(parts) * 2 + extra;
+          }),
+        );
+      }
+
+      function part2(inp) {
+        return sum(
+          inp.split("\n").map((r) => {
+            let [l, w, h] = ints(r);
+
+            let perim = 2 * (l + w + h - Math.max(l, w, h));
+            let bow = l * w * h;
+
+            return perim + bow;
+          }),
+        );
+      }
+
+      // UI elements
+      const inputEl = document.getElementById("input");
+      const part1El = document.getElementById("part1");
+      const part2El = document.getElementById("part2");
+      const svg = document.getElementById("viz");
+      const startBtn = document.getElementById("startBtn");
+      const stopBtn = document.getElementById("stopBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const vizInfo = document.getElementById("vizInfo");
+
+      // Animation state
+      let animationInterval = null;
+      let currentIndex = 0;
+      let presents = [];
+      let gridBoxes = Array(GRID_COUNT).fill(null);
+      let currentSlot = 0;
+
+      // Color palette for different presents (darker tones for dark background)
+      const colors = [
+        "#b34848", // darker red
+        "#2d7a8f", // darker blue
+        "#b88a19", // darker yellow
+        "#4a3fa1", // darker purple
+        "#716db2", // darker lavender
+        "#b18e4a", // darker orange
+        "#358f89", // darker teal
+        "#b15477", // darker pink
+        "#007f63", // darker green
+        "#9d4e3b", // darker terracotta
+      ];
+
+      // Draw unfolded cube cross pattern with isometric view
+      function drawUnfoldedCube(l, w, h, color, offsetX, offsetY) {
+        const path = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "path",
+        );
+
+        const scale = CUBE_SCALE;
+
+        // Isometric transformation
+        const cos30 = Math.cos(Math.PI / 6);
+        const sin30 = Math.sin(Math.PI / 6);
+
+        function iso(x, y) {
+          return {
+            x: offsetX + (x - y) * cos30,
+            y: offsetY + (x + y) * sin30,
+          };
+        }
+
+        // Cross pattern (correct edge matching):
+        //        [top: l x w]
+        // [left: w x h][front: l x h][right: w x h][back: l x h]
+        //        [bottom: l x w]
+
+        // Define rectangles in flat 2D space
+        const rects = [
+          // Top face (l x w)
+          { x: w * scale, y: 0, w: l * scale, h: w * scale },
+          // Left face (w x h)
+          { x: 0, y: w * scale, w: w * scale, h: h * scale },
+          // Front face (l x h)
+          { x: w * scale, y: w * scale, w: l * scale, h: h * scale },
+          // Right face (w x h)
+          { x: (w + l) * scale, y: w * scale, w: w * scale, h: h * scale },
+          // Back face (l x h)
+          { x: (w + l + w) * scale, y: w * scale, w: l * scale, h: h * scale },
+          // Bottom face (l x w)
+          { x: w * scale, y: (w + h) * scale, w: l * scale, h: w * scale },
+        ];
+
+        let d = "";
+
+        rects.forEach((rect) => {
+          const p0 = iso(rect.x, rect.y);
+          const p1 = iso(rect.x + rect.w, rect.y);
+          const p2 = iso(rect.x + rect.w, rect.y + rect.h);
+          const p3 = iso(rect.x, rect.y + rect.h);
+
+          d += `M ${p0.x} ${p0.y} L ${p1.x} ${p1.y} L ${p2.x} ${p2.y} L ${p3.x} ${p3.y} Z `;
+        });
+
+        path.setAttribute("d", d);
+        path.setAttribute("fill", color);
+        path.setAttribute("stroke", "#ddd");
+        path.setAttribute("stroke-width", "1");
+
+        return path;
+      }
+
+      // Visualization
+      function visualize(input) {
+        if (!input) {
+          presents = [];
+          currentIndex = 0;
+          svg.innerHTML = "";
+          vizInfo.textContent = "Ready";
+          return;
+        }
+
+        presents = input.split("\n").map((line) => {
+          const [l, w, h] = ints(line);
+          return { l, w, h };
+        });
+
+        currentIndex = 0;
+        svg.innerHTML = "";
+        vizInfo.textContent = `Loaded ${presents.length} presents`;
+      }
+
+      function startAnimation() {
+        if (presents.length === 0) return;
+
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        resetBtn.disabled = true;
+
+        // Grid layout calculations
+        const availableWidth = SVG_WIDTH - PADDING;
+        const availableHeight = SVG_HEIGHT - PADDING;
+        const cellWidth = availableWidth / GRID_COLS;
+        const cellHeight = availableHeight / GRID_ROWS;
+
+        animationInterval = setInterval(() => {
+          if (currentIndex >= presents.length) {
+            stopAnimation();
+            vizInfo.textContent = `Complete! ${presents.length} presents`;
+            return;
+          }
+
+          const present = presents[currentIndex];
+          const color = colors[currentIndex % colors.length];
+
+          // Calculate grid position for current slot
+          const col = currentSlot % GRID_COLS;
+          const row = Math.floor(currentSlot / GRID_COLS);
+          const x = PADDING + col * cellWidth + cellWidth / 2 + 0;
+          const y = PADDING + row * cellHeight + cellHeight / 2 + -50;
+
+          // Draw new cube at this slot
+          const cube = drawUnfoldedCube(
+            present.l,
+            present.w,
+            present.h,
+            color,
+            x,
+            y,
+          );
+          gridBoxes[currentSlot] = cube;
+          svg.appendChild(cube);
+
+          // Set both transitions upfront (so they don't overwrite each other)
+          cube.style.transition = `opacity ${OPACITY_DURATION}ms ease-out, transform ${MOVE_DURATION}ms ease-out`;
+
+          // Start opacity fade after delay
+          setTimeout(() => {
+            cube.style.opacity = '0';
+          }, OPACITY_START_DELAY);
+
+          // Start downward movement after delay (independent)
+          setTimeout(() => {
+            cube.style.transform = `translateY(${FADE_DISTANCE}px)`;
+          }, MOVE_START_DELAY);
+
+          // Remove cube after both animations complete
+          // Total animation time = MAX(OPACITY_START_DELAY + OPACITY_DURATION, MOVE_START_DELAY + MOVE_DURATION)
+          const totalTime = Math.max(
+            OPACITY_START_DELAY + OPACITY_DURATION,
+            MOVE_START_DELAY + MOVE_DURATION
+          );
+          setTimeout(() => {
+            if (cube.parentNode === svg) {
+              svg.removeChild(cube);
+            }
+          }, totalTime);
+
+          // Move to next slot and present
+          currentSlot = (currentSlot + 1) % GRID_COUNT;
+          currentIndex++;
+
+          vizInfo.textContent = `Present ${currentIndex} of ${presents.length} - Slot ${currentSlot + 1}/${GRID_COUNT}`;
+        }, ANIMATION_INTERVAL);
+      }
+
+      function stopAnimation() {
+        if (animationInterval) {
+          clearInterval(animationInterval);
+          animationInterval = null;
+        }
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        resetBtn.disabled = false;
+      }
+
+      function resetAnimation() {
+        stopAnimation();
+        currentIndex = 0;
+        currentSlot = 0;
+        gridBoxes = Array(GRID_COUNT).fill(null);
+        svg.innerHTML = "";
+        vizInfo.textContent =
+          presents.length > 0
+            ? `Ready - ${presents.length} presents loaded`
+            : "Ready";
+        resetBtn.disabled = true;
+      }
+
+      // Event listeners
+      startBtn.addEventListener("click", startAnimation);
+      stopBtn.addEventListener("click", stopAnimation);
+      resetBtn.addEventListener("click", resetAnimation);
+
+      // Calculate and update results
+      function calculate() {
+        const input = inputEl.value.trim();
+
+        if (!input) {
+          part1El.textContent = "-";
+          part2El.textContent = "-";
+          visualize("");
+          return;
+        }
+
+        try {
+          part1El.textContent = part1(input);
+        } catch (error) {
+          part1El.textContent = "Error";
+          console.error(error);
+        }
+
+        try {
+          part2El.textContent = part2(input);
+        } catch (error) {
+          part2El.textContent = "Error";
+          console.error(error);
+        }
+
+        visualize(input);
+      }
+
+      inputEl.addEventListener("input", (ev) => {
+        calculate();
+
+        localStorage.setItem(STORAGE_KEY, inputEl.value);
+      });
+
+      // Initialize
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          inputEl.value = saved;
+        }
+        calculate();
+      } catch (err) {
+        console.log(err);
+      }
+    </script>
+  </body>
+</html>
