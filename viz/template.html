@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AoC 2025 - Day X</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0f0f23;
+      color: #cccccc;
+      padding: 20px;
+    }
+    h1 { color: #00cc00; margin-bottom: 20px; }
+    #canvas {
+      border: 1px solid #333;
+      background: #0a0a0a;
+      display: block;
+      margin: 20px auto;
+    }
+    #output {
+      padding: 10px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      margin: 20px 0;
+      font-family: monospace;
+    }
+    .part { margin: 10px 0; }
+    .part-title { color: #ffff66; }
+    .result { color: #00cc00; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Advent of Code 2025 - Day X</h1>
+
+  <canvas id="canvas" width="800" height="600"></canvas>
+
+  <div id="output">
+    <div class="part">
+      <span class="part-title">Part 1:</span>
+      <span class="result" id="part1">-</span>
+    </div>
+    <div class="part">
+      <span class="part-title">Part 2:</span>
+      <span class="result" id="part2">-</span>
+    </div>
+  </div>
+
+  <script type="module">
+    // Your input data
+    const INPUT = `paste your input here`;
+
+    // Canvas setup
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Helper to update results
+    function setResult(part, value) {
+      document.getElementById(`part${part}`).textContent = value;
+    }
+
+    // Part 1
+    function part1(input) {
+      // Your solution here
+      return 0;
+    }
+
+    // Part 2
+    function part2(input) {
+      // Your solution here
+      return 0;
+    }
+
+    // Visualization (optional)
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Example drawing
+      ctx.fillStyle = '#00cc00';
+      ctx.fillRect(10, 10, 50, 50);
+
+      // Continue drawing...
+    }
+
+    // Run solutions
+    const result1 = part1(INPUT);
+    const result2 = part2(INPUT);
+
+    setResult(1, result1);
+    setResult(2, result2);
+
+    // Draw visualization
+    draw();
+  </script>
+</body>
+</html>
