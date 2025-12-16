@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advent of Code 2015</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Courier New", monospace;
+        background: #f5f5f5;
+        color: #333;
+        padding: 40px 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      header {
+        margin-bottom: 40px;
+        text-align: center;
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-size: 2em;
+      }
+      .subtitle {
+        color: #7f8c8d;
+        font-size: 0.9em;
+      }
+      .day-section {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 25px;
+        margin-bottom: 30px;
+      }
+      .day-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #ecf0f1;
+      }
+      .day-title {
+        color: #34495e;
+        font-size: 1.3em;
+      }
+      .day-link {
+        color: #3498db;
+        text-decoration: none;
+        font-size: 0.85em;
+      }
+      .day-link:hover {
+        text-decoration: underline;
+      }
+      .content-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px;
+      }
+      .input-section {
+        display: flex;
+        flex-direction: column;
+      }
+      .label {
+        color: #7f8c8d;
+        margin-bottom: 8px;
+        font-size: 0.9em;
+      }
+      textarea {
+        width: 100%;
+        height: 200px;
+        background: #fafafa;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        color: #333;
+        font-family: "Courier New", monospace;
+        font-size: 13px;
+        padding: 12px;
+        resize: vertical;
+      }
+      textarea:focus {
+        outline: none;
+        border-color: #3498db;
+        background: #fff;
+      }
+      .results-section {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .result-box {
+        padding: 15px;
+        background: #fafafa;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+      }
+      .result-label {
+        color: #7f8c8d;
+        font-size: 0.85em;
+        margin-bottom: 8px;
+      }
+      .result-value {
+        color: #27ae60;
+        font-weight: bold;
+        font-size: 1.4em;
+      }
+      @media (max-width: 768px) {
+        .content-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Advent of Code 2015</h1>
+      <div class="subtitle">Simple solver interface</div>
+    </header>
+
+    <div class="day-section">
+      <div class="day-header">
+        <div class="day-title">Day 1: Not Quite Lisp</div>
+        <a
+          href="https://adventofcode.com/2015/day/1"
+          target="_blank"
+          class="day-link"
+        >
+          View problem →
+        </a>
+      </div>
+      <div class="content-grid">
+        <div class="input-section">
+          <div class="label">Input:</div>
+          <textarea
+            id="input-day1"
+            placeholder="Paste your input here..."
+          ></textarea>
+        </div>
+        <div class="results-section">
+          <div class="label">Results:</div>
+          <div class="result-box">
+            <div class="result-label">Part 1:</div>
+            <div class="result-value" id="result-day1-part1">-</div>
+          </div>
+          <div class="result-box">
+            <div class="result-label">Part 2:</div>
+            <div class="result-value" id="result-day1-part2">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-section">
+      <div class="day-header">
+        <div class="day-title">Day 2: I Was Told There Would Be No Math</div>
+        <a
+          href="https://adventofcode.com/2015/day/2"
+          target="_blank"
+          class="day-link"
+        >
+          View problem →
+        </a>
+      </div>
+      <div class="content-grid">
+        <div class="input-section">
+          <div class="label">Input:</div>
+          <textarea
+            id="input-day2"
+            placeholder="Paste your input here..."
+          ></textarea>
+        </div>
+        <div class="results-section">
+          <div class="label">Results:</div>
+          <div class="result-box">
+            <div class="result-label">Part 1:</div>
+            <div class="result-value" id="result-day2-part1">-</div>
+          </div>
+          <div class="result-box">
+            <div class="result-label">Part 2:</div>
+            <div class="result-value" id="result-day2-part2">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-section">
+      <div class="day-header">
+        <div class="day-title">Day 3: Perfectly Spherical Houses in a Vacuum</div>
+        <a
+          href="https://adventofcode.com/2015/day/3"
+          target="_blank"
+          class="day-link"
+        >
+          View problem →
+        </a>
+      </div>
+      <div class="content-grid">
+        <div class="input-section">
+          <div class="label">Input:</div>
+          <textarea
+            id="input-day3"
+            placeholder="Paste your input here..."
+          ></textarea>
+          <div style="margin-top: 10px;">
+            <a href="2015-day03-viz.html" class="day-link">
+              📊 View Visualization →
+            </a>
+          </div>
+        </div>
+        <div class="results-section">
+          <div class="label">Results:</div>
+          <div class="result-box">
+            <div class="result-label">Part 1:</div>
+            <div class="result-value" id="result-day3-part1">-</div>
+          </div>
+          <div class="result-box">
+            <div class="result-label">Part 2:</div>
+            <div class="result-value" id="result-day3-part2">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Utility functions
+      function sum(arr) {
+        return arr.reduce((a, b) => a + b, 0);
+      }
+
+      function ints(str) {
+        return str.match(/[-+]?\d+/g).map(Number);
+      }
+
+      // Day 1 Solutions
+      function day1Part1(inp) {
+        let res = 0;
+        for (let i = 0; i < inp.length; i++) {
+          if (inp[i] === "(") {
+            res++;
+          } else {
+            res--;
+          }
+        }
+        return res;
+      }
+
+      function day1Part2(inp) {
+        let current = 0;
+        for (let i = 0; i < inp.length; i++) {
+          if (inp[i] === "(") {
+            current++;
+          } else {
+            current--;
+          }
+          if (current === -1) return i + 1;
+        }
+        return null;
+      }
+
+      // Day 2 Solutions
+      function day2Part1(inp) {
+        return sum(
+          inp.split("\n").map((r) => {
+            let [l, w, h] = ints(r);
+            let parts = [l * w, w * h, h * l];
+            let extra = Math.min(...parts);
+            return sum(parts) * 2 + extra;
+          })
+        );
+      }
+
+      function day2Part2(inp) {
+        return sum(
+          inp.split("\n").map((r) => {
+            let [l, w, h] = ints(r);
+            let perim = 2 * (l + w + h - Math.max(l, w, h));
+            let bow = l * w * h;
+            return perim + bow;
+          })
+        );
+      }
+
+      // Day 3 Solutions
+      function day3Part1(inp) {
+        let dirMap = {
+          ">": [1, 0],
+          "<": [-1, 0],
+          "^": [0, -1],
+          "v": [0, 1],
+        };
+
+        let visited = { "0,0": 1 };
+        let current = [0, 0];
+
+        inp.split("").forEach((dir) => {
+          current[0] += dirMap[dir][0];
+          current[1] += dirMap[dir][1];
+          visited[current.join(",")] = 1;
+        });
+
+        return Object.keys(visited).length;
+      }
+
+      function day3Part2(inp) {
+        let dirMap = {
+          ">": [1, 0],
+          "<": [-1, 0],
+          "^": [0, -1],
+          "v": [0, 1],
+        };
+
+        let visited = { "0,0": 1 };
+        let currentS = [0, 0];
+        let currentR = [0, 0];
+
+        inp.split("").forEach((dir, i) => {
+          if (i % 2 === 0) {
+            currentS[0] += dirMap[dir][0];
+            currentS[1] += dirMap[dir][1];
+            visited[currentS.join(",")] = 1;
+          } else {
+            currentR[0] += dirMap[dir][0];
+            currentR[1] += dirMap[dir][1];
+            visited[currentR.join(",")] = 1;
+          }
+        });
+
+        return Object.keys(visited).length;
+      }
+
+      // Setup handlers for each day
+      function setupDay(dayNum, part1Fn, part2Fn) {
+        const STORAGE_KEY = `aoc-2015-day${dayNum.toString().padStart(2, "0")}`;
+        const inputEl = document.getElementById(`input-day${dayNum}`);
+        const part1El = document.getElementById(`result-day${dayNum}-part1`);
+        const part2El = document.getElementById(`result-day${dayNum}-part2`);
+
+        function calculate() {
+          const input = inputEl.value.trim();
+
+          if (!input) {
+            part1El.textContent = "-";
+            part2El.textContent = "-";
+            return;
+          }
+
+          try {
+            part1El.textContent = part1Fn(input);
+          } catch (error) {
+            part1El.textContent = "Error";
+            console.error(error);
+          }
+
+          try {
+            part2El.textContent = part2Fn(input);
+          } catch (error) {
+            part2El.textContent = "Error";
+            console.error(error);
+          }
+        }
+
+        inputEl.addEventListener("input", () => {
+          calculate();
+          localStorage.setItem(STORAGE_KEY, inputEl.value);
+        });
+
+        // Load saved input
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            inputEl.value = saved;
+          }
+          calculate();
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
+      // Initialize all days
+      setupDay(1, day1Part1, day1Part2);
+      setupDay(2, day2Part1, day2Part2);
+      setupDay(3, day3Part1, day3Part2);
+    </script>
+  </body>
+</html>
