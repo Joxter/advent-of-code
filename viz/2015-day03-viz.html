@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -83,6 +83,7 @@
       .button-group {
         display: flex;
         gap: 10px;
+        align-items: center;
       }
       button {
         background: #3498db;
@@ -101,6 +102,27 @@
       button:disabled {
         background: #bdc3c7;
         cursor: not-allowed;
+      }
+      button.secondary {
+        background: #95a5a6;
+      }
+      button.secondary:hover {
+        background: #7f8c8d;
+      }
+      .slider-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .slider-control label {
+        min-width: 60px;
+      }
+      input[type="range"] {
+        width: 150px;
+      }
+      .speed-value {
+        color: #7f8c8d;
+        min-width: 40px;
       }
       .mode-toggle {
         display: flex;
@@ -123,7 +145,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 600px;
+        min-height: 400px;
+        max-height: 70vh;
       }
       .stats {
         display: flex;
@@ -151,6 +174,10 @@
       #canvas {
         border: 1px solid #ddd;
         background: #fafafa;
+        max-width: 100%;
+        max-height: 65vh;
+        width: auto;
+        height: auto;
       }
       .legend {
         display: flex;
@@ -178,23 +205,70 @@
       <div class="subtitle">Path Visualization</div>
       <div class="links">
         <a href="2015.html" class="link">← Back to Solver</a>
-        <a href="https://adventofcode.com/2015/day/3" target="_blank" class="link">View Problem →</a>
+        <a
+          href="https://adventofcode.com/2015/day/3"
+          target="_blank"
+          class="link"
+          >View Problem →</a
+        >
       </div>
     </header>
 
     <div class="controls">
       <div class="control-row">
         <label>Input:</label>
-        <textarea id="input" placeholder="Paste your input here (e.g., ^>v<)"></textarea>
+        <textarea
+          id="input"
+          placeholder="Paste your input here (e.g., ^>v<)"
+        ></textarea>
       </div>
       <div class="control-row">
         <div class="mode-toggle">
-          <button class="mode-btn active" data-mode="1">Part 1: Santa Only</button>
-          <button class="mode-btn" data-mode="2">Part 2: Santa + Robo-Santa</button>
+          <button class="mode-btn active" data-mode="1">
+            Part 1: Santa Only
+          </button>
+          <button class="mode-btn" data-mode="2">
+            Part 2: Santa + Robo-Santa
+          </button>
         </div>
         <div class="button-group">
-          <button id="visualizeBtn">Visualize</button>
-          <button id="resetBtn">Reset</button>
+          <button id="playBtn" disabled>Play</button>
+          <button id="pauseBtn" class="secondary" disabled>Pause</button>
+          <button id="resetBtn" class="secondary">Reset</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="slider-control">
+          <label>Speed:</label>
+          <input
+            type="range"
+            id="speedSlider"
+            min="1"
+            max="5000"
+            value="2000"
+          />
+          <span class="speed-value" id="speedValue">2000</span>
+        </div>
+        <div class="slider-control">
+          <label>
+            <input type="checkbox" id="showPathCheckbox" checked />
+            Show Path
+          </label>
+        </div>
+        <div class="slider-control">
+          <label>
+            <input type="checkbox" id="trailLimitCheckbox" checked="checked" />
+            Trail Limit:
+          </label>
+          <input
+            type="number"
+            id="trailLimitInput"
+            min="1"
+            max="1000"
+            value="30"
+            style="width: 60px"
+            disabled
+          />
         </div>
       </div>
     </div>
@@ -216,25 +290,89 @@
 
     <div class="legend" id="legend">
       <div class="legend-item">
-        <div class="legend-color" style="background: #3498db;"></div>
+        <div class="legend-color" style="background: #3498db"></div>
         <span>Santa's Path</span>
       </div>
       <div class="legend-item">
-        <div class="legend-color" style="background: #e8f4f8;"></div>
+        <div class="legend-color" style="background: #e8f4f8"></div>
         <span>Visited House</span>
       </div>
       <div class="legend-item">
-        <div class="legend-color" style="background: #27ae60;"></div>
+        <div class="legend-color" style="background: #27ae60"></div>
         <span>Starting Point</span>
       </div>
     </div>
 
     <script>
+      // ============================================
+      // CONFIGURATION - Tweak these values!
+      // ============================================
+      const CONFIG = {
+        // Animation
+        BASE_ANIMATION_SPEED: 2000,
+
+        // Colors - Houses
+        UNVISITED_HOUSE_COLOR: "#95a5a6", // Unvisited house (gray)
+        VISITED_HOUSE_COLOR: "#f3d266", // Visited house (blue)
+        HOUSE_BORDER_COLOR: "#7f8c8d", // House border
+        START_POINT_COLOR: "#f39c12", // Starting point (gold)
+        START_BORDER_COLOR: "#e67e22",
+
+        // Colors - Terrain (nature)
+        TERRAIN_COLORS: [
+          "#27ae60",
+          "#229954",
+          "#1e8449", // Dark greens (trees/forest)
+          "#2ecc71",
+          "#28b463", // Light greens (grass)
+          "#52be80",
+          "#58d68d", // Medium greens
+          "#3498db",
+          "#2980b9", // Blues (water)
+          "#1571ae",
+          "#2986c5",
+          "#6abaef",
+          "#1e8fda",
+          "#035185",
+        ],
+
+        // Colors - Paths
+        SANTA_COLOR: "#e74c3c", // Santa's path (red for contrast)
+        ROBO_COLOR: "#9b59b6", // Robo-Santa's path (purple)
+
+        CANVAS_BG: "#1e8449", // Dark green background
+
+        // Sizes
+        PATH_LINE_WIDTH: 3, // Width of path lines
+        HOUSE_BORDER_WIDTH: 1,
+        START_BORDER_WIDTH: 2,
+        CURRENT_MARKER_SIZE: 10, // Size of current position marker
+
+        // Visual effects
+        SHOW_TRAIL: true, // Show full trail behind
+        TRAIL_OPACITY: 0.6, // Trail opacity (0-1)
+        SHOW_CURRENT_MARKER: true, // Show animated marker at current position
+        MARKER_PULSE: false, // Pulse effect on current marker
+        TERRAIN_PATTERN: true, // Use terrain pattern for background
+
+        // Progress bar
+        PROGRESS_BAR_HEIGHT: 4, // Height of progress bar
+        PROGRESS_BAR_BG: "#34495e", // Background color
+        PROGRESS_BAR_COLOR: "#f39c12", // Progress color (gold)
+      };
+      // ============================================
+
       const STORAGE_KEY = "aoc-2015-day03-viz";
 
       const inputEl = document.getElementById("input");
-      const visualizeBtn = document.getElementById("visualizeBtn");
+      const playBtn = document.getElementById("playBtn");
+      const pauseBtn = document.getElementById("pauseBtn");
       const resetBtn = document.getElementById("resetBtn");
+      const speedSlider = document.getElementById("speedSlider");
+      const speedValue = document.getElementById("speedValue");
+      const showPathCheckbox = document.getElementById("showPathCheckbox");
+      const trailLimitCheckbox = document.getElementById("trailLimitCheckbox");
+      const trailLimitInput = document.getElementById("trailLimitInput");
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
       const housesVisitedEl = document.getElementById("housesVisited");
@@ -242,14 +380,115 @@
       const legendEl = document.getElementById("legend");
 
       let currentMode = 1;
+      let animationState = {
+        isPlaying: false,
+        currentStep: 0,
+        santaPositions: [],
+        roboPositions: [],
+        visited: new Set(),
+        allHouses: new Set(),
+        terrainMap: null,
+        bounds: null,
+        animationFrame: null,
+        lastFrameTime: 0,
+      };
+
+      // Simple 2D noise function for natural terrain
+      function noise2D(x, y, seed = 42) {
+        const n = Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453;
+        return n - Math.floor(n);
+      }
+
+      // Smooth noise by combining multiple octaves
+      function smoothNoise(x, y, scale = 0.1, octaves = 3) {
+        let value = 0;
+        let amplitude = 1;
+        let frequency = scale;
+        let maxValue = 0;
+
+        for (let i = 0; i < octaves; i++) {
+          value += noise2D(x * frequency, y * frequency, i) * amplitude;
+          maxValue += amplitude;
+          amplitude *= 0.5;
+          frequency *= 2;
+        }
+
+        return value / maxValue;
+      }
+
+      // Generate terrain map with clustered nature colors
+      function generateTerrainMap(minX, minY, maxX, maxY, houses) {
+        const terrainMap = {};
+
+        // Define terrain type ranges based on noise value
+        const terrainTypes = [
+          {
+            min: 0.0,
+            max: 0.15,
+            colors: [CONFIG.TERRAIN_COLORS[7], CONFIG.TERRAIN_COLORS[8]],
+          }, // Water (blues)
+          {
+            min: 0.15,
+            max: 0.35,
+            colors: [CONFIG.TERRAIN_COLORS[4], CONFIG.TERRAIN_COLORS[5]],
+          }, // Light grass
+          {
+            min: 0.35,
+            max: 0.65,
+            colors: [
+              CONFIG.TERRAIN_COLORS[3],
+              CONFIG.TERRAIN_COLORS[6],
+              CONFIG.TERRAIN_COLORS[10],
+            ],
+          }, // Medium grass
+          {
+            min: 0.65,
+            max: 0.85,
+            colors: [CONFIG.TERRAIN_COLORS[0], CONFIG.TERRAIN_COLORS[1]],
+          }, // Forest (dark green)
+          {
+            min: 0.85,
+            max: 1.0,
+            colors: [CONFIG.TERRAIN_COLORS[9], CONFIG.TERRAIN_COLORS[2]],
+          }, // Dense forest/rocks
+        ];
+
+        for (let x = minX; x <= maxX; x++) {
+          for (let y = minY; y <= maxY; y++) {
+            const key = `${x},${y}`;
+            if (!houses.has(key)) {
+              // Generate smooth noise value for this position
+              const noiseValue = smoothNoise(x, y, 0.15, 4);
+
+              // Find which terrain type this noise value corresponds to
+              let terrainType = terrainTypes[0];
+              for (const type of terrainTypes) {
+                if (noiseValue >= type.min && noiseValue < type.max) {
+                  terrainType = type;
+                  break;
+                }
+              }
+
+              // Pick a random color from this terrain type's color palette
+              const hash = (x * 73856093) ^ (y * 19349663);
+              const colorIndex = Math.abs(hash) % terrainType.colors.length;
+              terrainMap[key] = terrainType.colors[colorIndex];
+            }
+          }
+        }
+        return terrainMap;
+      }
 
       // Mode toggle
       document.querySelectorAll(".mode-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
-          document.querySelectorAll(".mode-btn").forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll(".mode-btn")
+            .forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
           currentMode = parseInt(btn.dataset.mode);
           updateLegend();
+          visualize(); // Re-visualize when mode changes
         });
       });
 
@@ -257,95 +496,116 @@
         if (currentMode === 1) {
           legendEl.innerHTML = `
             <div class="legend-item">
-              <div class="legend-color" style="background: #3498db;"></div>
+              <div class="legend-color" style="background: ${CONFIG.SANTA_COLOR};"></div>
               <span>Santa's Path</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color" style="background: #e8f4f8;"></div>
+              <div class="legend-color" style="background: ${CONFIG.VISITED_HOUSE_COLOR};"></div>
               <span>Visited House</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color" style="background: #27ae60;"></div>
+              <div class="legend-color" style="background: ${CONFIG.UNVISITED_HOUSE_COLOR};"></div>
+              <span>Unvisited House</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: ${CONFIG.START_POINT_COLOR};"></div>
               <span>Starting Point</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: ${CONFIG.TERRAIN_COLORS[0]};"></div>
+              <span>Nature/Terrain</span>
             </div>
           `;
         } else {
           legendEl.innerHTML = `
             <div class="legend-item">
-              <div class="legend-color" style="background: #3498db;"></div>
+              <div class="legend-color" style="background: ${CONFIG.SANTA_COLOR};"></div>
               <span>Santa's Path</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color" style="background: #e74c3c;"></div>
+              <div class="legend-color" style="background: ${CONFIG.ROBO_COLOR};"></div>
               <span>Robo-Santa's Path</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color" style="background: #e8f4f8;"></div>
+              <div class="legend-color" style="background: ${CONFIG.VISITED_HOUSE_COLOR};"></div>
               <span>Visited House</span>
             </div>
             <div class="legend-item">
-              <div class="legend-color" style="background: #27ae60;"></div>
+              <div class="legend-color" style="background: ${CONFIG.UNVISITED_HOUSE_COLOR};"></div>
+              <span>Unvisited House</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: ${CONFIG.START_POINT_COLOR};"></div>
               <span>Starting Point</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: ${CONFIG.TERRAIN_COLORS[0]};"></div>
+              <span>Nature/Terrain</span>
             </div>
           `;
         }
       }
 
-      function visualize() {
-        const input = inputEl.value.trim();
-        if (!input) {
-          alert("Please enter some input");
-          return;
-        }
-
+      function calculatePositions(input) {
         const dirMap = {
           ">": [1, 0],
           "<": [-1, 0],
           "^": [0, -1],
-          "v": [0, 1],
+          v: [0, 1],
         };
 
-        // Calculate all positions
-        let positions = [];
+        let santaPositions = [];
+        let roboPositions = [];
         let visited = new Set();
         visited.add("0,0");
 
         if (currentMode === 1) {
           // Part 1: Santa only
           let pos = [0, 0];
-          positions.push({ x: 0, y: 0, agent: "santa" });
+          santaPositions.push({ x: 0, y: 0 });
 
           input.split("").forEach((dir) => {
             if (dirMap[dir]) {
               pos = [pos[0] + dirMap[dir][0], pos[1] + dirMap[dir][1]];
-              positions.push({ x: pos[0], y: pos[1], agent: "santa" });
+              santaPositions.push({ x: pos[0], y: pos[1] });
               visited.add(`${pos[0]},${pos[1]}`);
             }
           });
         } else {
-          // Part 2: Santa and Robo-Santa
+          // Part 2: Santa and Robo-Santa (separate tracks)
           let santaPos = [0, 0];
           let roboPos = [0, 0];
-          positions.push({ x: 0, y: 0, agent: "both" });
+          santaPositions.push({ x: 0, y: 0 });
+          roboPositions.push({ x: 0, y: 0 });
 
           input.split("").forEach((dir, i) => {
             if (dirMap[dir]) {
               if (i % 2 === 0) {
-                santaPos = [santaPos[0] + dirMap[dir][0], santaPos[1] + dirMap[dir][1]];
-                positions.push({ x: santaPos[0], y: santaPos[1], agent: "santa" });
+                santaPos = [
+                  santaPos[0] + dirMap[dir][0],
+                  santaPos[1] + dirMap[dir][1],
+                ];
+                santaPositions.push({ x: santaPos[0], y: santaPos[1] });
                 visited.add(`${santaPos[0]},${santaPos[1]}`);
               } else {
-                roboPos = [roboPos[0] + dirMap[dir][0], roboPos[1] + dirMap[dir][1]];
-                positions.push({ x: roboPos[0], y: roboPos[1], agent: "robo" });
+                roboPos = [
+                  roboPos[0] + dirMap[dir][0],
+                  roboPos[1] + dirMap[dir][1],
+                ];
+                roboPositions.push({ x: roboPos[0], y: roboPos[1] });
                 visited.add(`${roboPos[0]},${roboPos[1]}`);
               }
             }
           });
         }
 
-        // Find bounds
-        const xs = positions.map((p) => p.x);
-        const ys = positions.map((p) => p.y);
+        return { santaPositions, roboPositions, visited };
+      }
+
+      function calculateBounds(santaPositions, roboPositions) {
+        const allPositions = [...santaPositions, ...roboPositions];
+        const xs = allPositions.map((p) => p.x);
+        const ys = allPositions.map((p) => p.y);
         const minX = Math.min(...xs);
         const maxX = Math.max(...xs);
         const minY = Math.min(...ys);
@@ -354,89 +614,384 @@
         const width = maxX - minX + 1;
         const height = maxY - minY + 1;
 
-        // Calculate cell size
         const padding = 20;
         const availableWidth = canvas.width - padding * 2;
         const availableHeight = canvas.height - padding * 2;
         const cellSize = Math.min(
           availableWidth / width,
           availableHeight / height,
-          20
+          20,
         );
 
-        // Clear canvas
-        ctx.fillStyle = "#fafafa";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Center the grid
         const offsetX = (canvas.width - width * cellSize) / 2;
         const offsetY = (canvas.height - height * cellSize) / 2;
 
-        // Draw visited houses
-        visited.forEach((key) => {
+        return { minX, minY, maxX, maxY, cellSize, offsetX, offsetY };
+      }
+
+      function drawScene(step = null) {
+        const {
+          santaPositions,
+          roboPositions,
+          visited,
+          allHouses,
+          terrainMap,
+          bounds,
+        } = animationState;
+        const { minX, minY, maxX, maxY, cellSize, offsetX, offsetY } = bounds;
+
+        // Clear canvas
+        ctx.fillStyle = CONFIG.CANVAS_BG;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const maxStep =
+          step !== null
+            ? step
+            : Math.max(santaPositions.length, roboPositions.length);
+
+        // Collect visited houses up to current step
+        const currentVisited = new Set();
+        currentVisited.add("0,0");
+
+        for (let i = 1; i < maxStep; i++) {
+          if (currentMode === 1) {
+            if (i < santaPositions.length) {
+              const pos = santaPositions[i];
+              currentVisited.add(`${pos.x},${pos.y}`);
+            }
+          } else {
+            const santaIdx = Math.floor(i / 2);
+            const roboIdx = Math.floor((i - 1) / 2);
+            if (i % 2 === 1 && santaIdx < santaPositions.length) {
+              const pos = santaPositions[santaIdx];
+              currentVisited.add(`${pos.x},${pos.y}`);
+            }
+            if (i % 2 === 0 && roboIdx < roboPositions.length) {
+              const pos = roboPositions[roboIdx];
+              currentVisited.add(`${pos.x},${pos.y}`);
+            }
+          }
+        }
+
+        // Draw terrain (nature background)
+        if (CONFIG.TERRAIN_PATTERN && terrainMap) {
+          for (let x = minX; x <= maxX; x++) {
+            for (let y = minY; y <= maxY; y++) {
+              const key = `${x},${y}`;
+              const screenX = offsetX + (x - minX) * cellSize;
+              const screenY = offsetY + (y - minY) * cellSize;
+
+              if (terrainMap[key]) {
+                ctx.fillStyle = terrainMap[key];
+                ctx.fillRect(screenX, screenY, cellSize, cellSize);
+              }
+            }
+          }
+        }
+
+        // Draw all houses (unvisited = gray, visited = blue)
+        allHouses.forEach((key) => {
           const [x, y] = key.split(",").map(Number);
           const screenX = offsetX + (x - minX) * cellSize;
           const screenY = offsetY + (y - minY) * cellSize;
 
-          ctx.fillStyle = "#e8f4f8";
-          ctx.fillRect(screenX, screenY, cellSize, cellSize);
-          ctx.strokeStyle = "#ddd";
-          ctx.lineWidth = 0.5;
-          ctx.strokeRect(screenX, screenY, cellSize, cellSize);
+          const isVisited = currentVisited.has(key);
+          const isStart = key === "0,0";
+
+          if (isStart) {
+            // Starting point gets special color
+            ctx.fillStyle = CONFIG.START_POINT_COLOR;
+            ctx.fillRect(screenX, screenY, cellSize, cellSize);
+            ctx.strokeStyle = CONFIG.START_BORDER_COLOR;
+            ctx.lineWidth = CONFIG.START_BORDER_WIDTH;
+            ctx.strokeRect(screenX, screenY, cellSize, cellSize);
+          } else {
+            // Regular houses
+            ctx.fillStyle = isVisited
+              ? CONFIG.VISITED_HOUSE_COLOR
+              : CONFIG.UNVISITED_HOUSE_COLOR;
+            ctx.fillRect(screenX, screenY, cellSize, cellSize);
+            ctx.strokeStyle = CONFIG.HOUSE_BORDER_COLOR;
+            ctx.lineWidth = CONFIG.HOUSE_BORDER_WIDTH;
+            ctx.strokeRect(screenX, screenY, cellSize, cellSize);
+          }
         });
 
-        // Draw paths
-        for (let i = 1; i < positions.length; i++) {
-          const from = positions[i - 1];
-          const to = positions[i];
+        // Helper to draw path
+        function drawPath(positions, color, maxIdx) {
+          const limit = Math.min(maxIdx, positions.length);
 
-          const fromX = offsetX + (from.x - minX) * cellSize + cellSize / 2;
-          const fromY = offsetY + (from.y - minY) * cellSize + cellSize / 2;
-          const toX = offsetX + (to.x - minX) * cellSize + cellSize / 2;
-          const toY = offsetY + (to.y - minY) * cellSize + cellSize / 2;
-
-          ctx.beginPath();
-          ctx.moveTo(fromX, fromY);
-          ctx.lineTo(toX, toY);
-
-          if (to.agent === "santa") {
-            ctx.strokeStyle = "#3498db";
-          } else if (to.agent === "robo") {
-            ctx.strokeStyle = "#e74c3c";
-          } else {
-            ctx.strokeStyle = "#3498db";
+          // Calculate start index based on trail limit
+          let startIdx = 1;
+          if (trailLimitCheckbox.checked) {
+            const trailLimit = parseInt(trailLimitInput.value);
+            startIdx = Math.max(1, limit - trailLimit);
           }
 
-          ctx.lineWidth = 2;
-          ctx.stroke();
+          for (let i = startIdx; i < limit; i++) {
+            const from = positions[i - 1];
+            const to = positions[i];
+
+            const fromX = offsetX + (from.x - minX) * cellSize + cellSize / 2;
+            const fromY = offsetY + (from.y - minY) * cellSize + cellSize / 2;
+            const toX = offsetX + (to.x - minX) * cellSize + cellSize / 2;
+            const toY = offsetY + (to.y - minY) * cellSize + cellSize / 2;
+
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = CONFIG.SHOW_TRAIL ? CONFIG.TRAIL_OPACITY : 1;
+            ctx.lineWidth = CONFIG.PATH_LINE_WIDTH;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
         }
 
-        // Draw starting point
-        const startX = offsetX + (0 - minX) * cellSize;
-        const startY = offsetY + (0 - minY) * cellSize;
-        ctx.fillStyle = "#27ae60";
-        ctx.fillRect(startX, startY, cellSize, cellSize);
-        ctx.strokeStyle = "#229954";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(startX, startY, cellSize, cellSize);
+        // Draw paths (if enabled)
+        if (showPathCheckbox.checked) {
+          if (currentMode === 1) {
+            drawPath(santaPositions, CONFIG.SANTA_COLOR, maxStep);
+          } else {
+            const santaSteps = Math.ceil(maxStep / 2);
+            const roboSteps = Math.floor(maxStep / 2) + 1;
+            drawPath(santaPositions, CONFIG.SANTA_COLOR, santaSteps);
+            drawPath(roboPositions, CONFIG.ROBO_COLOR, roboSteps);
+          }
+        }
+
+        // Draw current position markers
+        if (CONFIG.SHOW_CURRENT_MARKER && step !== null && step > 0) {
+          const time = Date.now();
+          const pulseSize = CONFIG.MARKER_PULSE
+            ? CONFIG.CURRENT_MARKER_SIZE + Math.sin(time / 200) * 2
+            : CONFIG.CURRENT_MARKER_SIZE;
+
+          if (currentMode === 1) {
+            if (step <= santaPositions.length) {
+              const pos =
+                santaPositions[Math.min(step - 1, santaPositions.length - 1)];
+              const x = offsetX + (pos.x - minX) * cellSize + cellSize / 2;
+              const y = offsetY + (pos.y - minY) * cellSize + cellSize / 2;
+
+              ctx.beginPath();
+              ctx.arc(x, y, pulseSize, 0, Math.PI * 2);
+              ctx.fillStyle = CONFIG.SANTA_COLOR;
+              ctx.fill();
+            }
+          } else {
+            // Draw both Santa and Robo markers
+            const santaIdx = Math.floor((step - 1) / 2);
+            const roboIdx = Math.floor((step - 2) / 2);
+
+            if (santaIdx >= 0 && santaIdx < santaPositions.length) {
+              const pos = santaPositions[santaIdx];
+              const x = offsetX + (pos.x - minX) * cellSize + cellSize / 2;
+              const y = offsetY + (pos.y - minY) * cellSize + cellSize / 2;
+
+              ctx.beginPath();
+              ctx.arc(x, y, pulseSize, 0, Math.PI * 2);
+              ctx.fillStyle = CONFIG.SANTA_COLOR;
+              ctx.fill();
+            }
+
+            if (roboIdx >= 0 && roboIdx < roboPositions.length) {
+              const pos = roboPositions[roboIdx];
+              const x = offsetX + (pos.x - minX) * cellSize + cellSize / 2;
+              const y = offsetY + (pos.y - minY) * cellSize + cellSize / 2;
+
+              ctx.beginPath();
+              ctx.arc(x, y, pulseSize, 0, Math.PI * 2);
+              ctx.fillStyle = CONFIG.ROBO_COLOR;
+              ctx.fill();
+            }
+          }
+        }
+
+        // Draw progress bar
+        if (step !== null) {
+          const totalSteps =
+            currentMode === 1
+              ? santaPositions.length
+              : santaPositions.length + roboPositions.length;
+          const progress = totalSteps > 0 ? step / totalSteps : 0;
+
+          // Background bar
+          ctx.fillStyle = CONFIG.PROGRESS_BAR_BG;
+          ctx.fillRect(0, 0, canvas.width, CONFIG.PROGRESS_BAR_HEIGHT);
+
+          // Progress fill
+          ctx.fillStyle = CONFIG.PROGRESS_BAR_COLOR;
+          ctx.fillRect(
+            0,
+            0,
+            canvas.width * progress,
+            CONFIG.PROGRESS_BAR_HEIGHT,
+          );
+        }
 
         // Update stats
-        housesVisitedEl.textContent = visited.size;
-        totalMovesEl.textContent = input.length;
+        housesVisitedEl.textContent = currentVisited.size;
+        totalMovesEl.textContent = inputEl.value.trim().length;
+      }
+
+      function visualize() {
+        const input = inputEl.value.trim();
+        if (!input) {
+          return; // Just return silently if no input
+        }
+
+        stopAnimation();
+
+        const { santaPositions, roboPositions, visited } =
+          calculatePositions(input);
+        const bounds = calculateBounds(santaPositions, roboPositions);
+
+        // Generate terrain map for all non-house cells
+        const terrainMap = generateTerrainMap(
+          bounds.minX,
+          bounds.minY,
+          bounds.maxX,
+          bounds.maxY,
+          visited,
+        );
+
+        animationState.santaPositions = santaPositions;
+        animationState.roboPositions = roboPositions;
+        animationState.visited = visited;
+        animationState.allHouses = new Set(visited); // All houses that will ever be visited
+        animationState.terrainMap = terrainMap;
+        animationState.bounds = bounds;
+        animationState.currentStep = 0;
+
+        // Draw complete scene
+        drawScene();
+
+        // Enable play button
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+      }
+
+      function animate(timestamp) {
+        if (!animationState.isPlaying) return;
+
+        const elapsed = timestamp - animationState.lastFrameTime;
+        const speed = parseInt(speedSlider.value);
+        const frameDelay = 1000 / (speed / 5); // Convert speed to frames per second
+
+        if (elapsed > frameDelay) {
+          animationState.lastFrameTime = timestamp;
+          animationState.currentStep++;
+
+          const maxSteps =
+            currentMode === 1
+              ? animationState.santaPositions.length
+              : animationState.santaPositions.length +
+                animationState.roboPositions.length;
+
+          if (animationState.currentStep > maxSteps) {
+            stopAnimation();
+            return;
+          }
+
+          drawScene(animationState.currentStep);
+        }
+
+        animationState.animationFrame = requestAnimationFrame(animate);
+      }
+
+      function playAnimation() {
+        if (!animationState.bounds) {
+          // Auto-visualize if not already done
+          visualize();
+          if (!animationState.bounds) {
+            return; // Still no bounds, nothing to animate
+          }
+        }
+
+        animationState.isPlaying = true;
+        animationState.lastFrameTime = performance.now();
+
+        // Reset if at the end
+        const maxSteps =
+          currentMode === 1
+            ? animationState.santaPositions.length
+            : animationState.santaPositions.length +
+              animationState.roboPositions.length;
+
+        if (animationState.currentStep >= maxSteps) {
+          animationState.currentStep = 0;
+        }
+
+        playBtn.disabled = true;
+        pauseBtn.disabled = false;
+
+        animationState.animationFrame = requestAnimationFrame(animate);
+      }
+
+      function pauseAnimation() {
+        animationState.isPlaying = false;
+        if (animationState.animationFrame) {
+          cancelAnimationFrame(animationState.animationFrame);
+        }
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+      }
+
+      function stopAnimation() {
+        animationState.isPlaying = false;
+        if (animationState.animationFrame) {
+          cancelAnimationFrame(animationState.animationFrame);
+        }
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
       }
 
       function reset() {
-        ctx.fillStyle = "#fafafa";
+        stopAnimation();
+        animationState.currentStep = 0;
+        ctx.fillStyle = CONFIG.CANVAS_BG;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         housesVisitedEl.textContent = "-";
         totalMovesEl.textContent = "-";
+        playBtn.disabled = true;
+        pauseBtn.disabled = true;
       }
 
-      visualizeBtn.addEventListener("click", visualize);
+      // Event listeners
+      playBtn.addEventListener("click", playAnimation);
+      pauseBtn.addEventListener("click", pauseAnimation);
       resetBtn.addEventListener("click", reset);
+
+      speedSlider.addEventListener("input", () => {
+        speedValue.textContent = speedSlider.value;
+      });
+
+      showPathCheckbox.addEventListener("change", () => {
+        // Redraw current scene when path visibility changes
+        if (animationState.bounds) {
+          drawScene(animationState.currentStep || null);
+        }
+      });
+
+      trailLimitCheckbox.addEventListener("change", () => {
+        trailLimitInput.disabled = !trailLimitCheckbox.checked;
+        // Redraw current scene when trail limit is toggled
+        if (animationState.bounds) {
+          drawScene(animationState.currentStep || null);
+        }
+      });
+
+      trailLimitInput.addEventListener("input", () => {
+        // Redraw current scene when trail limit value changes
+        if (animationState.bounds) {
+          drawScene(animationState.currentStep || null);
+        }
+      });
 
       inputEl.addEventListener("input", () => {
         localStorage.setItem(STORAGE_KEY, inputEl.value);
+        visualize(); // Auto-visualize when input changes
       });
 
       // Load saved input
@@ -447,6 +1002,14 @@
         }
       } catch (err) {
         console.log(err);
+      }
+
+      // Initialize legend
+      updateLegend();
+
+      // Auto-visualize on page load if there's input
+      if (inputEl.value.trim()) {
+        visualize();
       }
     </script>
   </body>
