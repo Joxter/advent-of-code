@@ -136,6 +136,27 @@ export function isNumericChar(char) {
   return char && char.charCodeAt(0) >= 48 && char.charCodeAt(0) <= 57;
 }
 
+export function permutations(arr) {
+  let result = [];
+
+  function _perm(p, rest) {
+    if (rest.length === 0) {
+      result.push(p);
+    } else {
+      rest.forEach((it, i) => {
+        let newRest = [...rest];
+        newRest.splice(i, 1);
+        _perm([...p, it], newRest);
+      });
+    }
+  }
+
+  _perm([], arr);
+
+  return result;
+}
+
+
 export function uniq(arr) {
   return [...new Set(arr)];
 }
