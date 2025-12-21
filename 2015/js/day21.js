@@ -5,6 +5,7 @@ import { runDay, ints } from "../../utils.js";
 runDay(2015, 21)
   //
   .part(1, part1)
+  .part(1, part1clean, "part1clean")
   .part(2, part2)
   .end();
 
@@ -170,6 +171,78 @@ DefenseC   80     0       3`);
     let bossMoves = Math.ceil(hero.hp / Math.max(boss.damage - hero.armor, 1));
 
     return heroMoves > bossMoves;
+  }
+
+  function parse(str) {
+    return str.split("\n").map((l) => {
+      let [label, cost, damage, armor] = l.split(/\s+/);
+      return { label, cost: +cost, damage: +damage, armor: +armor };
+    });
+  }
+}
+
+function part1clean(inp) {
+  const weapons = parse(`Dagger        8     4       0
+Shortsword   10     5       0
+Warhammer    25     6       0
+Longsword    40     7       0
+Greataxe     74     8       0`);
+  const armors = parse(`None      0     0       0
+Leather      13     0       1
+Chainmail    31     0       2
+Splintmail   53     0       3
+Bandedmail   75     0       4
+Platemail   102     0       5`);
+  const rings = parse(`DamageA    25     1       0
+DamageB    50     2       0
+DamageC   100     3       0
+DefenseA   20     0       1
+DefenseB   40     0       2
+DefenseC   80     0       3`);
+
+  let [hp, damage, armor] = ints(inp);
+  let boss = { hp, damage, armor };
+
+  let minCost = Infinity;
+
+  function* gears() {
+    for (const weapon of weapons) {
+      for (const armor of armors) {
+        yield [weapon, armor];
+
+        for (let i = 0; i < rings.length - 1; i++) {
+          for (let j = i + 1; j < rings.length; j++) {
+            yield [weapon, armor, rings[i], rings[j]];
+          }
+          yield [weapon, armor, rings[i]];
+        }
+        yield [weapon, armor, rings.at(-1)];
+      }
+    }
+  }
+
+  for (const gear of gears()) {
+    let hero = { hp: 100, armor: 0, damage: 0 };
+
+    let cost = 0;
+    gear.forEach((it) => {
+      cost += it.cost;
+      hero.armor += it.armor;
+      hero.damage += it.damage;
+    });
+
+    if (cost < minCost && isHeroWin(hero, boss)) {
+      minCost = cost;
+    }
+  }
+
+  return minCost;
+
+  function isHeroWin(hero, boss) {
+    let heroMoves = Math.ceil(boss.hp / Math.max(hero.damage - boss.armor, 1));
+    let bossMoves = Math.ceil(hero.hp / Math.max(boss.damage - hero.armor, 1));
+
+    return heroMoves <= bossMoves;
   }
 
   function parse(str) {
