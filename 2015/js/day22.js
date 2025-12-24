@@ -9,14 +9,13 @@ runDay(2015, 22)
   .end();
 
 function part1(inp) {
-  const player = { hp: 50, mana: 500 };
-  const p = ints(inp);
-  const boss = { hp: p[0], damage: p[1] };
+  const [bossHp, bossDamage] = ints(inp);
 
   let q = [
     {
-      player,
-      boss,
+      playerMana: 500,
+      playerHp: 50,
+      bossHp,
       shield: 0,
       poison: 0,
       recharge: 0,
@@ -36,73 +35,67 @@ function part1(inp) {
   let min = Infinity;
 
   while (q.length > 0) {
-    let { player, boss, manaCnt, playerTurn, shield, recharge, poison } =
-      q.pop();
+    let {
+      playerMana,
+      playerHp,
+      bossHp,
+      manaCnt,
+      playerTurn,
+      shield,
+      recharge,
+      poison,
+    } = q.pop();
 
-    if (manaCnt >= min) continue; // Prune branches that already exceed minimum
+    if (manaCnt >= min || playerHp <= 0) continue;
 
-    // Apply effects at START of turn
     if (shield > 0) shield--;
     if (poison > 0) {
-      boss.hp -= 3;
+      bossHp -= 3;
       poison--;
     }
-    if (recharge > 0) {
-      player.mana += 101;
-      recharge--;
-    }
 
-    // Check if boss is dead after effects
-    if (boss.hp <= 0) {
+    if (bossHp <= 0) {
       min = Math.min(min, manaCnt);
       continue;
     }
 
-    if (playerTurn) {
-      // Player turn - cast spell
-      spells.forEach((s) => {
-        if (player.mana < s.costs) return;
+    if (recharge > 0) {
+      playerMana += 101;
+      recharge--;
+    }
 
-        if (!s.turns) {
-          // Instant spells
-          q.push({
-            player: {
-              hp: player.hp + s.heal,
-              mana: player.mana - s.costs,
-            },
-            boss: { hp: boss.hp - s.damage, damage: boss.damage },
-            shield,
-            poison,
-            recharge,
-            manaCnt: manaCnt + s.costs,
-            playerTurn: false,
-          });
-        } else {
-          // Effect spells - can only cast if not already active
-          if (s.name === "shield" && shield === 0) {
+    if (playerTurn) {
+      spells.forEach((s) => {
+        if (playerMana < s.costs) return;
+
+        if (s.turns) {
+          if (shield === 0 && s.name === "shield") {
             q.push({
-              player: { ...player, mana: player.mana - s.costs },
-              boss: { ...boss },
+              playerHp,
+              playerMana: playerMana - s.costs,
+              bossHp,
               shield: s.turns,
               poison,
               recharge,
               manaCnt: manaCnt + s.costs,
               playerTurn: false,
             });
-          } else if (s.name === "poison" && poison === 0) {
+          } else if (poison === 0 && s.name === "poison") {
             q.push({
-              player: { ...player, mana: player.mana - s.costs },
-              boss: { ...boss },
+              playerHp,
+              playerMana: playerMana - s.costs,
+              bossHp,
               shield,
               poison: s.turns,
               recharge,
               manaCnt: manaCnt + s.costs,
               playerTurn: false,
             });
-          } else if (s.name === "recharge" && recharge === 0) {
+          } else if (recharge === 0 && s.name === "recharge") {
             q.push({
-              player: { ...player, mana: player.mana - s.costs },
-              boss: { ...boss },
+              playerHp,
+              playerMana: playerMana - s.costs,
+              bossHp,
               shield,
               poison,
               recharge: s.turns,
@@ -110,25 +103,32 @@ function part1(inp) {
               playerTurn: false,
             });
           }
+        } else {
+          q.push({
+            playerHp: playerHp + s.heal,
+            playerMana: playerMana - s.costs,
+            bossHp: bossHp - s.damage,
+            shield,
+            poison,
+            recharge,
+            manaCnt: manaCnt + s.costs,
+            playerTurn: false,
+          });
         }
       });
     } else {
-      // Boss turn - attack
-      const armor = shield > 0 ? 7 : 0;
-      const damage = Math.max(boss.damage - armor, 1);
+      const damage = Math.max(bossDamage - (shield > 0 ? 7 : 0), 1);
 
-      if (player.hp > damage) {
-        // Only continue if player survives
-        q.push({
-          player: { hp: player.hp - damage, mana: player.mana },
-          boss: { ...boss },
-          shield,
-          poison,
-          recharge,
-          manaCnt,
-          playerTurn: true,
-        });
-      }
+      q.push({
+        playerHp: playerHp - damage,
+        playerMana,
+        bossHp,
+        shield,
+        poison,
+        recharge,
+        manaCnt,
+        playerTurn: true,
+      });
     }
   }
 
@@ -136,14 +136,13 @@ function part1(inp) {
 }
 
 function part2(inp) {
-  const player = { hp: 50, mana: 500 };
-  const p = ints(inp);
-  const boss = { hp: p[0], damage: p[1] };
+  const [bossHp, bossDamage] = ints(inp);
 
   let q = [
     {
-      player,
-      boss,
+      playerMana: 500,
+      playerHp: 50,
+      bossHp,
       shield: 0,
       poison: 0,
       recharge: 0,
@@ -163,76 +162,69 @@ function part2(inp) {
   let min = Infinity;
 
   while (q.length > 0) {
-    let { player, boss, manaCnt, playerTurn, shield, recharge, poison } =
-      q.pop();
+    let {
+      playerMana,
+      playerHp,
+      bossHp,
+      manaCnt,
+      playerTurn,
+      shield,
+      recharge,
+      poison,
+    } = q.pop();
 
-    if (playerTurn) player.hp -= 1;
-    if (player.hp <= 0) continue;
+    if (playerTurn) playerHp--;
 
-    if (manaCnt >= min) continue; // Prune branches that already exceed minimum
+    if (manaCnt >= min || playerHp <= 0) continue;
 
-    // Apply effects at START of turn
     if (shield > 0) shield--;
     if (poison > 0) {
-      boss.hp -= 3;
+      bossHp -= 3;
       poison--;
     }
-    if (recharge > 0) {
-      player.mana += 101;
-      recharge--;
-    }
 
-    // Check if boss is dead after effects
-    if (boss.hp <= 0) {
+    if (bossHp <= 0) {
       min = Math.min(min, manaCnt);
       continue;
     }
 
-    if (playerTurn) {
-      // Player turn - cast spell
-      spells.forEach((s) => {
-        if (player.mana < s.costs) return;
+    if (recharge > 0) {
+      playerMana += 101;
+      recharge--;
+    }
 
-        if (!s.turns) {
-          // Instant spells
-          q.push({
-            player: {
-              hp: player.hp + s.heal,
-              mana: player.mana - s.costs,
-            },
-            boss: { hp: boss.hp - s.damage, damage: boss.damage },
-            shield,
-            poison,
-            recharge,
-            manaCnt: manaCnt + s.costs,
-            playerTurn: false,
-          });
-        } else {
-          // Effect spells - can only cast if not already active
-          if (s.name === "shield" && shield === 0) {
+    if (playerTurn) {
+      spells.forEach((s) => {
+        if (playerMana < s.costs) return;
+
+        if (s.turns) {
+          if (shield === 0 && s.name === "shield") {
             q.push({
-              player: { ...player, mana: player.mana - s.costs },
-              boss: { ...boss },
+              playerHp,
+              playerMana: playerMana - s.costs,
+              bossHp,
               shield: s.turns,
               poison,
               recharge,
               manaCnt: manaCnt + s.costs,
               playerTurn: false,
             });
-          } else if (s.name === "poison" && poison === 0) {
+          } else if (poison === 0 && s.name === "poison") {
             q.push({
-              player: { ...player, mana: player.mana - s.costs },
-              boss: { ...boss },
+              playerHp,
+              playerMana: playerMana - s.costs,
+              bossHp,
               shield,
               poison: s.turns,
               recharge,
               manaCnt: manaCnt + s.costs,
               playerTurn: false,
             });
-          } else if (s.name === "recharge" && recharge === 0) {
+          } else if (recharge === 0 && s.name === "recharge") {
             q.push({
-              player: { ...player, mana: player.mana - s.costs },
-              boss: { ...boss },
+              playerHp,
+              playerMana: playerMana - s.costs,
+              bossHp,
               shield,
               poison,
               recharge: s.turns,
@@ -240,25 +232,32 @@ function part2(inp) {
               playerTurn: false,
             });
           }
+        } else {
+          q.push({
+            playerHp: playerHp + s.heal,
+            playerMana: playerMana - s.costs,
+            bossHp: bossHp - s.damage,
+            shield,
+            poison,
+            recharge,
+            manaCnt: manaCnt + s.costs,
+            playerTurn: false,
+          });
         }
       });
     } else {
-      // Boss turn - attack
-      const armor = shield > 0 ? 7 : 0;
-      const damage = Math.max(boss.damage - armor, 1);
+      const damage = Math.max(bossDamage - (shield > 0 ? 7 : 0), 1);
 
-      if (player.hp > damage) {
-        // Only continue if player survives
-        q.push({
-          player: { hp: player.hp - damage, mana: player.mana },
-          boss: { ...boss },
-          shield,
-          poison,
-          recharge,
-          manaCnt,
-          playerTurn: true,
-        });
-      }
+      q.push({
+        playerHp: playerHp - damage,
+        playerMana,
+        bossHp,
+        shield,
+        poison,
+        recharge,
+        manaCnt,
+        playerTurn: true,
+      });
     }
   }
 
