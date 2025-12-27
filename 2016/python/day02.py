@@ -1,4 +1,4 @@
-input = open("../inputs/2016/day02.txt", "r").read()
+from aoc import run_day
 
 
 def clamp(n, min, max):
@@ -29,18 +29,17 @@ def part1(inp):
         (2, 2): "9",
     }
 
-    current = [1, 1]
+    current = (1, 1)
     result = ""
 
     for l in inp.split("\n"):
         for dir in list(l):
-            current[0] += directions[dir][0]
-            current[1] += directions[dir][1]
+            current = (
+                clamp(current[0] + directions[dir][0], 0, 2),
+                clamp(current[1] + directions[dir][1], 0, 2),
+            )
 
-            current[0] = clamp(current[0], 0, 2)
-            current[1] = clamp(current[1], 0, 2)
-
-        result += keys[(current[0], current[1])]
+        result += keys[current]
 
     return result
 
@@ -73,23 +72,27 @@ def part2(inp):
         (4, 2): "D",
     }
 
-    current = [2, 0]
+    current = (2, 0)
     result = ""
 
     for l in inp.split("\n"):
         for dir in list(l):
-            nextPos = list(current)
+            nextPos = (
+                current[0] + directions[dir][0],
+                current[1] + directions[dir][1],
+            )
 
-            nextPos[0] += directions[dir][0]
-            nextPos[1] += directions[dir][1]
-
-            if keys.get((nextPos[0], nextPos[1]), False):
+            if nextPos in keys:
                 current = nextPos
 
-        result += keys[(current[0], current[1])]
+        result += keys[current]
 
     return result
 
 
-print("part1", part1(input), ["35749"])
-print("part2", part2(input), ["9365C"])
+run_day(2016, 2).parts(
+    [
+        [1, part1],
+        [2, part2],
+    ]
+).end()

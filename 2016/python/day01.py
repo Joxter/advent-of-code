@@ -1,4 +1,4 @@
-input = open("../../inputs/2016/day01.txt", "r").read()
+from aoc import run_day
 
 
 def part1(inp):
@@ -11,7 +11,7 @@ def part1(inp):
         [0, -1],
     ]
     dir = 0
-    current = [0, 0]
+    current = (0, 0)
 
     for r in depths:
         if r[0] == "R":
@@ -19,8 +19,10 @@ def part1(inp):
         else:
             dir -= 1
 
-        current[0] += directions[dir % 4][0] * int(r[1:])
-        current[1] += directions[dir % 4][1] * int(r[1:])
+        current = (
+            current[0] + directions[dir % 4][0] * int(r[1:]),
+            current[1] + directions[dir % 4][1] * int(r[1:]),
+        )
 
     return abs(current[0]) + abs(current[1])
 
@@ -35,7 +37,7 @@ def part2(inp):
         [0, -1],
     ]
     dir = 0
-    current = [0, 0]
+    current = (0, 0)
     visited = {}
 
     for r in depths:
@@ -45,14 +47,20 @@ def part2(inp):
             dir -= 1
 
         for i in range(int(r[1:])):
-            current[0] += directions[dir % 4][0]
-            current[1] += directions[dir % 4][1]
+            current = (
+                current[0] + directions[dir % 4][0],
+                current[1] + directions[dir % 4][1],
+            )
 
-            if visited.get((current[0], current[1]), False):
+            if current in visited:
                 return abs(current[0]) + abs(current[1])
             else:
-                visited[(current[0], current[1])] = True
+                visited[current] = True
 
 
-print("part1", part1(input), [271])
-print("part2", part2(input), [153])
+run_day(2016, 1).parts(
+    [
+        [1, part1],
+        [2, part2],
+    ]
+).end()
