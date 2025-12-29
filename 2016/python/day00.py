@@ -1,11 +1,11 @@
 from aoc import run_day
 
 
-def part1(inp):
+def part1(inp: str):
     return 123
 
 
-def part2(inp):
+def part2(inp: str):
     return 123
 
 
