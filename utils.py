@@ -51,19 +51,13 @@ def run_day(year, day, iters=1):
             min_time = float('inf')
             total_start = time.time()
 
-            try:
-                for _ in range(iters):
-                    start = time.time()
-                    res = str(fn(input_data))
-                    elapsed = time.time() - start
-                    min_time = min(min_time, elapsed)
+            for _ in range(iters):
+                start = time.time()
+                res = str(fn(input_data))
+                elapsed = time.time() - start
+                min_time = min(min_time, elapsed)
 
-                total_time = time.time() - total_start
-            except Exception as err:
-                print(err)
-                res = "ERROR"
-                min_time = 0
-                total_time = 0
+            total_time = time.time() - total_start
 
             time_str = _format_time(min_time)
             total_time_str = f" [{_format_time(total_time)}]" if iters > 1 else ""

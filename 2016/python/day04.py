@@ -1,11 +1,10 @@
 import re
-from ast import Return
 
 from aoc import run_day
 
 
 def calc_hash(str):
-    chars = list(set(list(str)) - {"-"})
+    chars = list(set(str) - {"-"})
 
     chars.sort(key=lambda x: str.count(x) * 1000 - ord(x), reverse=True)
 
@@ -16,11 +15,11 @@ def part1(inp):
     result = 0
 
     for line in inp.split("\n"):
-        name = re.match(r"([-a-z]+)", line).group()
+        name = re.search(r"[-a-z]+", line).group()
         hash = line[-6:-1]
 
         if calc_hash(name) == hash:
-            s = re.search(r"[0123456789]+", line).group()
+            s = re.search(r"\d+", line).group()
             result += int(s)
 
     return result
@@ -30,11 +29,11 @@ def part2(inp):
     result = 0
 
     for line in inp.split("\n"):
-        name = re.match(r"([-a-z]+)", line).group()
-        s = int(re.search(r"[0123456789]+", line).group())
+        name = re.search(r"[-a-z]+", line).group()
+        s = int(re.search(r"\d+", line).group())
 
         secret_name = ""
-        for ch in list(name):
+        for ch in name:
             if ch == "-":
                 secret_name += " "
             else:

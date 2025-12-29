@@ -9,13 +9,13 @@ def part1(inp):
 
     for n_ in range(8):
         while (
-            not hashlib.md5((inp + str(n)).encode("utf-8"))
+            not hashlib.md5((f"{inp}{n}").encode("utf-8"))
             .hexdigest()
             .startswith("00000")
         ):
             n += 1
 
-        result += hashlib.md5((inp + str(n)).encode("utf-8")).hexdigest()[5]
+        result += hashlib.md5((f"{inp}{n}").encode("utf-8")).hexdigest()[5]
         n += 1
 
     return result
@@ -23,31 +23,22 @@ def part1(inp):
 
 def part2(inp):
     n = 0
-    result = [
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-    ]
+    result = [None] * 8
 
-    while result.count(None) > 0:
+    while None in result:
         while (
-            not hashlib.md5((inp + str(n)).encode("utf-8"))
+            not hashlib.md5((f"{inp}{n}").encode("utf-8"))
             .hexdigest()
             .startswith("00000")
         ):
             n += 1
 
-        h = hashlib.md5((inp + str(n)).encode("utf-8")).hexdigest()
+        h = hashlib.md5((f"{inp}{n}").encode("utf-8")).hexdigest()
 
         position = h[5]
         char = h[6]
 
-        if "01234567".find(position) > -1 and result[int(position)] is None:
+        if position in "01234567" and result[int(position)] is None:
             result[int(position)] = char
 
         n += 1
