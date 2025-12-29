@@ -17,55 +17,36 @@ def has_abba(line):
     return False
 
 
-def has_aba(line):
-    if len(line) < 3:
-        return False
-
-    for i in range(len(line) - 2):
-        if line[i] == line[i + 2] and line[i] != line[i + 1]:
-            return True
-
-    return False
-
-
-# print(has_abba("ioxxoj"))
-# print(has_abba("oxxo"))
-# print(has_abba("ljox3xo"))
-# print(has_abba("xo"))
-
-
 def part1(inp):
     cnt = 0
 
+    reg = re.compile("\[(.+?)\]")
+
     for line in inp.split("\n"):
-        grs = re.findall(r"\[(.+?)\]", line)
+        grs = reg.findall(line)
         has = 0
         for gr in grs:
             if has_abba(gr):
                 has += 1
 
         if not has:
-            no_grs = re.sub(r"\[(.+?)\]", " ", line)
+            no_grs = reg.sub(" ", line)
             if has_abba(no_grs):
                 cnt += 1
 
     return cnt
 
 
-def part2(inp):
+def part2(inp: str):
     cnt = 0
 
     for line in inp.split("\n"):
-        grs = re.findall(r"\[(.+?)\]", line)
-        has = 0
-        for gr in grs:
-            if has_abba(gr):
-                has += 1
+        parts = line.replace("[", "]").split("]")
+        a = "--".join(parts[0::2])
+        b = "--".join(parts[1::2])
 
-        if not has:
-            no_grs = re.sub(r"\[(.+?)\]", " ", line)
-            if has_abba(no_grs):
-                cnt += 1
+        if re.match(r".*(.)(?!\1)(.)\1.*  .*\2\1\2.*", a + "  " + b):
+            cnt += 1
 
     return cnt
 
