@@ -2,8 +2,6 @@ from aoc import run_day, ints
 
 
 def part1(inp: str):
-    print(inp.split("\n"))
-
     state = "out"
     cnt = 0
     i = 0
@@ -17,14 +15,15 @@ def part1(inp: str):
             state = "out"
 
             [s, times] = ints(acc)
-            cnt += s * times - len(acc)
+            cnt += s * times
 
             i += s
             acc = ""
         else:
             if state == "in":
                 acc += ch
-            cnt += 1
+            else:
+                cnt += 1
 
         i += 1
 
@@ -45,8 +44,7 @@ def part2(inp: str):
             state = "out"
 
             [s, times] = ints(acc)
-            aaa = part2(inp[i + 1 : i + 1 + s]) * times
-            cnt += aaa
+            cnt += part2(inp[i + 1 : i + 1 + s]) * times
 
             i += s
             acc = ""
