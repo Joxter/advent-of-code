@@ -72,21 +72,21 @@ def part1(inp: str):
     # chip = [1, 1, 3, 2, 2]
     el = 1
 
-    # floors = [
-    #     0,
-    #     0b11000_11000,  # 1
-    #     0b00111_00011,  # 2
-    #     0b00000_00100,  # 3
-    #     0b00000_00000,  # 4
-    # ]
-
     floors = [
         0,
-        0b00000_00011,  # 1
-        0b00010_00000,  # 2
-        0b00001_00000,  # 3
+        0b11000_11000,  # 1
+        0b00111_00011,  # 2
+        0b00000_00100,  # 3
         0b00000_00000,  # 4
     ]
+
+    # floors = [
+    #     0,
+    #     0b00000_00011,  # 1
+    #     0b00010_00000,  # 2
+    #     0b00001_00000,  # 3
+    #     0b00000_00000,  # 4
+    # ]
 
     # limit = 100_000_000
     limit = 10000000_000_000
@@ -104,23 +104,18 @@ def part1(inp: str):
             print_floors(floors)
             print((join(",", floors), el, steps))
 
-        # if floors[4] == 0b11111_11111:
-        #     return steps
-        if floors[4] == 0b00011_00011:
+        if floors[4] == 0b11111_11111:
             return steps
+        # if floors[4] == 0b00011_00011:
+        #     return steps
 
         if not is_valid(floors):
             continue
 
-        if (join(",", floors), el, steps) in visited:
+        if (join(",", floors), el) in visited:
             continue
 
-        visited.add((join(",", floors), el, steps))
-
-        # if el < 4:
-        #     q.append((floors, el + 1, steps + 1))
-        # if el > 1:
-        #     q.append((floors, el - 1, steps + 1))
+        visited.add((join(",", floors), el))
 
         f = floors[el]
 
