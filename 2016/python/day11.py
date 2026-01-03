@@ -238,9 +238,33 @@ def part2(inp: str):
     return None
 
 
+def get_moves(items):
+    moves = 0
+    while items[-1] != sum(items):
+        lowest_floor = 0
+        while items[lowest_floor] == 0:
+            lowest_floor += 1
+        moves += 2 * (items[lowest_floor] - 1) - 1
+        items[lowest_floor + 1] += items[lowest_floor]
+        items[lowest_floor] = 0
+    return moves
+
+
+def part1_reddit(inp: str):
+    return get_moves([line.count(",") + 1 for line in inp.split("\n")])
+
+
+def part2_reddit(inp: str):
+    items = [line.count(",") + 1 for line in inp.split("\n")]
+    items[0] += 4
+    return get_moves(items)
+
+
 run_day(2016, 11).parts(
     [
-        # [1, part1],
-        [2, part2],
+        # [1, part1], # 5 sec
+        # [2, part2], # 2:40 min
+        [1, part1_reddit],  # instant
+        [2, part2_reddit],  # instant
     ]
-).end(1)
+).end()
