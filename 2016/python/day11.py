@@ -3,20 +3,18 @@ from aoc import run_day, join
 
 def get_ones5(n: int):
     arr = []
-    for i, ch in enumerate("{0:10b}".format(n)):
-        if ch == "1":
-            arr.append(9 - i)
+    i = 0
+    while n:
+        if n & 1:
+            arr.append(i)
+        n = n >> 1
+        i += 1
 
     return arr
 
 
 def get_ones7(n: int):
-    arr = []
-    for i, ch in enumerate("{0:14b}".format(n)):
-        if ch == "1":
-            arr.append(13 - i)
-
-    return arr
+    return get_ones5(n)
 
 
 def get_chip5(n: int):
@@ -36,8 +34,8 @@ def get_gen7(n: int):
 
 
 def print_floors(floors: list[int]):
-    for floor in floors:
-        print(f"{floor:14b}")
+    for floor in floors[1:]:
+        print(f"{floor:014b}")
 
 
 def rev_5(n: int):
@@ -68,7 +66,7 @@ def _is_valid5(floor: int):
     chip = get_chip5(floor)
     gen = get_gen5(floor)
 
-    for i in range(0, 7):
+    for i in range(0, 5):
         has_chip = (1 << i) & chip
         has_gen = (1 << i) & gen
         has_wrong_gen = rev_5(1 << i) & gen
@@ -156,10 +154,11 @@ def part1(inp: str):
         if not is_valid5(floors):
             continue
 
-        if (join(",", floors), el) in visited:
+        kk = f"{floors[1]},{floors[2]},{floors[3]},{floors[4]}"
+        if (kk, el) in visited:
             continue
 
-        visited.add((join(",", floors), el))
+        visited.add((kk, el))
 
         f = floors[el]
 
