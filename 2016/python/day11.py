@@ -17,33 +17,9 @@ def get_ones7(n: int):
     return get_ones5(n)
 
 
-def get_chip5(n: int):
-    return n & 0b00000_11111
-
-
-def get_chip7(n: int):
-    return n & 0b0000000_1111111
-
-
-def get_gen5(n: int):
-    return (n >> 5) & 0b00000_11111
-
-
-def get_gen7(n: int):
-    return (n >> 7) & 0b0000000_1111111
-
-
 def print_floors(floors: list[int]):
     for floor in floors[1:]:
         print(f"{floor:014b}")
-
-
-def rev_5(n: int):
-    return ~n & 0b11111
-
-
-def rev_7(n: int):
-    return ~n & 0b1111111
 
 
 def is_valid5(floors: list[int]):
@@ -63,33 +39,17 @@ def is_valid7(floors: list[int]):
 
 
 def _is_valid5(floor: int):
-    chip = get_chip5(floor)
-    gen = get_gen5(floor)
+    chip = floor & 0b11111
+    gen = (floor >> 5) & 0b11111
 
-    for i in range(0, 5):
-        has_chip = (1 << i) & chip
-        has_gen = (1 << i) & gen
-        has_wrong_gen = rev_5(1 << i) & gen
-
-        if (has_chip and not has_gen) and has_wrong_gen:
-            return False
-
-    return True
+    return gen == 0 or chip & ~gen == 0
 
 
 def _is_valid7(floor: int):
-    chip = get_chip7(floor)
-    gen = get_gen7(floor)
+    chip = floor & 0b1111111
+    gen = (floor >> 7) & 0b1111111
 
-    for i in range(0, 7):
-        has_chip = (1 << i) & chip
-        has_gen = (1 << i) & gen
-        has_wrong_gen = rev_7(1 << i) & gen
-
-        if (has_chip and not has_gen) and has_wrong_gen:
-            return False
-
-    return True
+    return gen == 0 or chip & ~gen == 0
 
 
 def part1(inp: str):
@@ -262,8 +222,8 @@ def part2_reddit(inp: str):
 
 run_day(2016, 11).parts(
     [
-        # [1, part1], # 5 sec
-        # [2, part2], # 2:40 min
+        # [1, part1],  # 5 sec     -> 3.7 sec
+        # [2, part2],  # 2:40 min  -> 2:30 sec
         [1, part1_reddit],  # instant
         [2, part2_reddit],  # instant
     ]
