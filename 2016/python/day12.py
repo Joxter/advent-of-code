@@ -10,13 +10,13 @@ def solve(inp: str, c):
     }
 
     i = 0
-    ins = inp.split("\n")
+    ins = [line.split(" ") for line in inp.split("\n")]
 
     while i < len(ins):
         line = ins[i]
 
-        if line.startswith("jnz"):
-            [_, x, y] = line.split(" ")
+        if line[0] == "jnz":
+            [_, x, y] = line
 
             if x in registers:
                 val = registers[x]
@@ -28,8 +28,8 @@ def solve(inp: str, c):
             else:
                 i += 1
 
-        if line.startswith("cpy"):
-            [_, x, y] = line.split(" ")
+        elif line[0] == "cpy":
+            [_, x, y] = line
 
             if x in registers:
                 registers[y] = registers[x]
@@ -38,13 +38,13 @@ def solve(inp: str, c):
 
             i += 1
 
-        if line.startswith("inc"):
-            [_, x] = line.split(" ")
+        elif line[0] == "inc":
+            [_, x] = line
             registers[x] += 1
             i += 1
 
-        if line.startswith("dec"):
-            [_, x] = line.split(" ")
+        elif line[0] == "dec":
+            [_, x] = line
             registers[x] -= 1
             i += 1
 
