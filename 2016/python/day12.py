@@ -1,11 +1,11 @@
 from aoc import run_day
 
 
-def part1(inp: str):
+def solve(inp: str, c):
     registers = {
         "a": 0,
         "b": 0,
-        "c": 0,
+        "c": c,
         "d": 0,
     }
 
@@ -51,13 +51,17 @@ def part1(inp: str):
     return registers["a"]
 
 
+def part1(inp: str):
+    return solve(inp, 0)
+
+
 def part2(inp: str):
-    return 123
+    return solve(inp, 1)
 
 
 run_day(2016, 12).parts(
     [
-        [1, part1],  # 3311 low
-        # [2, part2],
+        [1, part1],
+        [2, part2],
     ]
 ).end()
